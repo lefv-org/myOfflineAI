@@ -209,11 +209,6 @@ from open_webui.config import (
     RAG_FILE_MAX_SIZE,
     FILE_IMAGE_COMPRESSION_WIDTH,
     FILE_IMAGE_COMPRESSION_HEIGHT,
-    RAG_OPENAI_API_BASE_URL,
-    RAG_OPENAI_API_KEY,
-    RAG_AZURE_OPENAI_BASE_URL,
-    RAG_AZURE_OPENAI_API_KEY,
-    RAG_AZURE_OPENAI_API_VERSION,
     RAG_OLLAMA_BASE_URL,
     RAG_OLLAMA_API_KEY,
     CHUNK_OVERLAP,
@@ -840,13 +835,6 @@ app.state.config.RAG_EXTERNAL_RERANKER_TIMEOUT = RAG_EXTERNAL_RERANKER_TIMEOUT
 
 app.state.config.RAG_TEMPLATE = RAG_TEMPLATE
 
-app.state.config.RAG_OPENAI_API_BASE_URL = RAG_OPENAI_API_BASE_URL
-app.state.config.RAG_OPENAI_API_KEY = RAG_OPENAI_API_KEY
-
-app.state.config.RAG_AZURE_OPENAI_BASE_URL = RAG_AZURE_OPENAI_BASE_URL
-app.state.config.RAG_AZURE_OPENAI_API_KEY = RAG_AZURE_OPENAI_API_KEY
-app.state.config.RAG_AZURE_OPENAI_API_VERSION = RAG_AZURE_OPENAI_API_VERSION
-
 app.state.config.RAG_OLLAMA_BASE_URL = RAG_OLLAMA_BASE_URL
 app.state.config.RAG_OLLAMA_API_KEY = RAG_OLLAMA_API_KEY
 
@@ -888,30 +876,9 @@ app.state.EMBEDDING_FUNCTION = get_embedding_function(
     app.state.config.RAG_EMBEDDING_ENGINE,
     app.state.config.RAG_EMBEDDING_MODEL,
     embedding_function=app.state.ef,
-    url=(
-        app.state.config.RAG_OPENAI_API_BASE_URL
-        if app.state.config.RAG_EMBEDDING_ENGINE == 'openai'
-        else (
-            app.state.config.RAG_OLLAMA_BASE_URL
-            if app.state.config.RAG_EMBEDDING_ENGINE == 'ollama'
-            else app.state.config.RAG_AZURE_OPENAI_BASE_URL
-        )
-    ),
-    key=(
-        app.state.config.RAG_OPENAI_API_KEY
-        if app.state.config.RAG_EMBEDDING_ENGINE == 'openai'
-        else (
-            app.state.config.RAG_OLLAMA_API_KEY
-            if app.state.config.RAG_EMBEDDING_ENGINE == 'ollama'
-            else app.state.config.RAG_AZURE_OPENAI_API_KEY
-        )
-    ),
+    url=app.state.config.RAG_OLLAMA_BASE_URL if app.state.config.RAG_EMBEDDING_ENGINE == 'ollama' else '',
+    key=app.state.config.RAG_OLLAMA_API_KEY if app.state.config.RAG_EMBEDDING_ENGINE == 'ollama' else '',
     embedding_batch_size=app.state.config.RAG_EMBEDDING_BATCH_SIZE,
-    azure_api_version=(
-        app.state.config.RAG_AZURE_OPENAI_API_VERSION
-        if app.state.config.RAG_EMBEDDING_ENGINE == 'azure_openai'
-        else None
-    ),
     enable_async=app.state.config.ENABLE_ASYNC_EMBEDDING,
     concurrent_requests=app.state.config.RAG_EMBEDDING_CONCURRENT_REQUESTS,
 )

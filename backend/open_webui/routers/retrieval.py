@@ -244,25 +244,11 @@ async def get_embedding_config(request: Request, user=Depends(get_admin_user)):
         'RAG_EMBEDDING_BATCH_SIZE': request.app.state.config.RAG_EMBEDDING_BATCH_SIZE,
         'ENABLE_ASYNC_EMBEDDING': request.app.state.config.ENABLE_ASYNC_EMBEDDING,
         'RAG_EMBEDDING_CONCURRENT_REQUESTS': request.app.state.config.RAG_EMBEDDING_CONCURRENT_REQUESTS,
-        'openai_config': {
-            'url': request.app.state.config.RAG_OPENAI_API_BASE_URL,
-            'key': request.app.state.config.RAG_OPENAI_API_KEY,
-        },
         'ollama_config': {
             'url': request.app.state.config.RAG_OLLAMA_BASE_URL,
             'key': request.app.state.config.RAG_OLLAMA_API_KEY,
         },
-        'azure_openai_config': {
-            'url': request.app.state.config.RAG_AZURE_OPENAI_BASE_URL,
-            'key': request.app.state.config.RAG_AZURE_OPENAI_API_KEY,
-            'version': request.app.state.config.RAG_AZURE_OPENAI_API_VERSION,
-        },
     }
-
-
-class OpenAIConfigForm(BaseModel):
-    url: str
-    key: str
 
 
 class OllamaConfigForm(BaseModel):
@@ -270,16 +256,8 @@ class OllamaConfigForm(BaseModel):
     key: str
 
 
-class AzureOpenAIConfigForm(BaseModel):
-    url: str
-    key: str
-    version: str
-
-
 class EmbeddingModelUpdateForm(BaseModel):
-    openai_config: Optional[OpenAIConfigForm] = None
     ollama_config: Optional[OllamaConfigForm] = None
-    azure_openai_config: Optional[AzureOpenAIConfigForm] = None
     RAG_EMBEDDING_ENGINE: str
     RAG_EMBEDDING_MODEL: str
     RAG_EMBEDDING_BATCH_SIZE: Optional[int] = 1
@@ -315,23 +293,10 @@ async def update_embedding_config(request: Request, form_data: EmbeddingModelUpd
         request.app.state.config.ENABLE_ASYNC_EMBEDDING = form_data.ENABLE_ASYNC_EMBEDDING
         request.app.state.config.RAG_EMBEDDING_CONCURRENT_REQUESTS = form_data.RAG_EMBEDDING_CONCURRENT_REQUESTS
 
-        if request.app.state.config.RAG_EMBEDDING_ENGINE in [
-            'ollama',
-            'openai',
-            'azure_openai',
-        ]:
-            if form_data.openai_config is not None:
-                request.app.state.config.RAG_OPENAI_API_BASE_URL = form_data.openai_config.url
-                request.app.state.config.RAG_OPENAI_API_KEY = form_data.openai_config.key
-
+        if request.app.state.config.RAG_EMBEDDING_ENGINE == 'ollama':
             if form_data.ollama_config is not None:
                 request.app.state.config.RAG_OLLAMA_BASE_URL = form_data.ollama_config.url
                 request.app.state.config.RAG_OLLAMA_API_KEY = form_data.ollama_config.key
-
-            if form_data.azure_openai_config is not None:
-                request.app.state.config.RAG_AZURE_OPENAI_BASE_URL = form_data.azure_openai_config.url
-                request.app.state.config.RAG_AZURE_OPENAI_API_KEY = form_data.azure_openai_config.key
-                request.app.state.config.RAG_AZURE_OPENAI_API_VERSION = form_data.azure_openai_config.version
 
         request.app.state.ef = get_ef(
             request.app.state.config.RAG_EMBEDDING_ENGINE,
@@ -342,30 +307,9 @@ async def update_embedding_config(request: Request, form_data: EmbeddingModelUpd
             request.app.state.config.RAG_EMBEDDING_ENGINE,
             request.app.state.config.RAG_EMBEDDING_MODEL,
             request.app.state.ef,
-            (
-                request.app.state.config.RAG_OPENAI_API_BASE_URL
-                if request.app.state.config.RAG_EMBEDDING_ENGINE == 'openai'
-                else (
-                    request.app.state.config.RAG_OLLAMA_BASE_URL
-                    if request.app.state.config.RAG_EMBEDDING_ENGINE == 'ollama'
-                    else request.app.state.config.RAG_AZURE_OPENAI_BASE_URL
-                )
-            ),
-            (
-                request.app.state.config.RAG_OPENAI_API_KEY
-                if request.app.state.config.RAG_EMBEDDING_ENGINE == 'openai'
-                else (
-                    request.app.state.config.RAG_OLLAMA_API_KEY
-                    if request.app.state.config.RAG_EMBEDDING_ENGINE == 'ollama'
-                    else request.app.state.config.RAG_AZURE_OPENAI_API_KEY
-                )
-            ),
+            request.app.state.config.RAG_OLLAMA_BASE_URL if request.app.state.config.RAG_EMBEDDING_ENGINE == 'ollama' else '',
+            request.app.state.config.RAG_OLLAMA_API_KEY if request.app.state.config.RAG_EMBEDDING_ENGINE == 'ollama' else '',
             request.app.state.config.RAG_EMBEDDING_BATCH_SIZE,
-            azure_api_version=(
-                request.app.state.config.RAG_AZURE_OPENAI_API_VERSION
-                if request.app.state.config.RAG_EMBEDDING_ENGINE == 'azure_openai'
-                else None
-            ),
             enable_async=request.app.state.config.ENABLE_ASYNC_EMBEDDING,
             concurrent_requests=request.app.state.config.RAG_EMBEDDING_CONCURRENT_REQUESTS,
         )
@@ -377,18 +321,9 @@ async def update_embedding_config(request: Request, form_data: EmbeddingModelUpd
             'RAG_EMBEDDING_BATCH_SIZE': request.app.state.config.RAG_EMBEDDING_BATCH_SIZE,
             'ENABLE_ASYNC_EMBEDDING': request.app.state.config.ENABLE_ASYNC_EMBEDDING,
             'RAG_EMBEDDING_CONCURRENT_REQUESTS': request.app.state.config.RAG_EMBEDDING_CONCURRENT_REQUESTS,
-            'openai_config': {
-                'url': request.app.state.config.RAG_OPENAI_API_BASE_URL,
-                'key': request.app.state.config.RAG_OPENAI_API_KEY,
-            },
             'ollama_config': {
                 'url': request.app.state.config.RAG_OLLAMA_BASE_URL,
                 'key': request.app.state.config.RAG_OLLAMA_API_KEY,
-            },
-            'azure_openai_config': {
-                'url': request.app.state.config.RAG_AZURE_OPENAI_BASE_URL,
-                'key': request.app.state.config.RAG_AZURE_OPENAI_API_KEY,
-                'version': request.app.state.config.RAG_AZURE_OPENAI_API_VERSION,
             },
         }
     except Exception as e:
@@ -1146,30 +1081,9 @@ def save_docs_to_vector_db(
             request.app.state.config.RAG_EMBEDDING_ENGINE,
             request.app.state.config.RAG_EMBEDDING_MODEL,
             request.app.state.ef,
-            (
-                request.app.state.config.RAG_OPENAI_API_BASE_URL
-                if request.app.state.config.RAG_EMBEDDING_ENGINE == 'openai'
-                else (
-                    request.app.state.config.RAG_OLLAMA_BASE_URL
-                    if request.app.state.config.RAG_EMBEDDING_ENGINE == 'ollama'
-                    else request.app.state.config.RAG_AZURE_OPENAI_BASE_URL
-                )
-            ),
-            (
-                request.app.state.config.RAG_OPENAI_API_KEY
-                if request.app.state.config.RAG_EMBEDDING_ENGINE == 'openai'
-                else (
-                    request.app.state.config.RAG_OLLAMA_API_KEY
-                    if request.app.state.config.RAG_EMBEDDING_ENGINE == 'ollama'
-                    else request.app.state.config.RAG_AZURE_OPENAI_API_KEY
-                )
-            ),
+            request.app.state.config.RAG_OLLAMA_BASE_URL if request.app.state.config.RAG_EMBEDDING_ENGINE == 'ollama' else '',
+            request.app.state.config.RAG_OLLAMA_API_KEY if request.app.state.config.RAG_EMBEDDING_ENGINE == 'ollama' else '',
             request.app.state.config.RAG_EMBEDDING_BATCH_SIZE,
-            azure_api_version=(
-                request.app.state.config.RAG_AZURE_OPENAI_API_VERSION
-                if request.app.state.config.RAG_EMBEDDING_ENGINE == 'azure_openai'
-                else None
-            ),
             enable_async=request.app.state.config.ENABLE_ASYNC_EMBEDDING,
             concurrent_requests=request.app.state.config.RAG_EMBEDDING_CONCURRENT_REQUESTS,
         )

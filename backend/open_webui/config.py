@@ -2284,9 +2284,7 @@ RAG_EMBEDDING_MODEL = PersistentConfig(
 )
 log.info(f'Embedding model set: {RAG_EMBEDDING_MODEL.value}')
 
-RAG_EMBEDDING_MODEL_AUTO_UPDATE = (
-    not OFFLINE_MODE and os.environ.get('RAG_EMBEDDING_MODEL_AUTO_UPDATE', 'True').lower() == 'true'
-)
+RAG_EMBEDDING_MODEL_AUTO_UPDATE = False
 
 RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE = (
     os.environ.get('RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE', 'True').lower() == 'true'
@@ -2295,7 +2293,7 @@ RAG_EMBEDDING_MODEL_TRUST_REMOTE_CODE = (
 RAG_EMBEDDING_BATCH_SIZE = PersistentConfig(
     'RAG_EMBEDDING_BATCH_SIZE',
     'rag.embedding_batch_size',
-    int(os.environ.get('RAG_EMBEDDING_BATCH_SIZE') or os.environ.get('RAG_EMBEDDING_OPENAI_BATCH_SIZE', '1')),
+    int(os.environ.get('RAG_EMBEDDING_BATCH_SIZE', '1')),
 )
 
 ENABLE_ASYNC_EMBEDDING = PersistentConfig(
@@ -2423,33 +2421,6 @@ RAG_TEMPLATE = PersistentConfig(
     'RAG_TEMPLATE',
     'rag.template',
     os.environ.get('RAG_TEMPLATE', DEFAULT_RAG_TEMPLATE),
-)
-
-RAG_OPENAI_API_BASE_URL = PersistentConfig(
-    'RAG_OPENAI_API_BASE_URL',
-    'rag.openai_api_base_url',
-    os.getenv('RAG_OPENAI_API_BASE_URL', OPENAI_API_BASE_URL),
-)
-RAG_OPENAI_API_KEY = PersistentConfig(
-    'RAG_OPENAI_API_KEY',
-    'rag.openai_api_key',
-    os.getenv('RAG_OPENAI_API_KEY', OPENAI_API_KEY),
-)
-
-RAG_AZURE_OPENAI_BASE_URL = PersistentConfig(
-    'RAG_AZURE_OPENAI_BASE_URL',
-    'rag.azure_openai.base_url',
-    os.getenv('RAG_AZURE_OPENAI_BASE_URL', ''),
-)
-RAG_AZURE_OPENAI_API_KEY = PersistentConfig(
-    'RAG_AZURE_OPENAI_API_KEY',
-    'rag.azure_openai.api_key',
-    os.getenv('RAG_AZURE_OPENAI_API_KEY', ''),
-)
-RAG_AZURE_OPENAI_API_VERSION = PersistentConfig(
-    'RAG_AZURE_OPENAI_API_VERSION',
-    'rag.azure_openai.api_version',
-    os.getenv('RAG_AZURE_OPENAI_API_VERSION', ''),
 )
 
 RAG_OLLAMA_BASE_URL = PersistentConfig(
@@ -2762,7 +2733,7 @@ WHISPER_MODEL = PersistentConfig(
 
 WHISPER_COMPUTE_TYPE = os.getenv('WHISPER_COMPUTE_TYPE', 'int8')
 WHISPER_MODEL_DIR = os.getenv('WHISPER_MODEL_DIR', f'{CACHE_DIR}/whisper/models')
-WHISPER_MODEL_AUTO_UPDATE = not OFFLINE_MODE and os.environ.get('WHISPER_MODEL_AUTO_UPDATE', '').lower() == 'true'
+WHISPER_MODEL_AUTO_UPDATE = False
 
 WHISPER_VAD_FILTER = os.getenv('WHISPER_VAD_FILTER', 'False').lower() == 'true'
 
