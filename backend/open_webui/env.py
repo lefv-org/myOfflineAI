@@ -129,7 +129,7 @@ WEBUI_NAME = os.environ.get('WEBUI_NAME', 'Open WebUI')
 if WEBUI_NAME != 'Open WebUI':
     WEBUI_NAME += ' (Open WebUI)'
 
-WEBUI_FAVICON_URL = 'https://openwebui.com/favicon.png'
+WEBUI_FAVICON_URL = '/static/favicon.png'
 
 TRUSTED_SIGNATURE_KEY = os.environ.get('TRUSTED_SIGNATURE_KEY', '')
 
@@ -817,12 +817,11 @@ SENTENCE_TRANSFORMERS_CROSS_ENCODER_SIGMOID_ACTIVATION_FUNCTION = (
 # OFFLINE_MODE
 ####################################
 
-ENABLE_VERSION_UPDATE_CHECK = os.environ.get('ENABLE_VERSION_UPDATE_CHECK', 'true').lower() == 'true'
+ENABLE_VERSION_UPDATE_CHECK = False
 OFFLINE_MODE = os.environ.get('OFFLINE_MODE', 'false').lower() == 'true'
 
 if OFFLINE_MODE:
     os.environ['HF_HUB_OFFLINE'] = '1'
-    ENABLE_VERSION_UPDATE_CHECK = False
 
 ####################################
 # AUDIT LOGGING
@@ -862,47 +861,6 @@ AUDIT_INCLUDED_PATHS = os.getenv('AUDIT_INCLUDED_PATHS', '').split(',')
 AUDIT_INCLUDED_PATHS = [path.strip() for path in AUDIT_INCLUDED_PATHS]
 AUDIT_INCLUDED_PATHS = [path.lstrip('/') for path in AUDIT_INCLUDED_PATHS if path]
 
-
-####################################
-# OPENTELEMETRY
-####################################
-
-ENABLE_OTEL = os.environ.get('ENABLE_OTEL', 'False').lower() == 'true'
-ENABLE_OTEL_TRACES = os.environ.get('ENABLE_OTEL_TRACES', 'False').lower() == 'true'
-ENABLE_OTEL_METRICS = os.environ.get('ENABLE_OTEL_METRICS', 'False').lower() == 'true'
-ENABLE_OTEL_LOGS = os.environ.get('ENABLE_OTEL_LOGS', 'False').lower() == 'true'
-
-OTEL_EXPORTER_OTLP_ENDPOINT = os.environ.get('OTEL_EXPORTER_OTLP_ENDPOINT', 'http://localhost:4317')
-OTEL_METRICS_EXPORTER_OTLP_ENDPOINT = os.environ.get('OTEL_METRICS_EXPORTER_OTLP_ENDPOINT', OTEL_EXPORTER_OTLP_ENDPOINT)
-OTEL_LOGS_EXPORTER_OTLP_ENDPOINT = os.environ.get('OTEL_LOGS_EXPORTER_OTLP_ENDPOINT', OTEL_EXPORTER_OTLP_ENDPOINT)
-OTEL_EXPORTER_OTLP_INSECURE = os.environ.get('OTEL_EXPORTER_OTLP_INSECURE', 'False').lower() == 'true'
-OTEL_METRICS_EXPORTER_OTLP_INSECURE = (
-    os.environ.get('OTEL_METRICS_EXPORTER_OTLP_INSECURE', str(OTEL_EXPORTER_OTLP_INSECURE)).lower() == 'true'
-)
-OTEL_LOGS_EXPORTER_OTLP_INSECURE = (
-    os.environ.get('OTEL_LOGS_EXPORTER_OTLP_INSECURE', str(OTEL_EXPORTER_OTLP_INSECURE)).lower() == 'true'
-)
-OTEL_SERVICE_NAME = os.environ.get('OTEL_SERVICE_NAME', 'open-webui')
-OTEL_RESOURCE_ATTRIBUTES = os.environ.get('OTEL_RESOURCE_ATTRIBUTES', '')  # e.g. key1=val1,key2=val2
-OTEL_TRACES_SAMPLER = os.environ.get('OTEL_TRACES_SAMPLER', 'parentbased_always_on').lower()
-OTEL_BASIC_AUTH_USERNAME = os.environ.get('OTEL_BASIC_AUTH_USERNAME', '')
-OTEL_BASIC_AUTH_PASSWORD = os.environ.get('OTEL_BASIC_AUTH_PASSWORD', '')
-OTEL_METRICS_EXPORT_INTERVAL_MILLIS = int(os.environ.get('OTEL_METRICS_EXPORT_INTERVAL_MILLIS', '10000'))
-
-OTEL_METRICS_BASIC_AUTH_USERNAME = os.environ.get('OTEL_METRICS_BASIC_AUTH_USERNAME', OTEL_BASIC_AUTH_USERNAME)
-OTEL_METRICS_BASIC_AUTH_PASSWORD = os.environ.get('OTEL_METRICS_BASIC_AUTH_PASSWORD', OTEL_BASIC_AUTH_PASSWORD)
-OTEL_LOGS_BASIC_AUTH_USERNAME = os.environ.get('OTEL_LOGS_BASIC_AUTH_USERNAME', OTEL_BASIC_AUTH_USERNAME)
-OTEL_LOGS_BASIC_AUTH_PASSWORD = os.environ.get('OTEL_LOGS_BASIC_AUTH_PASSWORD', OTEL_BASIC_AUTH_PASSWORD)
-
-OTEL_OTLP_SPAN_EXPORTER = os.environ.get('OTEL_OTLP_SPAN_EXPORTER', 'grpc').lower()  # grpc or http
-
-OTEL_METRICS_OTLP_SPAN_EXPORTER = os.environ.get(
-    'OTEL_METRICS_OTLP_SPAN_EXPORTER', OTEL_OTLP_SPAN_EXPORTER
-).lower()  # grpc or http
-
-OTEL_LOGS_OTLP_SPAN_EXPORTER = os.environ.get(
-    'OTEL_LOGS_OTLP_SPAN_EXPORTER', OTEL_OTLP_SPAN_EXPORTER
-).lower()  # grpc or http
 
 ####################################
 # TOOLS/FUNCTIONS PIP OPTIONS
