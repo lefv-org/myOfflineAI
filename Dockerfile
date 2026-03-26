@@ -161,6 +161,10 @@ RUN set -e; \
     mkdir -p /app/backend/data; chown -R $UID:$GID /app/backend/data/; \
     rm -rf /var/lib/apt/lists/*;
 
+# Pre-download models for offline use
+RUN python3 -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')"
+RUN python3 -c "from faster_whisper import WhisperModel; WhisperModel('base', device='cpu', compute_type='int8')"
+
 # Install Ollama if requested
 RUN if [ "$USE_OLLAMA" = "true" ]; then \
     date +%s > /tmp/ollama_build_hash && \
