@@ -65,16 +65,8 @@ from open_webui.tools.builtin import (
     list_memories,
     get_current_timestamp,
     calculate_timestamp,
-    search_notes,
     search_chats,
-    search_channels,
-    search_channel_messages,
-    view_note,
     view_chat,
-    view_channel_message,
-    view_channel_thread,
-    replace_note_content,
-    write_note,
     list_knowledge_bases,
     search_knowledge_bases,
     query_knowledge_bases,
@@ -418,8 +410,6 @@ def get_builtin_tools(
             if 'file' in knowledge_types or 'collection' in knowledge_types:
                 builtin_functions.append(view_file)
                 builtin_functions.append(view_knowledge_file)
-            if 'note' in knowledge_types:
-                builtin_functions.append(view_note)
         else:
             # No model knowledge - allow full KB browsing
             builtin_functions.extend(
@@ -474,20 +464,6 @@ def get_builtin_tools(
     ):
         builtin_functions.append(execute_code)
 
-    # Notes tools - search, view, create, and update user's notes (if builtin category enabled AND notes enabled globally)
-    if is_builtin_tool_enabled('notes') and getattr(request.app.state.config, 'ENABLE_NOTES', False):
-        builtin_functions.extend([search_notes, view_note, write_note, replace_note_content])
-
-    # Channels tools - search channels and messages (if builtin category enabled AND channels enabled globally)
-    if is_builtin_tool_enabled('channels') and getattr(request.app.state.config, 'ENABLE_CHANNELS', False):
-        builtin_functions.extend(
-            [
-                search_channels,
-                search_channel_messages,
-                view_channel_thread,
-                view_channel_message,
-            ]
-        )
 
     # Skills tools - view_skill allows model to load full skill instructions on demand
     if extra_params.get('__skill_ids__'):
