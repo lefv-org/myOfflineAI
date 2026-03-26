@@ -2845,28 +2845,7 @@ WHISPER_MULTILINGUAL = os.getenv('WHISPER_MULTILINGUAL', 'False').lower() == 'tr
 
 WHISPER_LANGUAGE = os.getenv('WHISPER_LANGUAGE', '').lower() or None
 
-# Add Deepgram configuration
-DEEPGRAM_API_KEY = PersistentConfig(
-    'DEEPGRAM_API_KEY',
-    'audio.stt.deepgram.api_key',
-    os.getenv('DEEPGRAM_API_KEY', ''),
-)
-
-# ElevenLabs configuration
-ELEVENLABS_API_BASE_URL = os.getenv('ELEVENLABS_API_BASE_URL', 'https://api.elevenlabs.io')
-
-AUDIO_STT_OPENAI_API_BASE_URL = PersistentConfig(
-    'AUDIO_STT_OPENAI_API_BASE_URL',
-    'audio.stt.openai.api_base_url',
-    os.getenv('AUDIO_STT_OPENAI_API_BASE_URL', OPENAI_API_BASE_URL),
-)
-
-AUDIO_STT_OPENAI_API_KEY = PersistentConfig(
-    'AUDIO_STT_OPENAI_API_KEY',
-    'audio.stt.openai.api_key',
-    os.getenv('AUDIO_STT_OPENAI_API_KEY', OPENAI_API_KEY),
-)
-
+# STT engine: "" for local Faster Whisper, "web" for browser-native Web Speech API
 AUDIO_STT_ENGINE = PersistentConfig(
     'AUDIO_STT_ENGINE',
     'audio.stt.engine',
@@ -2889,123 +2868,27 @@ AUDIO_STT_SUPPORTED_CONTENT_TYPES = PersistentConfig(
     ],
 )
 
-AUDIO_STT_AZURE_API_KEY = PersistentConfig(
-    'AUDIO_STT_AZURE_API_KEY',
-    'audio.stt.azure.api_key',
-    os.getenv('AUDIO_STT_AZURE_API_KEY', ''),
-)
-
-AUDIO_STT_AZURE_REGION = PersistentConfig(
-    'AUDIO_STT_AZURE_REGION',
-    'audio.stt.azure.region',
-    os.getenv('AUDIO_STT_AZURE_REGION', ''),
-)
-
-AUDIO_STT_AZURE_LOCALES = PersistentConfig(
-    'AUDIO_STT_AZURE_LOCALES',
-    'audio.stt.azure.locales',
-    os.getenv('AUDIO_STT_AZURE_LOCALES', ''),
-)
-
-AUDIO_STT_AZURE_BASE_URL = PersistentConfig(
-    'AUDIO_STT_AZURE_BASE_URL',
-    'audio.stt.azure.base_url',
-    os.getenv('AUDIO_STT_AZURE_BASE_URL', ''),
-)
-
-AUDIO_STT_AZURE_MAX_SPEAKERS = PersistentConfig(
-    'AUDIO_STT_AZURE_MAX_SPEAKERS',
-    'audio.stt.azure.max_speakers',
-    os.getenv('AUDIO_STT_AZURE_MAX_SPEAKERS', ''),
-)
-
-AUDIO_STT_MISTRAL_API_KEY = PersistentConfig(
-    'AUDIO_STT_MISTRAL_API_KEY',
-    'audio.stt.mistral.api_key',
-    os.getenv('AUDIO_STT_MISTRAL_API_KEY', ''),
-)
-
-AUDIO_STT_MISTRAL_API_BASE_URL = PersistentConfig(
-    'AUDIO_STT_MISTRAL_API_BASE_URL',
-    'audio.stt.mistral.api_base_url',
-    os.getenv('AUDIO_STT_MISTRAL_API_BASE_URL', 'https://api.mistral.ai/v1'),
-)
-
-AUDIO_STT_MISTRAL_USE_CHAT_COMPLETIONS = PersistentConfig(
-    'AUDIO_STT_MISTRAL_USE_CHAT_COMPLETIONS',
-    'audio.stt.mistral.use_chat_completions',
-    os.getenv('AUDIO_STT_MISTRAL_USE_CHAT_COMPLETIONS', 'false').lower() == 'true',
-)
-
-AUDIO_TTS_OPENAI_API_BASE_URL = PersistentConfig(
-    'AUDIO_TTS_OPENAI_API_BASE_URL',
-    'audio.tts.openai.api_base_url',
-    os.getenv('AUDIO_TTS_OPENAI_API_BASE_URL', OPENAI_API_BASE_URL),
-)
-AUDIO_TTS_OPENAI_API_KEY = PersistentConfig(
-    'AUDIO_TTS_OPENAI_API_KEY',
-    'audio.tts.openai.api_key',
-    os.getenv('AUDIO_TTS_OPENAI_API_KEY', OPENAI_API_KEY),
-)
-
-audio_tts_openai_params = os.getenv('AUDIO_TTS_OPENAI_PARAMS', '')
-try:
-    audio_tts_openai_params = json.loads(audio_tts_openai_params)
-except json.JSONDecodeError:
-    audio_tts_openai_params = {}
-
-AUDIO_TTS_OPENAI_PARAMS = PersistentConfig(
-    'AUDIO_TTS_OPENAI_PARAMS',
-    'audio.tts.openai.params',
-    audio_tts_openai_params,
-)
-
-
-AUDIO_TTS_API_KEY = PersistentConfig(
-    'AUDIO_TTS_API_KEY',
-    'audio.tts.api_key',
-    os.getenv('AUDIO_TTS_API_KEY', ''),
-)
-
+# TTS engine: "transformers" for local Transformers TTS, "" disabled
 AUDIO_TTS_ENGINE = PersistentConfig(
     'AUDIO_TTS_ENGINE',
     'audio.tts.engine',
     os.getenv('AUDIO_TTS_ENGINE', ''),
 )
 
-
 AUDIO_TTS_MODEL = PersistentConfig(
     'AUDIO_TTS_MODEL',
     'audio.tts.model',
-    os.getenv('AUDIO_TTS_MODEL', 'tts-1'),  # OpenAI default model
+    os.getenv('AUDIO_TTS_MODEL', ''),
 )
 
 AUDIO_TTS_VOICE = PersistentConfig(
     'AUDIO_TTS_VOICE',
     'audio.tts.voice',
-    os.getenv('AUDIO_TTS_VOICE', 'alloy'),  # OpenAI default voice
+    os.getenv('AUDIO_TTS_VOICE', ''),
 )
 
 AUDIO_TTS_SPLIT_ON = PersistentConfig(
     'AUDIO_TTS_SPLIT_ON',
     'audio.tts.split_on',
     os.getenv('AUDIO_TTS_SPLIT_ON', 'punctuation'),
-)
-
-AUDIO_TTS_AZURE_SPEECH_REGION = PersistentConfig(
-    'AUDIO_TTS_AZURE_SPEECH_REGION',
-    'audio.tts.azure.speech_region',
-    os.getenv('AUDIO_TTS_AZURE_SPEECH_REGION', ''),
-)
-
-AUDIO_TTS_AZURE_SPEECH_BASE_URL = PersistentConfig(
-    'AUDIO_TTS_AZURE_SPEECH_BASE_URL',
-    'audio.tts.azure.speech_base_url',
-    os.getenv('AUDIO_TTS_AZURE_SPEECH_BASE_URL', ''),
-)
-
-AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT = PersistentConfig(
-    'AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT',
-    'audio.tts.azure.speech_output_format',
-    os.getenv('AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT', 'audio-24khz-160kbitrate-mono-mp3'),
 )
