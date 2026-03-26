@@ -27,7 +27,6 @@ from open_webui.models.files import Files
 from open_webui.models.knowledge import Knowledges
 
 from open_webui.models.chats import Chats
-from open_webui.models.notes import Notes
 from open_webui.models.access_grants import AccessGrants
 
 from open_webui.retrieval.vector.main import GetResult
@@ -802,26 +801,6 @@ async def get_sources_from_items(
                         'documents': [[item.get('content')]],
                         'metadatas': [[{'file_id': item.get('id'), 'name': item.get('name')}]],
                     }
-
-        elif item.get('type') == 'note':
-            # Note Attached
-            note = Notes.get_note_by_id(item.get('id'))
-
-            if note and (
-                user.role == 'admin'
-                or note.user_id == user.id
-                or AccessGrants.has_access(
-                    user_id=user.id,
-                    resource_type='note',
-                    resource_id=note.id,
-                    permission='read',
-                )
-            ):
-                # User has access to the note
-                query_result = {
-                    'documents': [[note.data.get('content', {}).get('md', '')]],
-                    'metadatas': [[{'file_id': note.id, 'name': note.title}]],
-                }
 
         elif item.get('type') == 'chat':
             # Chat Attached
