@@ -2511,7 +2511,7 @@ ENABLE_IMAGE_GENERATION = PersistentConfig(
 IMAGE_GENERATION_ENGINE = PersistentConfig(
     'IMAGE_GENERATION_ENGINE',
     'image_generation.engine',
-    os.getenv('IMAGE_GENERATION_ENGINE', 'openai'),
+    os.getenv('IMAGE_GENERATION_ENGINE', 'automatic1111'),
 )
 
 IMAGE_GENERATION_MODEL = PersistentConfig(
@@ -2700,52 +2700,6 @@ COMFYUI_WORKFLOW_NODES = PersistentConfig(
     comfyui_workflow_nodes,
 )
 
-IMAGES_OPENAI_API_BASE_URL = PersistentConfig(
-    'IMAGES_OPENAI_API_BASE_URL',
-    'image_generation.openai.api_base_url',
-    os.getenv('IMAGES_OPENAI_API_BASE_URL', OPENAI_API_BASE_URL),
-)
-IMAGES_OPENAI_API_VERSION = PersistentConfig(
-    'IMAGES_OPENAI_API_VERSION',
-    'image_generation.openai.api_version',
-    os.getenv('IMAGES_OPENAI_API_VERSION', ''),
-)
-
-IMAGES_OPENAI_API_KEY = PersistentConfig(
-    'IMAGES_OPENAI_API_KEY',
-    'image_generation.openai.api_key',
-    os.getenv('IMAGES_OPENAI_API_KEY', OPENAI_API_KEY),
-)
-
-images_openai_params = os.getenv('IMAGES_OPENAI_PARAMS', '')
-try:
-    images_openai_params = json.loads(images_openai_params)
-except json.JSONDecodeError:
-    images_openai_params = {}
-
-
-IMAGES_OPENAI_API_PARAMS = PersistentConfig(
-    'IMAGES_OPENAI_API_PARAMS', 'image_generation.openai.params', images_openai_params
-)
-
-
-IMAGES_GEMINI_API_BASE_URL = PersistentConfig(
-    'IMAGES_GEMINI_API_BASE_URL',
-    'image_generation.gemini.api_base_url',
-    os.getenv('IMAGES_GEMINI_API_BASE_URL', GEMINI_API_BASE_URL),
-)
-IMAGES_GEMINI_API_KEY = PersistentConfig(
-    'IMAGES_GEMINI_API_KEY',
-    'image_generation.gemini.api_key',
-    os.getenv('IMAGES_GEMINI_API_KEY', GEMINI_API_KEY),
-)
-
-IMAGES_GEMINI_ENDPOINT_METHOD = PersistentConfig(
-    'IMAGES_GEMINI_ENDPOINT_METHOD',
-    'image_generation.gemini.endpoint_method',
-    os.getenv('IMAGES_GEMINI_ENDPOINT_METHOD', ''),
-)
-
 ENABLE_IMAGE_EDIT = PersistentConfig(
     'ENABLE_IMAGE_EDIT',
     'images.edit.enable',
@@ -2755,7 +2709,7 @@ ENABLE_IMAGE_EDIT = PersistentConfig(
 IMAGE_EDIT_ENGINE = PersistentConfig(
     'IMAGE_EDIT_ENGINE',
     'images.edit.engine',
-    os.getenv('IMAGE_EDIT_ENGINE', 'openai'),
+    os.getenv('IMAGE_EDIT_ENGINE', 'comfyui'),
 )
 
 IMAGE_EDIT_MODEL = PersistentConfig(
@@ -2765,35 +2719,6 @@ IMAGE_EDIT_MODEL = PersistentConfig(
 )
 
 IMAGE_EDIT_SIZE = PersistentConfig('IMAGE_EDIT_SIZE', 'images.edit.size', os.getenv('IMAGE_EDIT_SIZE', ''))
-
-IMAGES_EDIT_OPENAI_API_BASE_URL = PersistentConfig(
-    'IMAGES_EDIT_OPENAI_API_BASE_URL',
-    'images.edit.openai.api_base_url',
-    os.getenv('IMAGES_EDIT_OPENAI_API_BASE_URL', OPENAI_API_BASE_URL),
-)
-IMAGES_EDIT_OPENAI_API_VERSION = PersistentConfig(
-    'IMAGES_EDIT_OPENAI_API_VERSION',
-    'images.edit.openai.api_version',
-    os.getenv('IMAGES_EDIT_OPENAI_API_VERSION', ''),
-)
-
-IMAGES_EDIT_OPENAI_API_KEY = PersistentConfig(
-    'IMAGES_EDIT_OPENAI_API_KEY',
-    'images.edit.openai.api_key',
-    os.getenv('IMAGES_EDIT_OPENAI_API_KEY', OPENAI_API_KEY),
-)
-
-IMAGES_EDIT_GEMINI_API_BASE_URL = PersistentConfig(
-    'IMAGES_EDIT_GEMINI_API_BASE_URL',
-    'images.edit.gemini.api_base_url',
-    os.getenv('IMAGES_EDIT_GEMINI_API_BASE_URL', GEMINI_API_BASE_URL),
-)
-IMAGES_EDIT_GEMINI_API_KEY = PersistentConfig(
-    'IMAGES_EDIT_GEMINI_API_KEY',
-    'images.edit.gemini.api_key',
-    os.getenv('IMAGES_EDIT_GEMINI_API_KEY', GEMINI_API_KEY),
-)
-
 
 IMAGES_EDIT_COMFYUI_BASE_URL = PersistentConfig(
     'IMAGES_EDIT_COMFYUI_BASE_URL',
