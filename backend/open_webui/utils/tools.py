@@ -54,7 +54,6 @@ from open_webui.env import (
 )
 from open_webui.utils.headers import include_user_info_headers
 from open_webui.tools.builtin import (
-    search_web,
     fetch_url,
     generate_image,
     edit_image,
@@ -449,15 +448,6 @@ def get_builtin_tools(
                 list_memories,
             ]
         )
-
-    # Add web search tools if builtin category enabled AND enabled globally AND model has web_search capability
-    if (
-        is_builtin_tool_enabled('web_search')
-        and getattr(request.app.state.config, 'ENABLE_WEB_SEARCH', False)
-        and get_model_capability('web_search')
-        and features.get('web_search')
-    ):
-        builtin_functions.extend([search_web, fetch_url])
 
     # Add image generation/edit tools if builtin category enabled AND enabled globally AND model has image_generation capability
     if (

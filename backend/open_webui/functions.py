@@ -231,16 +231,6 @@ async def generate_function_chat_completion(request, form_data, user, models: di
         __task__ = metadata.get('task', None)
         __task_body__ = metadata.get('task_body', None)
 
-    oauth_token = None
-    try:
-        if request.cookies.get('oauth_session_id', None):
-            oauth_token = await request.app.state.oauth_manager.get_oauth_token(
-                user.id,
-                request.cookies.get('oauth_session_id', None),
-            )
-    except Exception as e:
-        log.error(f'Error getting OAuth token: {e}')
-
     extra_params = {
         '__event_emitter__': __event_emitter__,
         '__event_call__': __event_call__,
@@ -252,7 +242,7 @@ async def generate_function_chat_completion(request, form_data, user, models: di
         '__files__': files,
         '__user__': user.model_dump() if isinstance(user, UserModel) else {},
         '__metadata__': metadata,
-        '__oauth_token__': oauth_token,
+        '__oauth_token__': None,
         '__request__': request,
     }
     extra_params['__tools__'] = await get_tools(

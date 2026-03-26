@@ -75,9 +75,9 @@ def get_loader(request, url: str):
     else:
         return get_web_loader(
             url,
-            verify_ssl=request.app.state.config.ENABLE_WEB_LOADER_SSL_VERIFICATION,
-            requests_per_second=request.app.state.config.WEB_LOADER_CONCURRENT_REQUESTS,
-            trust_env=request.app.state.config.WEB_SEARCH_TRUST_ENV,
+            verify_ssl=True,
+            requests_per_second=2,
+            trust_env=False,
         )
 
 
