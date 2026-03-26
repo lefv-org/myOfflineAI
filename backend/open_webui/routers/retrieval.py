@@ -399,9 +399,6 @@ async def get_rag_config(request: Request, user=Depends(get_admin_user)):
         'FILE_IMAGE_COMPRESSION_WIDTH': request.app.state.config.FILE_IMAGE_COMPRESSION_WIDTH,
         'FILE_IMAGE_COMPRESSION_HEIGHT': request.app.state.config.FILE_IMAGE_COMPRESSION_HEIGHT,
         'ALLOWED_FILE_EXTENSIONS': request.app.state.config.ALLOWED_FILE_EXTENSIONS,
-        # Integration settings
-        'ENABLE_GOOGLE_DRIVE_INTEGRATION': request.app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION,
-        'ENABLE_ONEDRIVE_INTEGRATION': request.app.state.config.ENABLE_ONEDRIVE_INTEGRATION,
     }
 
 
@@ -476,10 +473,6 @@ class ConfigForm(BaseModel):
     FILE_IMAGE_COMPRESSION_WIDTH: Optional[Union[int, str]] = None
     FILE_IMAGE_COMPRESSION_HEIGHT: Optional[Union[int, str]] = None
     ALLOWED_FILE_EXTENSIONS: Optional[List[str]] = None
-
-    # Integration settings
-    ENABLE_GOOGLE_DRIVE_INTEGRATION: Optional[bool] = None
-    ENABLE_ONEDRIVE_INTEGRATION: Optional[bool] = None
 
 
 
@@ -784,18 +777,6 @@ async def update_rag_config(request: Request, form_data: ConfigForm, user=Depend
         else request.app.state.config.ALLOWED_FILE_EXTENSIONS
     )
 
-    # Integration settings
-    request.app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION = (
-        form_data.ENABLE_GOOGLE_DRIVE_INTEGRATION
-        if form_data.ENABLE_GOOGLE_DRIVE_INTEGRATION is not None
-        else request.app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION
-    )
-    request.app.state.config.ENABLE_ONEDRIVE_INTEGRATION = (
-        form_data.ENABLE_ONEDRIVE_INTEGRATION
-        if form_data.ENABLE_ONEDRIVE_INTEGRATION is not None
-        else request.app.state.config.ENABLE_ONEDRIVE_INTEGRATION
-    )
-
     return {
         'status': True,
         # RAG settings
@@ -857,9 +838,6 @@ async def update_rag_config(request: Request, form_data: ConfigForm, user=Depend
         'FILE_IMAGE_COMPRESSION_WIDTH': request.app.state.config.FILE_IMAGE_COMPRESSION_WIDTH,
         'FILE_IMAGE_COMPRESSION_HEIGHT': request.app.state.config.FILE_IMAGE_COMPRESSION_HEIGHT,
         'ALLOWED_FILE_EXTENSIONS': request.app.state.config.ALLOWED_FILE_EXTENSIONS,
-        # Integration settings
-        'ENABLE_GOOGLE_DRIVE_INTEGRATION': request.app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION,
-        'ENABLE_ONEDRIVE_INTEGRATION': request.app.state.config.ENABLE_ONEDRIVE_INTEGRATION,
     }
 
 

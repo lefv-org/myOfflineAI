@@ -491,59 +491,6 @@ OLLAMA_API_CONFIGS = PersistentConfig(
     {},
 )
 
-####################################
-# OPENAI_API
-####################################
-
-
-ENABLE_OPENAI_API = PersistentConfig(
-    'ENABLE_OPENAI_API',
-    'openai.enable',
-    os.environ.get('ENABLE_OPENAI_API', 'True').lower() == 'true',
-)
-
-
-OPENAI_API_KEY = os.environ.get('OPENAI_API_KEY', '')
-OPENAI_API_BASE_URL = os.environ.get('OPENAI_API_BASE_URL', '')
-
-GEMINI_API_KEY = os.environ.get('GEMINI_API_KEY', '')
-GEMINI_API_BASE_URL = os.environ.get('GEMINI_API_BASE_URL', '')
-
-
-if OPENAI_API_BASE_URL == '':
-    OPENAI_API_BASE_URL = 'https://api.openai.com/v1'
-else:
-    if OPENAI_API_BASE_URL.endswith('/'):
-        OPENAI_API_BASE_URL = OPENAI_API_BASE_URL[:-1]
-
-OPENAI_API_KEYS = os.environ.get('OPENAI_API_KEYS', '')
-OPENAI_API_KEYS = OPENAI_API_KEYS if OPENAI_API_KEYS != '' else OPENAI_API_KEY
-
-OPENAI_API_KEYS = [url.strip() for url in OPENAI_API_KEYS.split(';')]
-OPENAI_API_KEYS = PersistentConfig('OPENAI_API_KEYS', 'openai.api_keys', OPENAI_API_KEYS)
-
-OPENAI_API_BASE_URLS = os.environ.get('OPENAI_API_BASE_URLS', '')
-OPENAI_API_BASE_URLS = OPENAI_API_BASE_URLS if OPENAI_API_BASE_URLS != '' else OPENAI_API_BASE_URL
-
-OPENAI_API_BASE_URLS = [
-    url.strip() if url != '' else 'https://api.openai.com/v1' for url in OPENAI_API_BASE_URLS.split(';')
-]
-OPENAI_API_BASE_URLS = PersistentConfig('OPENAI_API_BASE_URLS', 'openai.api_base_urls', OPENAI_API_BASE_URLS)
-
-OPENAI_API_CONFIGS = PersistentConfig(
-    'OPENAI_API_CONFIGS',
-    'openai.api_configs',
-    {},
-)
-
-# Get the actual OpenAI API key based on the base URL
-OPENAI_API_KEY = ''
-try:
-    OPENAI_API_KEY = OPENAI_API_KEYS.value[OPENAI_API_BASE_URLS.value.index('https://api.openai.com/v1')]
-except Exception:
-    pass
-OPENAI_API_BASE_URL = 'https://api.openai.com/v1'
-
 
 ####################################
 # MODELS
@@ -1928,52 +1875,6 @@ S3_VECTOR_REGION = os.environ.get('S3_VECTOR_REGION', None)
 ####################################
 # Information Retrieval (RAG)
 ####################################
-
-
-# If configured, Google Drive will be available as an upload option.
-ENABLE_GOOGLE_DRIVE_INTEGRATION = PersistentConfig(
-    'ENABLE_GOOGLE_DRIVE_INTEGRATION',
-    'google_drive.enable',
-    os.getenv('ENABLE_GOOGLE_DRIVE_INTEGRATION', 'False').lower() == 'true',
-)
-
-GOOGLE_DRIVE_CLIENT_ID = PersistentConfig(
-    'GOOGLE_DRIVE_CLIENT_ID',
-    'google_drive.client_id',
-    os.environ.get('GOOGLE_DRIVE_CLIENT_ID', ''),
-)
-
-GOOGLE_DRIVE_API_KEY = PersistentConfig(
-    'GOOGLE_DRIVE_API_KEY',
-    'google_drive.api_key',
-    os.environ.get('GOOGLE_DRIVE_API_KEY', ''),
-)
-
-ENABLE_ONEDRIVE_INTEGRATION = PersistentConfig(
-    'ENABLE_ONEDRIVE_INTEGRATION',
-    'onedrive.enable',
-    os.getenv('ENABLE_ONEDRIVE_INTEGRATION', 'False').lower() == 'true',
-)
-
-
-ENABLE_ONEDRIVE_PERSONAL = os.environ.get('ENABLE_ONEDRIVE_PERSONAL', 'True').lower() == 'true'
-ENABLE_ONEDRIVE_BUSINESS = os.environ.get('ENABLE_ONEDRIVE_BUSINESS', 'True').lower() == 'true'
-
-ONEDRIVE_CLIENT_ID = os.environ.get('ONEDRIVE_CLIENT_ID', '')
-ONEDRIVE_CLIENT_ID_PERSONAL = os.environ.get('ONEDRIVE_CLIENT_ID_PERSONAL', ONEDRIVE_CLIENT_ID)
-ONEDRIVE_CLIENT_ID_BUSINESS = os.environ.get('ONEDRIVE_CLIENT_ID_BUSINESS', ONEDRIVE_CLIENT_ID)
-
-ONEDRIVE_SHAREPOINT_URL = PersistentConfig(
-    'ONEDRIVE_SHAREPOINT_URL',
-    'onedrive.sharepoint_url',
-    os.environ.get('ONEDRIVE_SHAREPOINT_URL', ''),
-)
-
-ONEDRIVE_SHAREPOINT_TENANT_ID = PersistentConfig(
-    'ONEDRIVE_SHAREPOINT_TENANT_ID',
-    'onedrive.sharepoint_tenant_id',
-    os.environ.get('ONEDRIVE_SHAREPOINT_TENANT_ID', ''),
-)
 
 # RAG Content Extraction
 CONTENT_EXTRACTION_ENGINE = PersistentConfig(
