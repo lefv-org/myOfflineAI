@@ -8,7 +8,6 @@ from open_webui.models.models import Models
 from open_webui.utils.models import check_model_access
 from open_webui.env import GLOBAL_LOG_LEVEL, BYPASS_MODEL_ACCESS_CONTROL
 
-from open_webui.routers.openai import embeddings as openai_embeddings
 from open_webui.routers.ollama import (
     embed as ollama_embed,
     GenerateEmbedForm,
@@ -80,9 +79,7 @@ async def generate_embeddings(
         )
         return convert_embedding_response_ollama_to_openai(response)
 
-    # Default: OpenAI or compatible backend
-    return await openai_embeddings(
-        request=request,
-        form_data=form_data,
-        user=user,
+    raise Exception(
+        'Only Ollama embedding models are supported in this airgapped deployment. '
+        f'Model "{model_id}" is not an Ollama model.'
     )

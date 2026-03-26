@@ -73,7 +73,6 @@ from open_webui.routers import (
     audio,
     images,
     ollama,
-    openai,
     retrieval,
     tasks,
     auths,
@@ -115,7 +114,7 @@ from open_webui.config import (
     ENABLE_OLLAMA_API,
     OLLAMA_BASE_URLS,
     OLLAMA_API_CONFIGS,
-    # OpenAI
+    # OpenAI (disabled — Ollama-only deployment)
     ENABLE_OPENAI_API,
     OPENAI_API_BASE_URLS,
     OPENAI_API_KEYS,
@@ -759,7 +758,7 @@ app.state.OLLAMA_MODELS = {}
 
 ########################################
 #
-# OPENAI
+# OPENAI (disabled — Ollama-only deployment, router removed)
 #
 ########################################
 
@@ -768,6 +767,8 @@ app.state.config.OPENAI_API_BASE_URLS = OPENAI_API_BASE_URLS
 app.state.config.OPENAI_API_KEYS = OPENAI_API_KEYS
 app.state.config.OPENAI_API_CONFIGS = OPENAI_API_CONFIGS
 
+# Force OpenAI API disabled regardless of env var
+app.state.config.ENABLE_OPENAI_API = False
 app.state.OPENAI_MODELS = {}
 
 ########################################
@@ -1468,7 +1469,6 @@ app.mount('/ws', socket_app)
 
 
 app.include_router(ollama.router, prefix='/ollama', tags=['ollama'])
-app.include_router(openai.router, prefix='/openai', tags=['openai'])
 
 
 app.include_router(tasks.router, prefix='/api/v1/tasks', tags=['tasks'])
