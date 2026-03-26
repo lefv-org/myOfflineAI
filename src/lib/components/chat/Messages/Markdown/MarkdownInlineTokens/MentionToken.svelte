@@ -5,9 +5,8 @@
 	import { getContext } from 'svelte';
 
 	import { goto } from '$app/navigation';
-	import { channels, models } from '$lib/stores';
-	import UserStatus from '$lib/components/channel/Messages/Message/UserStatus.svelte';
-	import UserStatusLinkPreview from '$lib/components/channel/Messages/Message/UserStatusLinkPreview.svelte';
+	import { models } from '$lib/stores';
+	import UserStatusLinkPreview from '$lib/components/common/UserStatusLinkPreview.svelte';
 
 	const i18n = getContext('i18n');
 
@@ -55,13 +54,8 @@
 
 		if (triggerChar === '#') {
 			if (idType === 'C') {
-				// Channel
-				const channel = $channels.find((c) => c.id === id);
-				if (channel) {
-					label = channel.name;
-				} else {
-					label = $i18n.t('Unknown');
-				}
+				// Channel (removed)
+				label = $i18n.t('Unknown');
 			} else if (idType === 'T') {
 				// Thread
 			}
@@ -98,14 +92,8 @@
 						await goto(`/?model=${id}`);
 					}
 				} else if (triggerChar === '#') {
-					if (idType === 'C') {
-						// Open channel
-						if ($channels.find((c) => c.id === id)) {
-							await goto(`/channels/${id}`);
-						}
-					} else if (idType === 'T') {
-						// Open thread
-					}
+					// Channel navigation removed
+					console.log('Clicked channel/thread mention', id);
 				} else {
 					// Unknown trigger char, just log
 					console.log('Clicked mention', id);
