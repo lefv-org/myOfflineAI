@@ -52,10 +52,6 @@ from open_webui.routers.images import (
     image_edits,
     EditImageForm,
 )
-from open_webui.routers.pipelines import (
-    process_pipeline_inlet_filter,
-    process_pipeline_outlet_filter,
-)
 from open_webui.routers.memories import query_memory, QueryMemoryForm
 
 from open_webui.utils.webhook import post_webhook
@@ -2297,12 +2293,6 @@ async def process_chat_payload(request, form_data, user, metadata, model):
         form_data['files'] = files
 
     variables = form_data.pop('variables', None)
-
-    # Process the form_data through the pipeline
-    try:
-        form_data = await process_pipeline_inlet_filter(request, form_data, user, models)
-    except Exception as e:
-        raise e
 
     try:
         filter_ids = get_sorted_filter_ids(request, model, metadata.get('filter_ids', []))
