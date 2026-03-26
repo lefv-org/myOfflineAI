@@ -10,7 +10,6 @@ from pydantic import BaseModel
 from starlette.responses import FileResponse
 
 
-from open_webui.utils.misc import get_gravatar_url
 from open_webui.utils.pdf_generator import PDFGenerator
 from open_webui.utils.auth import get_admin_user, get_verified_user
 from open_webui.utils.code_interpreter import execute_code_jupyter
@@ -19,10 +18,6 @@ log = logging.getLogger(__name__)
 
 router = APIRouter()
 
-
-@router.get('/gravatar')
-async def get_gravatar(email: str, user=Depends(get_verified_user)):
-    return get_gravatar_url(email)
 
 
 class CodeForm(BaseModel):
