@@ -31,3 +31,18 @@ update:
 	$(DOCKER_COMPOSE) up --build -d
 	$(DOCKER_COMPOSE) start
 
+pull-models:
+	@echo "Pulling Ollama models into Docker volume..."
+	docker exec ollama ollama pull llama3.2
+	@echo "Models pulled. Add more with: docker exec ollama ollama pull <model>"
+
+export-images:
+	@echo "Exporting Docker images for airgap transfer..."
+	docker save -o myofflineai-images.tar ollama/ollama ghcr.io/open-webui/open-webui
+	@echo "Saved to myofflineai-images.tar"
+
+load-images:
+	@echo "Loading Docker images from archive..."
+	docker load -i myofflineai-images.tar
+	@echo "Images loaded. Run 'make install' to start."
+
