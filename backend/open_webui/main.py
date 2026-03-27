@@ -73,14 +73,10 @@ from open_webui.routers import (
     audio,
     images,
     ollama,
-    openai,
     retrieval,
-    pipelines,
     tasks,
     auths,
-    channels,
     chats,
-    notes,
     folders,
     configs,
     groups,
@@ -95,8 +91,6 @@ from open_webui.routers import (
     tools,
     users,
     utils,
-    scim,
-    terminals,
 )
 
 from open_webui.routers.retrieval import (
@@ -120,11 +114,6 @@ from open_webui.config import (
     ENABLE_OLLAMA_API,
     OLLAMA_BASE_URLS,
     OLLAMA_API_CONFIGS,
-    # OpenAI
-    ENABLE_OPENAI_API,
-    OPENAI_API_BASE_URLS,
-    OPENAI_API_KEYS,
-    OPENAI_API_CONFIGS,
     # Direct Connections
     ENABLE_DIRECT_CONNECTIONS,
     # Model list
@@ -166,22 +155,10 @@ from open_webui.config import (
     IMAGE_GENERATION_MODEL,
     IMAGE_SIZE,
     IMAGE_STEPS,
-    IMAGES_OPENAI_API_BASE_URL,
-    IMAGES_OPENAI_API_VERSION,
-    IMAGES_OPENAI_API_KEY,
-    IMAGES_OPENAI_API_PARAMS,
-    IMAGES_GEMINI_API_BASE_URL,
-    IMAGES_GEMINI_API_KEY,
-    IMAGES_GEMINI_ENDPOINT_METHOD,
     ENABLE_IMAGE_EDIT,
     IMAGE_EDIT_ENGINE,
     IMAGE_EDIT_MODEL,
     IMAGE_EDIT_SIZE,
-    IMAGES_EDIT_OPENAI_API_BASE_URL,
-    IMAGES_EDIT_OPENAI_API_KEY,
-    IMAGES_EDIT_OPENAI_API_VERSION,
-    IMAGES_EDIT_GEMINI_API_BASE_URL,
-    IMAGES_EDIT_GEMINI_API_KEY,
     IMAGES_EDIT_COMFYUI_BASE_URL,
     IMAGES_EDIT_COMFYUI_API_KEY,
     IMAGES_EDIT_COMFYUI_WORKFLOW,
@@ -190,39 +167,13 @@ from open_webui.config import (
     AUDIO_STT_ENGINE,
     AUDIO_STT_MODEL,
     AUDIO_STT_SUPPORTED_CONTENT_TYPES,
-    AUDIO_STT_OPENAI_API_BASE_URL,
-    AUDIO_STT_OPENAI_API_KEY,
-    AUDIO_STT_AZURE_API_KEY,
-    AUDIO_STT_AZURE_REGION,
-    AUDIO_STT_AZURE_LOCALES,
-    AUDIO_STT_AZURE_BASE_URL,
-    AUDIO_STT_AZURE_MAX_SPEAKERS,
-    AUDIO_STT_MISTRAL_API_KEY,
-    AUDIO_STT_MISTRAL_API_BASE_URL,
-    AUDIO_STT_MISTRAL_USE_CHAT_COMPLETIONS,
     AUDIO_TTS_ENGINE,
     AUDIO_TTS_MODEL,
     AUDIO_TTS_VOICE,
-    AUDIO_TTS_OPENAI_API_BASE_URL,
-    AUDIO_TTS_OPENAI_API_KEY,
-    AUDIO_TTS_OPENAI_PARAMS,
-    AUDIO_TTS_API_KEY,
     AUDIO_TTS_SPLIT_ON,
-    AUDIO_TTS_AZURE_SPEECH_REGION,
-    AUDIO_TTS_AZURE_SPEECH_BASE_URL,
-    AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT,
-    PLAYWRIGHT_WS_URL,
-    PLAYWRIGHT_TIMEOUT,
-    FIRECRAWL_API_BASE_URL,
-    FIRECRAWL_API_KEY,
-    FIRECRAWL_TIMEOUT,
-    WEB_LOADER_ENGINE,
-    WEB_LOADER_CONCURRENT_REQUESTS,
-    WEB_LOADER_TIMEOUT,
     WHISPER_MODEL,
     WHISPER_VAD_FILTER,
     WHISPER_LANGUAGE,
-    DEEPGRAM_API_KEY,
     WHISPER_MODEL_AUTO_UPDATE,
     WHISPER_MODEL_DIR,
     # Retrieval
@@ -253,11 +204,6 @@ from open_webui.config import (
     RAG_FILE_MAX_SIZE,
     FILE_IMAGE_COMPRESSION_WIDTH,
     FILE_IMAGE_COMPRESSION_HEIGHT,
-    RAG_OPENAI_API_BASE_URL,
-    RAG_OPENAI_API_KEY,
-    RAG_AZURE_OPENAI_BASE_URL,
-    RAG_AZURE_OPENAI_API_KEY,
-    RAG_AZURE_OPENAI_API_VERSION,
     RAG_OLLAMA_BASE_URL,
     RAG_OLLAMA_API_KEY,
     CHUNK_OVERLAP,
@@ -298,73 +244,10 @@ from open_webui.config import (
     PDF_LOADER_MODE,
     YOUTUBE_LOADER_LANGUAGE,
     YOUTUBE_LOADER_PROXY_URL,
-    # Retrieval (Web Search)
-    ENABLE_WEB_SEARCH,
-    WEB_SEARCH_ENGINE,
-    BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL,
-    BYPASS_WEB_SEARCH_WEB_LOADER,
-    WEB_SEARCH_RESULT_COUNT,
-    WEB_SEARCH_CONCURRENT_REQUESTS,
-    WEB_FETCH_MAX_CONTENT_LENGTH,
-    WEB_SEARCH_TRUST_ENV,
-    WEB_SEARCH_DOMAIN_FILTER_LIST,
-    OLLAMA_CLOUD_WEB_SEARCH_API_KEY,
-    JINA_API_KEY,
-    JINA_API_BASE_URL,
-    SEARCHAPI_API_KEY,
-    SEARCHAPI_ENGINE,
-    SERPAPI_API_KEY,
-    SERPAPI_ENGINE,
-    SEARXNG_QUERY_URL,
-    SEARXNG_LANGUAGE,
-    YACY_QUERY_URL,
-    YACY_USERNAME,
-    YACY_PASSWORD,
-    SERPER_API_KEY,
-    SERPLY_API_KEY,
-    DDGS_BACKEND,
-    SERPSTACK_API_KEY,
-    SERPSTACK_HTTPS,
-    TAVILY_API_KEY,
-    TAVILY_EXTRACT_DEPTH,
-    BING_SEARCH_V7_ENDPOINT,
-    BING_SEARCH_V7_SUBSCRIPTION_KEY,
-    BRAVE_SEARCH_API_KEY,
-    EXA_API_KEY,
-    PERPLEXITY_API_KEY,
-    PERPLEXITY_MODEL,
-    PERPLEXITY_SEARCH_CONTEXT_USAGE,
-    PERPLEXITY_SEARCH_API_URL,
-    SOUGOU_API_SID,
-    SOUGOU_API_SK,
-    KAGI_SEARCH_API_KEY,
-    MOJEEK_SEARCH_API_KEY,
-    BOCHA_SEARCH_API_KEY,
-    GOOGLE_PSE_API_KEY,
-    GOOGLE_PSE_ENGINE_ID,
-    GOOGLE_DRIVE_CLIENT_ID,
-    GOOGLE_DRIVE_API_KEY,
-    ENABLE_ONEDRIVE_INTEGRATION,
-    ONEDRIVE_CLIENT_ID_PERSONAL,
-    ONEDRIVE_CLIENT_ID_BUSINESS,
-    ONEDRIVE_SHAREPOINT_URL,
-    ONEDRIVE_SHAREPOINT_TENANT_ID,
-    ENABLE_ONEDRIVE_PERSONAL,
-    ENABLE_ONEDRIVE_BUSINESS,
     ENABLE_RAG_HYBRID_SEARCH,
     ENABLE_RAG_HYBRID_SEARCH_ENRICHED_TEXTS,
     ENABLE_RAG_LOCAL_WEB_FETCH,
-    ENABLE_WEB_LOADER_SSL_VERIFICATION,
-    ENABLE_GOOGLE_DRIVE_INTEGRATION,
     UPLOAD_DIR,
-    EXTERNAL_WEB_SEARCH_URL,
-    EXTERNAL_WEB_SEARCH_API_KEY,
-    EXTERNAL_WEB_LOADER_URL,
-    EXTERNAL_WEB_LOADER_API_KEY,
-    YANDEX_WEB_SEARCH_URL,
-    YANDEX_WEB_SEARCH_API_KEY,
-    YANDEX_WEB_SEARCH_CONFIG,
-    YOUCOM_API_KEY,
     # WebUI
     WEBUI_AUTH,
     WEBUI_NAME,
@@ -401,34 +284,6 @@ from open_webui.config import (
     DEFAULT_MODEL_METADATA,
     DEFAULT_MODEL_PARAMS,
     EVALUATION_ARENA_MODELS,
-    # WebUI (OAuth)
-    ENABLE_OAUTH_ROLE_MANAGEMENT,
-    OAUTH_SUB_CLAIM,
-    OAUTH_ROLES_CLAIM,
-    OAUTH_EMAIL_CLAIM,
-    OAUTH_PICTURE_CLAIM,
-    OAUTH_USERNAME_CLAIM,
-    OAUTH_ALLOWED_ROLES,
-    OAUTH_ADMIN_ROLES,
-    # WebUI (LDAP)
-    ENABLE_LDAP,
-    LDAP_SERVER_LABEL,
-    LDAP_SERVER_HOST,
-    LDAP_SERVER_PORT,
-    LDAP_ATTRIBUTE_FOR_MAIL,
-    LDAP_ATTRIBUTE_FOR_USERNAME,
-    LDAP_SEARCH_FILTERS,
-    LDAP_SEARCH_BASE,
-    LDAP_APP_DN,
-    LDAP_APP_PASSWORD,
-    LDAP_USE_TLS,
-    LDAP_CA_CERT_FILE,
-    LDAP_VALIDATE_CERT,
-    LDAP_CIPHERS,
-    # LDAP Group Management
-    ENABLE_LDAP_GROUP_MANAGEMENT,
-    ENABLE_LDAP_GROUP_CREATION,
-    LDAP_ATTRIBUTE_FOR_GROUPS,
     # Misc
     ENV,
     CACHE_DIR,
@@ -436,7 +291,6 @@ from open_webui.config import (
     FRONTEND_BUILD_DIR,
     CORS_ALLOW_ORIGIN,
     DEFAULT_LOCALE,
-    OAUTH_PROVIDERS,
     WEBUI_URL,
     RESPONSE_WATERMARK,
     # Admin
@@ -491,15 +345,10 @@ from open_webui.env import (
     WEBUI_AUTH_TRUSTED_EMAIL_HEADER,
     WEBUI_AUTH_TRUSTED_NAME_HEADER,
     WEBUI_AUTH_SIGNOUT_REDIRECT_URL,
-    # SCIM
-    ENABLE_SCIM,
-    SCIM_TOKEN,
     ENABLE_COMPRESSION_MIDDLEWARE,
     ENABLE_WEBSOCKET_SUPPORT,
     BYPASS_MODEL_ACCESS_CONTROL,
     RESET_CONFIG_ON_START,
-    ENABLE_VERSION_UPDATE_CHECK,
-    ENABLE_OTEL,
     EXTERNAL_PWA_MANIFEST_URL,
     AIOHTTP_CLIENT_SESSION_SSL,
     ENABLE_STAR_SESSIONS_MIDDLEWARE,
@@ -546,7 +395,6 @@ from open_webui.utils.oauth import (
     get_oauth_client_info_with_static_credentials,
     encrypt_data,
     decrypt_data,
-    OAuthManager,
     OAuthClientManager,
     OAuthClientInformationFull,
 )
@@ -719,11 +567,7 @@ app = FastAPI(
 # Used by readiness checks to gate traffic until startup work is done.
 app.state.startup_complete = False
 
-# For Open WebUI OIDC/OAuth2
-oauth_manager = OAuthManager(app)
-app.state.oauth_manager = oauth_manager
-
-# For Integrations
+# For MCP tool server OAuth 2.1 integrations
 oauth_client_manager = OAuthClientManager(app)
 app.state.oauth_client_manager = oauth_client_manager
 
@@ -742,18 +586,6 @@ app.state.LICENSE_METADATA = None
 
 ########################################
 #
-# OPENTELEMETRY
-#
-########################################
-
-if ENABLE_OTEL:
-    from open_webui.utils.telemetry.setup import setup as setup_opentelemetry
-
-    setup_opentelemetry(app=app, db_engine=engine)
-
-
-########################################
-#
 # OLLAMA
 #
 ########################################
@@ -765,18 +597,6 @@ app.state.config.OLLAMA_API_CONFIGS = OLLAMA_API_CONFIGS
 
 app.state.OLLAMA_MODELS = {}
 
-########################################
-#
-# OPENAI
-#
-########################################
-
-app.state.config.ENABLE_OPENAI_API = ENABLE_OPENAI_API
-app.state.config.OPENAI_API_BASE_URLS = OPENAI_API_BASE_URLS
-app.state.config.OPENAI_API_KEYS = OPENAI_API_KEYS
-app.state.config.OPENAI_API_CONFIGS = OPENAI_API_CONFIGS
-
-app.state.OPENAI_MODELS = {}
 
 ########################################
 #
@@ -803,15 +623,6 @@ app.state.TERMINAL_SERVERS = []
 ########################################
 
 app.state.config.ENABLE_DIRECT_CONNECTIONS = ENABLE_DIRECT_CONNECTIONS
-
-########################################
-#
-# SCIM
-#
-########################################
-
-app.state.ENABLE_SCIM = ENABLE_SCIM
-app.state.SCIM_TOKEN = SCIM_TOKEN
 
 ########################################
 #
@@ -890,37 +701,6 @@ if any('access_control' in m.get('meta', {}) for m in arena_models):
         migrate_access_control(model.get('meta', {}))
     app.state.config.EVALUATION_ARENA_MODELS = arena_models
 
-app.state.config.OAUTH_SUB_CLAIM = OAUTH_SUB_CLAIM
-app.state.config.OAUTH_USERNAME_CLAIM = OAUTH_USERNAME_CLAIM
-app.state.config.OAUTH_PICTURE_CLAIM = OAUTH_PICTURE_CLAIM
-app.state.config.OAUTH_EMAIL_CLAIM = OAUTH_EMAIL_CLAIM
-
-app.state.config.ENABLE_OAUTH_ROLE_MANAGEMENT = ENABLE_OAUTH_ROLE_MANAGEMENT
-app.state.config.OAUTH_ROLES_CLAIM = OAUTH_ROLES_CLAIM
-app.state.config.OAUTH_ALLOWED_ROLES = OAUTH_ALLOWED_ROLES
-app.state.config.OAUTH_ADMIN_ROLES = OAUTH_ADMIN_ROLES
-
-app.state.config.ENABLE_LDAP = ENABLE_LDAP
-app.state.config.LDAP_SERVER_LABEL = LDAP_SERVER_LABEL
-app.state.config.LDAP_SERVER_HOST = LDAP_SERVER_HOST
-app.state.config.LDAP_SERVER_PORT = LDAP_SERVER_PORT
-app.state.config.LDAP_ATTRIBUTE_FOR_MAIL = LDAP_ATTRIBUTE_FOR_MAIL
-app.state.config.LDAP_ATTRIBUTE_FOR_USERNAME = LDAP_ATTRIBUTE_FOR_USERNAME
-app.state.config.LDAP_APP_DN = LDAP_APP_DN
-app.state.config.LDAP_APP_PASSWORD = LDAP_APP_PASSWORD
-app.state.config.LDAP_SEARCH_BASE = LDAP_SEARCH_BASE
-app.state.config.LDAP_SEARCH_FILTERS = LDAP_SEARCH_FILTERS
-app.state.config.LDAP_USE_TLS = LDAP_USE_TLS
-app.state.config.LDAP_CA_CERT_FILE = LDAP_CA_CERT_FILE
-app.state.config.LDAP_VALIDATE_CERT = LDAP_VALIDATE_CERT
-app.state.config.LDAP_CIPHERS = LDAP_CIPHERS
-
-# For LDAP Group Management
-app.state.config.ENABLE_LDAP_GROUP_MANAGEMENT = ENABLE_LDAP_GROUP_MANAGEMENT
-app.state.config.ENABLE_LDAP_GROUP_CREATION = ENABLE_LDAP_GROUP_CREATION
-app.state.config.LDAP_ATTRIBUTE_FOR_GROUPS = LDAP_ATTRIBUTE_FOR_GROUPS
-
-
 app.state.AUTH_TRUSTED_EMAIL_HEADER = WEBUI_AUTH_TRUSTED_EMAIL_HEADER
 app.state.AUTH_TRUSTED_NAME_HEADER = WEBUI_AUTH_TRUSTED_NAME_HEADER
 app.state.WEBUI_AUTH_SIGNOUT_REDIRECT_URL = WEBUI_AUTH_SIGNOUT_REDIRECT_URL
@@ -958,7 +738,6 @@ app.state.config.RAG_FULL_CONTEXT = RAG_FULL_CONTEXT
 app.state.config.BYPASS_EMBEDDING_AND_RETRIEVAL = BYPASS_EMBEDDING_AND_RETRIEVAL
 app.state.config.ENABLE_RAG_HYBRID_SEARCH = ENABLE_RAG_HYBRID_SEARCH
 app.state.config.ENABLE_RAG_HYBRID_SEARCH_ENRICHED_TEXTS = ENABLE_RAG_HYBRID_SEARCH_ENRICHED_TEXTS
-app.state.config.ENABLE_WEB_LOADER_SSL_VERIFICATION = ENABLE_WEB_LOADER_SSL_VERIFICATION
 
 app.state.config.CONTENT_EXTRACTION_ENGINE = CONTENT_EXTRACTION_ENGINE
 app.state.config.DATALAB_MARKER_API_KEY = DATALAB_MARKER_API_KEY
@@ -1013,13 +792,6 @@ app.state.config.RAG_EXTERNAL_RERANKER_TIMEOUT = RAG_EXTERNAL_RERANKER_TIMEOUT
 
 app.state.config.RAG_TEMPLATE = RAG_TEMPLATE
 
-app.state.config.RAG_OPENAI_API_BASE_URL = RAG_OPENAI_API_BASE_URL
-app.state.config.RAG_OPENAI_API_KEY = RAG_OPENAI_API_KEY
-
-app.state.config.RAG_AZURE_OPENAI_BASE_URL = RAG_AZURE_OPENAI_BASE_URL
-app.state.config.RAG_AZURE_OPENAI_API_KEY = RAG_AZURE_OPENAI_API_KEY
-app.state.config.RAG_AZURE_OPENAI_API_VERSION = RAG_AZURE_OPENAI_API_VERSION
-
 app.state.config.RAG_OLLAMA_BASE_URL = RAG_OLLAMA_BASE_URL
 app.state.config.RAG_OLLAMA_API_KEY = RAG_OLLAMA_API_KEY
 
@@ -1028,75 +800,6 @@ app.state.config.PDF_LOADER_MODE = PDF_LOADER_MODE
 
 app.state.config.YOUTUBE_LOADER_LANGUAGE = YOUTUBE_LOADER_LANGUAGE
 app.state.config.YOUTUBE_LOADER_PROXY_URL = YOUTUBE_LOADER_PROXY_URL
-
-
-app.state.config.ENABLE_WEB_SEARCH = ENABLE_WEB_SEARCH
-app.state.config.WEB_SEARCH_ENGINE = WEB_SEARCH_ENGINE
-app.state.config.WEB_SEARCH_DOMAIN_FILTER_LIST = WEB_SEARCH_DOMAIN_FILTER_LIST
-app.state.config.WEB_SEARCH_RESULT_COUNT = WEB_SEARCH_RESULT_COUNT
-app.state.config.WEB_SEARCH_CONCURRENT_REQUESTS = WEB_SEARCH_CONCURRENT_REQUESTS
-app.state.config.WEB_FETCH_MAX_CONTENT_LENGTH = WEB_FETCH_MAX_CONTENT_LENGTH
-
-app.state.config.WEB_LOADER_ENGINE = WEB_LOADER_ENGINE
-app.state.config.WEB_LOADER_CONCURRENT_REQUESTS = WEB_LOADER_CONCURRENT_REQUESTS
-app.state.config.WEB_LOADER_TIMEOUT = WEB_LOADER_TIMEOUT
-
-app.state.config.WEB_SEARCH_TRUST_ENV = WEB_SEARCH_TRUST_ENV
-app.state.config.BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL = BYPASS_WEB_SEARCH_EMBEDDING_AND_RETRIEVAL
-app.state.config.BYPASS_WEB_SEARCH_WEB_LOADER = BYPASS_WEB_SEARCH_WEB_LOADER
-
-app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION = ENABLE_GOOGLE_DRIVE_INTEGRATION
-app.state.config.ENABLE_ONEDRIVE_INTEGRATION = ENABLE_ONEDRIVE_INTEGRATION
-
-app.state.config.OLLAMA_CLOUD_WEB_SEARCH_API_KEY = OLLAMA_CLOUD_WEB_SEARCH_API_KEY
-app.state.config.SEARXNG_QUERY_URL = SEARXNG_QUERY_URL
-app.state.config.SEARXNG_LANGUAGE = SEARXNG_LANGUAGE
-app.state.config.YACY_QUERY_URL = YACY_QUERY_URL
-app.state.config.YACY_USERNAME = YACY_USERNAME
-app.state.config.YACY_PASSWORD = YACY_PASSWORD
-app.state.config.GOOGLE_PSE_API_KEY = GOOGLE_PSE_API_KEY
-app.state.config.GOOGLE_PSE_ENGINE_ID = GOOGLE_PSE_ENGINE_ID
-app.state.config.BRAVE_SEARCH_API_KEY = BRAVE_SEARCH_API_KEY
-app.state.config.KAGI_SEARCH_API_KEY = KAGI_SEARCH_API_KEY
-app.state.config.MOJEEK_SEARCH_API_KEY = MOJEEK_SEARCH_API_KEY
-app.state.config.BOCHA_SEARCH_API_KEY = BOCHA_SEARCH_API_KEY
-app.state.config.SERPSTACK_API_KEY = SERPSTACK_API_KEY
-app.state.config.SERPSTACK_HTTPS = SERPSTACK_HTTPS
-app.state.config.SERPER_API_KEY = SERPER_API_KEY
-app.state.config.SERPLY_API_KEY = SERPLY_API_KEY
-app.state.config.DDGS_BACKEND = DDGS_BACKEND
-app.state.config.TAVILY_API_KEY = TAVILY_API_KEY
-app.state.config.SEARCHAPI_API_KEY = SEARCHAPI_API_KEY
-app.state.config.SEARCHAPI_ENGINE = SEARCHAPI_ENGINE
-app.state.config.SERPAPI_API_KEY = SERPAPI_API_KEY
-app.state.config.SERPAPI_ENGINE = SERPAPI_ENGINE
-app.state.config.JINA_API_KEY = JINA_API_KEY
-app.state.config.JINA_API_BASE_URL = JINA_API_BASE_URL
-app.state.config.BING_SEARCH_V7_ENDPOINT = BING_SEARCH_V7_ENDPOINT
-app.state.config.BING_SEARCH_V7_SUBSCRIPTION_KEY = BING_SEARCH_V7_SUBSCRIPTION_KEY
-app.state.config.EXA_API_KEY = EXA_API_KEY
-app.state.config.PERPLEXITY_API_KEY = PERPLEXITY_API_KEY
-app.state.config.PERPLEXITY_MODEL = PERPLEXITY_MODEL
-app.state.config.PERPLEXITY_SEARCH_CONTEXT_USAGE = PERPLEXITY_SEARCH_CONTEXT_USAGE
-app.state.config.PERPLEXITY_SEARCH_API_URL = PERPLEXITY_SEARCH_API_URL
-app.state.config.SOUGOU_API_SID = SOUGOU_API_SID
-app.state.config.SOUGOU_API_SK = SOUGOU_API_SK
-app.state.config.EXTERNAL_WEB_SEARCH_URL = EXTERNAL_WEB_SEARCH_URL
-app.state.config.EXTERNAL_WEB_SEARCH_API_KEY = EXTERNAL_WEB_SEARCH_API_KEY
-app.state.config.EXTERNAL_WEB_LOADER_URL = EXTERNAL_WEB_LOADER_URL
-app.state.config.EXTERNAL_WEB_LOADER_API_KEY = EXTERNAL_WEB_LOADER_API_KEY
-app.state.config.YANDEX_WEB_SEARCH_URL = YANDEX_WEB_SEARCH_URL
-app.state.config.YANDEX_WEB_SEARCH_API_KEY = YANDEX_WEB_SEARCH_API_KEY
-app.state.config.YANDEX_WEB_SEARCH_CONFIG = YANDEX_WEB_SEARCH_CONFIG
-app.state.config.YOUCOM_API_KEY = YOUCOM_API_KEY
-
-
-app.state.config.PLAYWRIGHT_WS_URL = PLAYWRIGHT_WS_URL
-app.state.config.PLAYWRIGHT_TIMEOUT = PLAYWRIGHT_TIMEOUT
-app.state.config.FIRECRAWL_API_BASE_URL = FIRECRAWL_API_BASE_URL
-app.state.config.FIRECRAWL_API_KEY = FIRECRAWL_API_KEY
-app.state.config.FIRECRAWL_TIMEOUT = FIRECRAWL_TIMEOUT
-app.state.config.TAVILY_EXTRACT_DEPTH = TAVILY_EXTRACT_DEPTH
 
 app.state.EMBEDDING_FUNCTION = None
 app.state.RERANKING_FUNCTION = None
@@ -1127,30 +830,9 @@ app.state.EMBEDDING_FUNCTION = get_embedding_function(
     app.state.config.RAG_EMBEDDING_ENGINE,
     app.state.config.RAG_EMBEDDING_MODEL,
     embedding_function=app.state.ef,
-    url=(
-        app.state.config.RAG_OPENAI_API_BASE_URL
-        if app.state.config.RAG_EMBEDDING_ENGINE == 'openai'
-        else (
-            app.state.config.RAG_OLLAMA_BASE_URL
-            if app.state.config.RAG_EMBEDDING_ENGINE == 'ollama'
-            else app.state.config.RAG_AZURE_OPENAI_BASE_URL
-        )
-    ),
-    key=(
-        app.state.config.RAG_OPENAI_API_KEY
-        if app.state.config.RAG_EMBEDDING_ENGINE == 'openai'
-        else (
-            app.state.config.RAG_OLLAMA_API_KEY
-            if app.state.config.RAG_EMBEDDING_ENGINE == 'ollama'
-            else app.state.config.RAG_AZURE_OPENAI_API_KEY
-        )
-    ),
+    url=app.state.config.RAG_OLLAMA_BASE_URL if app.state.config.RAG_EMBEDDING_ENGINE == 'ollama' else '',
+    key=app.state.config.RAG_OLLAMA_API_KEY if app.state.config.RAG_EMBEDDING_ENGINE == 'ollama' else '',
     embedding_batch_size=app.state.config.RAG_EMBEDDING_BATCH_SIZE,
-    azure_api_version=(
-        app.state.config.RAG_AZURE_OPENAI_API_VERSION
-        if app.state.config.RAG_EMBEDDING_ENGINE == 'azure_openai'
-        else None
-    ),
     enable_async=app.state.config.ENABLE_ASYNC_EMBEDDING,
     concurrent_requests=app.state.config.RAG_EMBEDDING_CONCURRENT_REQUESTS,
 )
@@ -1200,15 +882,6 @@ app.state.config.IMAGE_GENERATION_MODEL = IMAGE_GENERATION_MODEL
 app.state.config.IMAGE_SIZE = IMAGE_SIZE
 app.state.config.IMAGE_STEPS = IMAGE_STEPS
 
-app.state.config.IMAGES_OPENAI_API_BASE_URL = IMAGES_OPENAI_API_BASE_URL
-app.state.config.IMAGES_OPENAI_API_VERSION = IMAGES_OPENAI_API_VERSION
-app.state.config.IMAGES_OPENAI_API_KEY = IMAGES_OPENAI_API_KEY
-app.state.config.IMAGES_OPENAI_API_PARAMS = IMAGES_OPENAI_API_PARAMS
-
-app.state.config.IMAGES_GEMINI_API_BASE_URL = IMAGES_GEMINI_API_BASE_URL
-app.state.config.IMAGES_GEMINI_API_KEY = IMAGES_GEMINI_API_KEY
-app.state.config.IMAGES_GEMINI_ENDPOINT_METHOD = IMAGES_GEMINI_ENDPOINT_METHOD
-
 app.state.config.AUTOMATIC1111_BASE_URL = AUTOMATIC1111_BASE_URL
 app.state.config.AUTOMATIC1111_API_AUTH = AUTOMATIC1111_API_AUTH
 app.state.config.AUTOMATIC1111_PARAMS = AUTOMATIC1111_PARAMS
@@ -1223,11 +896,6 @@ app.state.config.ENABLE_IMAGE_EDIT = ENABLE_IMAGE_EDIT
 app.state.config.IMAGE_EDIT_ENGINE = IMAGE_EDIT_ENGINE
 app.state.config.IMAGE_EDIT_MODEL = IMAGE_EDIT_MODEL
 app.state.config.IMAGE_EDIT_SIZE = IMAGE_EDIT_SIZE
-app.state.config.IMAGES_EDIT_OPENAI_API_BASE_URL = IMAGES_EDIT_OPENAI_API_BASE_URL
-app.state.config.IMAGES_EDIT_OPENAI_API_KEY = IMAGES_EDIT_OPENAI_API_KEY
-app.state.config.IMAGES_EDIT_OPENAI_API_VERSION = IMAGES_EDIT_OPENAI_API_VERSION
-app.state.config.IMAGES_EDIT_GEMINI_API_BASE_URL = IMAGES_EDIT_GEMINI_API_BASE_URL
-app.state.config.IMAGES_EDIT_GEMINI_API_KEY = IMAGES_EDIT_GEMINI_API_KEY
 app.state.config.IMAGES_EDIT_COMFYUI_BASE_URL = IMAGES_EDIT_COMFYUI_BASE_URL
 app.state.config.IMAGES_EDIT_COMFYUI_API_KEY = IMAGES_EDIT_COMFYUI_API_KEY
 app.state.config.IMAGES_EDIT_COMFYUI_WORKFLOW = IMAGES_EDIT_COMFYUI_WORKFLOW
@@ -1243,39 +911,12 @@ app.state.config.IMAGES_EDIT_COMFYUI_WORKFLOW_NODES = IMAGES_EDIT_COMFYUI_WORKFL
 app.state.config.STT_ENGINE = AUDIO_STT_ENGINE
 app.state.config.STT_MODEL = AUDIO_STT_MODEL
 app.state.config.STT_SUPPORTED_CONTENT_TYPES = AUDIO_STT_SUPPORTED_CONTENT_TYPES
-
-app.state.config.STT_OPENAI_API_BASE_URL = AUDIO_STT_OPENAI_API_BASE_URL
-app.state.config.STT_OPENAI_API_KEY = AUDIO_STT_OPENAI_API_KEY
-
 app.state.config.WHISPER_MODEL = WHISPER_MODEL
-app.state.config.DEEPGRAM_API_KEY = DEEPGRAM_API_KEY
-
-app.state.config.AUDIO_STT_AZURE_API_KEY = AUDIO_STT_AZURE_API_KEY
-app.state.config.AUDIO_STT_AZURE_REGION = AUDIO_STT_AZURE_REGION
-app.state.config.AUDIO_STT_AZURE_LOCALES = AUDIO_STT_AZURE_LOCALES
-app.state.config.AUDIO_STT_AZURE_BASE_URL = AUDIO_STT_AZURE_BASE_URL
-app.state.config.AUDIO_STT_AZURE_MAX_SPEAKERS = AUDIO_STT_AZURE_MAX_SPEAKERS
-
-app.state.config.AUDIO_STT_MISTRAL_API_KEY = AUDIO_STT_MISTRAL_API_KEY
-app.state.config.AUDIO_STT_MISTRAL_API_BASE_URL = AUDIO_STT_MISTRAL_API_BASE_URL
-app.state.config.AUDIO_STT_MISTRAL_USE_CHAT_COMPLETIONS = AUDIO_STT_MISTRAL_USE_CHAT_COMPLETIONS
 
 app.state.config.TTS_ENGINE = AUDIO_TTS_ENGINE
-
 app.state.config.TTS_MODEL = AUDIO_TTS_MODEL
 app.state.config.TTS_VOICE = AUDIO_TTS_VOICE
-
-app.state.config.TTS_OPENAI_API_BASE_URL = AUDIO_TTS_OPENAI_API_BASE_URL
-app.state.config.TTS_OPENAI_API_KEY = AUDIO_TTS_OPENAI_API_KEY
-app.state.config.TTS_OPENAI_PARAMS = AUDIO_TTS_OPENAI_PARAMS
-
-app.state.config.TTS_API_KEY = AUDIO_TTS_API_KEY
 app.state.config.TTS_SPLIT_ON = AUDIO_TTS_SPLIT_ON
-
-
-app.state.config.TTS_AZURE_SPEECH_REGION = AUDIO_TTS_AZURE_SPEECH_REGION
-app.state.config.TTS_AZURE_SPEECH_BASE_URL = AUDIO_TTS_AZURE_SPEECH_BASE_URL
-app.state.config.TTS_AZURE_SPEECH_OUTPUT_FORMAT = AUDIO_TTS_AZURE_SPEECH_OUTPUT_FORMAT
 
 
 app.state.faster_whisper_model = None
@@ -1485,10 +1126,8 @@ app.mount('/ws', socket_app)
 
 
 app.include_router(ollama.router, prefix='/ollama', tags=['ollama'])
-app.include_router(openai.router, prefix='/openai', tags=['openai'])
 
 
-app.include_router(pipelines.router, prefix='/api/v1/pipelines', tags=['pipelines'])
 app.include_router(tasks.router, prefix='/api/v1/tasks', tags=['tasks'])
 app.include_router(images.router, prefix='/api/v1/images', tags=['images'])
 
@@ -1501,9 +1140,7 @@ app.include_router(auths.router, prefix='/api/v1/auths', tags=['auths'])
 app.include_router(users.router, prefix='/api/v1/users', tags=['users'])
 
 
-app.include_router(channels.router, prefix='/api/v1/channels', tags=['channels'])
 app.include_router(chats.router, prefix='/api/v1/chats', tags=['chats'])
-app.include_router(notes.router, prefix='/api/v1/notes', tags=['notes'])
 
 
 app.include_router(models.router, prefix='/api/v1/models', tags=['models'])
@@ -1521,11 +1158,6 @@ app.include_router(evaluations.router, prefix='/api/v1/evaluations', tags=['eval
 if ENABLE_ADMIN_ANALYTICS:
     app.include_router(analytics.router, prefix='/api/v1/analytics', tags=['analytics'])
 app.include_router(utils.router, prefix='/api/v1/utils', tags=['utils'])
-app.include_router(terminals.router, prefix='/api/v1/terminals', tags=['terminals'])
-
-# SCIM 2.0 API for identity management
-if ENABLE_SCIM:
-    app.include_router(scim.router, prefix='/api/v1/scim/v2', tags=['scim'])
 
 
 try:
@@ -2043,17 +1675,15 @@ async def get_app_config(request: Request):
         'name': app.state.WEBUI_NAME,
         'version': VERSION,
         'default_locale': str(DEFAULT_LOCALE),
-        'oauth': {'providers': {name: config.get('name', name) for name, config in OAUTH_PROVIDERS.items()}},
         'features': {
             'auth': WEBUI_AUTH,
             'auth_trusted_header': bool(app.state.AUTH_TRUSTED_EMAIL_HEADER),
             'enable_signup_password_confirmation': ENABLE_SIGNUP_PASSWORD_CONFIRMATION,
-            'enable_ldap': app.state.config.ENABLE_LDAP,
             'enable_api_keys': app.state.config.ENABLE_API_KEYS,
             'enable_signup': app.state.config.ENABLE_SIGNUP,
             'enable_login_form': app.state.config.ENABLE_LOGIN_FORM,
             'enable_websocket': ENABLE_WEBSOCKET_SUPPORT,
-            'enable_version_update_check': ENABLE_VERSION_UPDATE_CHECK,
+            'enable_version_update_check': False,
             'enable_public_active_users_count': ENABLE_PUBLIC_ACTIVE_USERS_COUNT,
             'enable_easter_eggs': ENABLE_EASTER_EGGS,
             **(
@@ -2061,9 +1691,6 @@ async def get_app_config(request: Request):
                     'enable_direct_connections': app.state.config.ENABLE_DIRECT_CONNECTIONS,
                     'enable_folders': app.state.config.ENABLE_FOLDERS,
                     'folder_max_file_count': app.state.config.FOLDER_MAX_FILE_COUNT,
-                    'enable_channels': app.state.config.ENABLE_CHANNELS,
-                    'enable_notes': app.state.config.ENABLE_NOTES,
-                    'enable_web_search': app.state.config.ENABLE_WEB_SEARCH,
                     'enable_code_execution': app.state.config.ENABLE_CODE_EXECUTION,
                     'enable_code_interpreter': app.state.config.ENABLE_CODE_INTERPRETER,
                     'enable_image_generation': app.state.config.ENABLE_IMAGE_GENERATION,
@@ -2075,17 +1702,7 @@ async def get_app_config(request: Request):
                     'enable_admin_export': ENABLE_ADMIN_EXPORT,
                     'enable_admin_chat_access': ENABLE_ADMIN_CHAT_ACCESS,
                     'enable_admin_analytics': ENABLE_ADMIN_ANALYTICS,
-                    'enable_google_drive_integration': app.state.config.ENABLE_GOOGLE_DRIVE_INTEGRATION,
-                    'enable_onedrive_integration': app.state.config.ENABLE_ONEDRIVE_INTEGRATION,
                     'enable_memories': app.state.config.ENABLE_MEMORIES,
-                    **(
-                        {
-                            'enable_onedrive_personal': ENABLE_ONEDRIVE_PERSONAL,
-                            'enable_onedrive_business': ENABLE_ONEDRIVE_BUSINESS,
-                        }
-                        if app.state.config.ENABLE_ONEDRIVE_INTEGRATION
-                        else {}
-                    ),
                 }
                 if user is not None
                 else {}
@@ -2120,16 +1737,6 @@ async def get_app_config(request: Request):
                     },
                 },
                 'permissions': {**app.state.config.USER_PERMISSIONS},
-                'google_drive': {
-                    'client_id': GOOGLE_DRIVE_CLIENT_ID.value,
-                    'api_key': GOOGLE_DRIVE_API_KEY.value,
-                },
-                'onedrive': {
-                    'client_id_personal': ONEDRIVE_CLIENT_ID_PERSONAL,
-                    'client_id_business': ONEDRIVE_CLIENT_ID_BUSINESS,
-                    'sharepoint_url': ONEDRIVE_SHAREPOINT_URL.value,
-                    'sharepoint_tenant_id': ONEDRIVE_SHAREPOINT_TENANT_ID.value,
-                },
                 'ui': {
                     'pending_user_overlay_title': app.state.config.PENDING_USER_OVERLAY_TITLE,
                     'pending_user_overlay_content': app.state.config.PENDING_USER_OVERLAY_CONTENT,
@@ -2199,24 +1806,7 @@ async def get_app_version():
 
 @app.get('/api/version/updates')
 async def get_app_latest_release_version(user=Depends(get_verified_user)):
-    if not ENABLE_VERSION_UPDATE_CHECK:
-        log.debug(f'Version update check is disabled, returning current version as latest version')
-        return {'current': VERSION, 'latest': VERSION}
-    try:
-        timeout = aiohttp.ClientTimeout(total=1)
-        async with aiohttp.ClientSession(timeout=timeout, trust_env=True) as session:
-            async with session.get(
-                'https://api.github.com/repos/open-webui/open-webui/releases/latest',
-                ssl=AIOHTTP_CLIENT_SESSION_SSL,
-            ) as response:
-                response.raise_for_status()
-                data = await response.json()
-                latest_version = data['tag_name']
-
-                return {'current': VERSION, 'latest': latest_version[1:]}
-    except Exception as e:
-        log.debug(e)
-        return {'current': VERSION, 'latest': VERSION}
+    return {'current': VERSION, 'latest': VERSION}
 
 
 @app.get('/api/changelog')
@@ -2428,28 +2018,6 @@ async def oauth_client_callback(
         user_id=user.id if user else None,
         response=response,
     )
-
-
-@app.get('/oauth/{provider}/login')
-async def oauth_login(provider: str, request: Request):
-    return await oauth_manager.handle_login(request, provider)
-
-
-# OAuth login logic is as follows:
-# 1. Attempt to find a user with matching subject ID, tied to the provider
-# 2. If OAUTH_MERGE_ACCOUNTS_BY_EMAIL is true, find a user with the email address provided via OAuth
-#    - This is considered insecure in general, as OAuth providers do not always verify email addresses
-# 3. If there is no user, and ENABLE_OAUTH_SIGNUP is true, create a user
-#    - Email addresses are considered unique, so we fail registration if the email address is already taken
-@app.get('/oauth/{provider}/login/callback')
-@app.get('/oauth/{provider}/callback')  # Legacy endpoint
-async def oauth_login_callback(
-    provider: str,
-    request: Request,
-    response: Response,
-    db: Session = Depends(get_session),
-):
-    return await oauth_manager.handle_callback(request, provider, response, db=db)
 
 
 @app.get('/manifest.json')

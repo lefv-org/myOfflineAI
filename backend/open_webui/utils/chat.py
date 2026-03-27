@@ -23,17 +23,8 @@ from open_webui.socket.main import (
 )
 from open_webui.functions import generate_function_chat_completion
 
-from open_webui.routers.openai import (
-    generate_chat_completion as generate_openai_chat_completion,
-)
-
 from open_webui.routers.ollama import (
     generate_chat_completion as generate_ollama_chat_completion,
-)
-
-from open_webui.routers.pipelines import (
-    process_pipeline_inlet_filter,
-    process_pipeline_outlet_filter,
 )
 
 from open_webui.models.functions import Functions
@@ -293,11 +284,9 @@ async def generate_chat_completion(
             else:
                 return convert_response_ollama_to_openai(response)
         else:
-            return await generate_openai_chat_completion(
-                request=request,
-                form_data=form_data,
-                user=user,
-                bypass_system_prompt=bypass_system_prompt,
+            raise Exception(
+                'Only Ollama models are supported in this airgapped deployment. '
+                f'Model "{model_id}" is not an Ollama model.'
             )
 
 
@@ -321,11 +310,6 @@ async def chat_completed(request: Request, form_data: dict, user: Any):
         raise Exception('Model not found')
 
     model = models[model_id]
-
-    try:
-        data = await process_pipeline_outlet_filter(request, data, user, models)
-    except Exception as e:
-        raise Exception(f'Error: {e}')
 
     metadata = {
         'chat_id': data['chat_id'],

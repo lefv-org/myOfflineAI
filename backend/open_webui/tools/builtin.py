@@ -15,7 +15,6 @@ from typing import Optional
 from fastapi import Request
 
 from open_webui.models.users import UserModel
-from open_webui.routers.retrieval import search_web as _search_web
 from open_webui.retrieval.utils import get_content_from_url
 from open_webui.routers.images import (
     image_generations,
@@ -31,10 +30,7 @@ from open_webui.routers.memories import (
     AddMemoryForm,
     MemoryUpdateModel,
 )
-from open_webui.models.notes import Notes
 from open_webui.models.chats import Chats
-from open_webui.models.channels import Channels, ChannelMember, Channel
-from open_webui.models.messages import Messages, Message
 from open_webui.models.groups import Groups
 from open_webui.models.memories import Memories
 from open_webui.retrieval.vector.factory import VECTOR_DB_CLIENT
@@ -139,53 +135,6 @@ async def calculate_timestamp(
         )
     except Exception as e:
         log.exception(f'calculate_timestamp error: {e}')
-        return json.dumps({'error': str(e)})
-
-
-# =============================================================================
-# WEB SEARCH TOOLS
-# =============================================================================
-
-
-async def search_web(
-    query: str,
-    count: int = 5,
-    __request__: Request = None,
-    __user__: dict = None,
-) -> str:
-    """
-    Search the public web for information. Best for current events, external references,
-    or topics not covered in internal documents.
-
-    :param query: The search query to look up
-    :param count: Number of results to return (default: 5)
-    :return: JSON with search results containing title, link, and snippet for each result
-    """
-    if __request__ is None:
-        return json.dumps({'error': 'Request context not available'})
-
-    try:
-        engine = __request__.app.state.config.WEB_SEARCH_ENGINE
-        user = UserModel(**__user__) if __user__ else None
-
-        # Enforce maximum result count from config to prevent abuse
-        count = (
-            count
-            if count < __request__.app.state.config.WEB_SEARCH_RESULT_COUNT
-            else __request__.app.state.config.WEB_SEARCH_RESULT_COUNT
-        )
-
-        results = await asyncio.to_thread(_search_web, __request__, engine, query, user)
-
-        # Limit results
-        results = results[:count] if results else []
-
-        return json.dumps(
-            [{'title': r.title, 'link': r.link, 'snippet': r.snippet} for r in results],
-            ensure_ascii=False,
-        )
-    except Exception as e:
-        log.exception(f'search_web error: {e}')
         return json.dumps({'error': str(e)})
 
 
@@ -701,271 +650,6 @@ async def list_memories(
         return json.dumps({'error': str(e)})
 
 
-# =============================================================================
-# NOTES TOOLS
-# =============================================================================
-
-
-async def search_notes(
-    query: str,
-    count: int = 5,
-    start_timestamp: Optional[int] = None,
-    end_timestamp: Optional[int] = None,
-    __request__: Request = None,
-    __user__: dict = None,
-) -> str:
-    """
-    Search the user's notes by title and content.
-
-    :param query: The search query to find matching notes
-    :param count: Maximum number of results to return (default: 5)
-    :param start_timestamp: Only include notes updated after this Unix timestamp (seconds)
-    :param end_timestamp: Only include notes updated before this Unix timestamp (seconds)
-    :return: JSON with matching notes containing id, title, and content snippet
-    """
-    if __request__ is None:
-        return json.dumps({'error': 'Request context not available'})
-
-    if not __user__:
-        return json.dumps({'error': 'User context not available'})
-
-    try:
-        user_id = __user__.get('id')
-        user_group_ids = [group.id for group in Groups.get_groups_by_member_id(user_id)]
-
-        result = Notes.search_notes(
-            user_id=user_id,
-            filter={
-                'query': query,
-                'user_id': user_id,
-                'group_ids': user_group_ids,
-                'permission': 'read',
-            },
-            skip=0,
-            limit=count * 3,  # Fetch more for filtering
-        )
-
-        # Convert timestamps to nanoseconds for comparison
-        start_ts = start_timestamp * 1_000_000_000 if start_timestamp else None
-        end_ts = end_timestamp * 1_000_000_000 if end_timestamp else None
-
-        notes = []
-        for note in result.items:
-            # Apply date filters (updated_at is in nanoseconds)
-            if start_ts and note.updated_at < start_ts:
-                continue
-            if end_ts and note.updated_at > end_ts:
-                continue
-
-            # Extract a snippet from the markdown content
-            content_snippet = ''
-            if note.data and note.data.get('content', {}).get('md'):
-                md_content = note.data['content']['md']
-                lower_content = md_content.lower()
-                lower_query = query.lower()
-                idx = lower_content.find(lower_query)
-                if idx != -1:
-                    start = max(0, idx - 50)
-                    end = min(len(md_content), idx + len(query) + 100)
-                    content_snippet = (
-                        ('...' if start > 0 else '') + md_content[start:end] + ('...' if end < len(md_content) else '')
-                    )
-                else:
-                    content_snippet = md_content[:150] + ('...' if len(md_content) > 150 else '')
-
-            notes.append(
-                {
-                    'id': note.id,
-                    'title': note.title,
-                    'snippet': content_snippet,
-                    'updated_at': note.updated_at,
-                }
-            )
-
-            if len(notes) >= count:
-                break
-
-        return json.dumps(notes, ensure_ascii=False)
-    except Exception as e:
-        log.exception(f'search_notes error: {e}')
-        return json.dumps({'error': str(e)})
-
-
-async def view_note(
-    note_id: str,
-    __request__: Request = None,
-    __user__: dict = None,
-) -> str:
-    """
-    Get the full content of a note by its ID.
-
-    :param note_id: The ID of the note to retrieve
-    :return: JSON with the note's id, title, and full markdown content
-    """
-    if __request__ is None:
-        return json.dumps({'error': 'Request context not available'})
-
-    if not __user__:
-        return json.dumps({'error': 'User context not available'})
-
-    try:
-        note = Notes.get_note_by_id(note_id)
-
-        if not note:
-            return json.dumps({'error': 'Note not found'})
-
-        # Check access permission
-        user_id = __user__.get('id')
-        user_group_ids = [group.id for group in Groups.get_groups_by_member_id(user_id)]
-
-        from open_webui.models.access_grants import AccessGrants
-
-        if note.user_id != user_id and not AccessGrants.has_access(
-            user_id=user_id,
-            resource_type='note',
-            resource_id=note.id,
-            permission='read',
-            user_group_ids=set(user_group_ids),
-        ):
-            return json.dumps({'error': 'Access denied'})
-
-        # Extract markdown content
-        content = ''
-        if note.data and note.data.get('content', {}).get('md'):
-            content = note.data['content']['md']
-
-        return json.dumps(
-            {
-                'id': note.id,
-                'title': note.title,
-                'content': content,
-                'updated_at': note.updated_at,
-                'created_at': note.created_at,
-            },
-            ensure_ascii=False,
-        )
-    except Exception as e:
-        log.exception(f'view_note error: {e}')
-        return json.dumps({'error': str(e)})
-
-
-async def write_note(
-    title: str,
-    content: str,
-    __request__: Request = None,
-    __user__: dict = None,
-) -> str:
-    """
-    Create a new note with the given title and content.
-
-    :param title: The title of the new note
-    :param content: The markdown content for the note
-    :return: JSON with success status and new note id
-    """
-    if __request__ is None:
-        return json.dumps({'error': 'Request context not available'})
-
-    if not __user__:
-        return json.dumps({'error': 'User context not available'})
-
-    try:
-        from open_webui.models.notes import NoteForm
-
-        user_id = __user__.get('id')
-
-        form = NoteForm(
-            title=title,
-            data={'content': {'md': content}},
-            access_grants=[],  # Private by default - only owner can access
-        )
-
-        new_note = Notes.insert_new_note(user_id, form)
-
-        if not new_note:
-            return json.dumps({'error': 'Failed to create note'})
-
-        return json.dumps(
-            {
-                'status': 'success',
-                'id': new_note.id,
-                'title': new_note.title,
-                'created_at': new_note.created_at,
-            },
-            ensure_ascii=False,
-        )
-    except Exception as e:
-        log.exception(f'write_note error: {e}')
-        return json.dumps({'error': str(e)})
-
-
-async def replace_note_content(
-    note_id: str,
-    content: str,
-    title: Optional[str] = None,
-    __request__: Request = None,
-    __user__: dict = None,
-) -> str:
-    """
-    Update the content of a note. Use this to modify task lists, add notes, or update content.
-
-    :param note_id: The ID of the note to update
-    :param content: The new markdown content for the note
-    :param title: Optional new title for the note
-    :return: JSON with success status and updated note info
-    """
-    if __request__ is None:
-        return json.dumps({'error': 'Request context not available'})
-
-    if not __user__:
-        return json.dumps({'error': 'User context not available'})
-
-    try:
-        from open_webui.models.notes import NoteUpdateForm
-
-        note = Notes.get_note_by_id(note_id)
-
-        if not note:
-            return json.dumps({'error': 'Note not found'})
-
-        # Check write permission
-        user_id = __user__.get('id')
-        user_group_ids = [group.id for group in Groups.get_groups_by_member_id(user_id)]
-
-        from open_webui.models.access_grants import AccessGrants
-
-        if note.user_id != user_id and not AccessGrants.has_access(
-            user_id=user_id,
-            resource_type='note',
-            resource_id=note.id,
-            permission='write',
-            user_group_ids=set(user_group_ids),
-        ):
-            return json.dumps({'error': 'Write access denied'})
-
-        # Build update form
-        update_data = {'data': {'content': {'md': content}}}
-        if title:
-            update_data['title'] = title
-
-        form = NoteUpdateForm(**update_data)
-        updated_note = Notes.update_note_by_id(note_id, form)
-
-        if not updated_note:
-            return json.dumps({'error': 'Failed to update note'})
-
-        return json.dumps(
-            {
-                'status': 'success',
-                'id': updated_note.id,
-                'title': updated_note.title,
-                'updated_at': updated_note.updated_at,
-            },
-            ensure_ascii=False,
-        )
-    except Exception as e:
-        log.exception(f'replace_note_content error: {e}')
-        return json.dumps({'error': str(e)})
-
 
 # =============================================================================
 # CHATS TOOLS
@@ -1117,287 +801,6 @@ async def view_chat(
         log.exception(f'view_chat error: {e}')
         return json.dumps({'error': str(e)})
 
-
-# =============================================================================
-# CHANNELS TOOLS
-# =============================================================================
-
-
-async def search_channels(
-    query: str,
-    count: int = 5,
-    __request__: Request = None,
-    __user__: dict = None,
-) -> str:
-    """
-    Search for channels by name and description that the user has access to.
-
-    :param query: The search query to find matching channels
-    :param count: Maximum number of results to return (default: 5)
-    :return: JSON with matching channels containing id, name, description, and type
-    """
-    if __request__ is None:
-        return json.dumps({'error': 'Request context not available'})
-
-    if not __user__:
-        return json.dumps({'error': 'User context not available'})
-
-    try:
-        user_id = __user__.get('id')
-
-        # Get all channels the user has access to
-        all_channels = Channels.get_channels_by_user_id(user_id)
-
-        # Filter by query
-        lower_query = query.lower()
-        matching_channels = []
-
-        for channel in all_channels:
-            name_match = lower_query in channel.name.lower() if channel.name else False
-            desc_match = lower_query in (channel.description or '').lower()
-
-            if name_match or desc_match:
-                matching_channels.append(
-                    {
-                        'id': channel.id,
-                        'name': channel.name,
-                        'description': channel.description or '',
-                        'type': channel.type or 'public',
-                    }
-                )
-
-            if len(matching_channels) >= count:
-                break
-
-        return json.dumps(matching_channels, ensure_ascii=False)
-    except Exception as e:
-        log.exception(f'search_channels error: {e}')
-        return json.dumps({'error': str(e)})
-
-
-async def search_channel_messages(
-    query: str,
-    count: int = 10,
-    start_timestamp: Optional[int] = None,
-    end_timestamp: Optional[int] = None,
-    __request__: Request = None,
-    __user__: dict = None,
-) -> str:
-    """
-    Search for messages in channels the user is a member of, including thread replies.
-
-    :param query: The search query to find matching messages
-    :param count: Maximum number of results to return (default: 10)
-    :param start_timestamp: Only include messages created after this Unix timestamp (seconds)
-    :param end_timestamp: Only include messages created before this Unix timestamp (seconds)
-    :return: JSON with matching messages containing channel info, message content, and thread context
-    """
-    if __request__ is None:
-        return json.dumps({'error': 'Request context not available'})
-
-    if not __user__:
-        return json.dumps({'error': 'User context not available'})
-
-    try:
-        user_id = __user__.get('id')
-
-        # Get all channels the user has access to
-        user_channels = Channels.get_channels_by_user_id(user_id)
-        channel_ids = [c.id for c in user_channels]
-        channel_map = {c.id: c for c in user_channels}
-
-        if not channel_ids:
-            return json.dumps([])
-
-        # Convert timestamps to nanoseconds (Message.created_at is in nanoseconds)
-        start_ts = start_timestamp * 1_000_000_000 if start_timestamp else None
-        end_ts = end_timestamp * 1_000_000_000 if end_timestamp else None
-
-        # Search messages using the model method
-        matching_messages = Messages.search_messages_by_channel_ids(
-            channel_ids=channel_ids,
-            query=query,
-            start_timestamp=start_ts,
-            end_timestamp=end_ts,
-            limit=count,
-        )
-
-        results = []
-        for msg in matching_messages:
-            channel = channel_map.get(msg.channel_id)
-
-            # Extract snippet around the match
-            content = msg.content or ''
-            lower_query = query.lower()
-            idx = content.lower().find(lower_query)
-            if idx != -1:
-                start = max(0, idx - 50)
-                end = min(len(content), idx + len(query) + 100)
-                snippet = ('...' if start > 0 else '') + content[start:end] + ('...' if end < len(content) else '')
-            else:
-                snippet = content[:150] + ('...' if len(content) > 150 else '')
-
-            results.append(
-                {
-                    'channel_id': msg.channel_id,
-                    'channel_name': channel.name if channel else 'Unknown',
-                    'message_id': msg.id,
-                    'content_snippet': snippet,
-                    'is_thread_reply': msg.parent_id is not None,
-                    'parent_id': msg.parent_id,
-                    'created_at': msg.created_at,
-                }
-            )
-
-        return json.dumps(results, ensure_ascii=False)
-    except Exception as e:
-        log.exception(f'search_channel_messages error: {e}')
-        return json.dumps({'error': str(e)})
-
-
-async def view_channel_message(
-    message_id: str,
-    __request__: Request = None,
-    __user__: dict = None,
-) -> str:
-    """
-    Get the full content of a channel message by its ID, including thread replies.
-
-    :param message_id: The ID of the message to retrieve
-    :return: JSON with the message content, channel info, and thread replies if any
-    """
-    if __request__ is None:
-        return json.dumps({'error': 'Request context not available'})
-
-    if not __user__:
-        return json.dumps({'error': 'User context not available'})
-
-    try:
-        user_id = __user__.get('id')
-
-        message = Messages.get_message_by_id(message_id)
-
-        if not message:
-            return json.dumps({'error': 'Message not found'})
-
-        # Verify user has access to the channel
-        channel = Channels.get_channel_by_id(message.channel_id)
-        if not channel:
-            return json.dumps({'error': 'Channel not found'})
-
-        # Check if user has access to the channel
-        user_channels = Channels.get_channels_by_user_id(user_id)
-        channel_ids = [c.id for c in user_channels]
-
-        if message.channel_id not in channel_ids:
-            return json.dumps({'error': 'Access denied'})
-
-        # Build response with thread information
-        result = {
-            'id': message.id,
-            'channel_id': message.channel_id,
-            'channel_name': channel.name,
-            'content': message.content,
-            'user_id': message.user_id,
-            'is_thread_reply': message.parent_id is not None,
-            'parent_id': message.parent_id,
-            'reply_count': message.reply_count,
-            'created_at': message.created_at,
-            'updated_at': message.updated_at,
-        }
-
-        # Include user info if available
-        if message.user:
-            result['user_name'] = message.user.name
-
-        return json.dumps(result, ensure_ascii=False)
-    except Exception as e:
-        log.exception(f'view_channel_message error: {e}')
-        return json.dumps({'error': str(e)})
-
-
-async def view_channel_thread(
-    parent_message_id: str,
-    __request__: Request = None,
-    __user__: dict = None,
-) -> str:
-    """
-    Get all messages in a channel thread, including the parent message and all replies.
-
-    :param parent_message_id: The ID of the parent message that started the thread
-    :return: JSON with the parent message and all thread replies in chronological order
-    """
-    if __request__ is None:
-        return json.dumps({'error': 'Request context not available'})
-
-    if not __user__:
-        return json.dumps({'error': 'User context not available'})
-
-    try:
-        user_id = __user__.get('id')
-
-        # Get the parent message
-        parent_message = Messages.get_message_by_id(parent_message_id)
-
-        if not parent_message:
-            return json.dumps({'error': 'Message not found'})
-
-        # Verify user has access to the channel
-        channel = Channels.get_channel_by_id(parent_message.channel_id)
-        if not channel:
-            return json.dumps({'error': 'Channel not found'})
-
-        user_channels = Channels.get_channels_by_user_id(user_id)
-        channel_ids = [c.id for c in user_channels]
-
-        if parent_message.channel_id not in channel_ids:
-            return json.dumps({'error': 'Access denied'})
-
-        # Get all thread replies
-        thread_replies = Messages.get_thread_replies_by_message_id(parent_message_id)
-
-        # Build the response
-        messages = []
-
-        # Add parent message first
-        messages.append(
-            {
-                'id': parent_message.id,
-                'content': parent_message.content,
-                'user_id': parent_message.user_id,
-                'user_name': parent_message.user.name if parent_message.user else None,
-                'is_parent': True,
-                'created_at': parent_message.created_at,
-            }
-        )
-
-        # Add thread replies (reverse to get chronological order)
-        for reply in reversed(thread_replies):
-            messages.append(
-                {
-                    'id': reply.id,
-                    'content': reply.content,
-                    'user_id': reply.user_id,
-                    'user_name': reply.user.name if reply.user else None,
-                    'is_parent': False,
-                    'reply_to_id': reply.reply_to_id,
-                    'created_at': reply.created_at,
-                }
-            )
-
-        return json.dumps(
-            {
-                'channel_id': parent_message.channel_id,
-                'channel_name': channel.name,
-                'thread_id': parent_message_id,
-                'message_count': len(messages),
-                'messages': messages,
-            },
-            ensure_ascii=False,
-        )
-    except Exception as e:
-        log.exception(f'view_channel_thread error: {e}')
-        return json.dumps({'error': str(e)})
 
 
 # =============================================================================
@@ -1882,10 +1285,10 @@ async def list_knowledge(
     __model_knowledge__: Optional[list[dict]] = None,
 ) -> str:
     """
-    List all knowledge bases, files, and notes attached to the current model.
+    List all knowledge bases and files attached to the current model.
     Use this first to discover what knowledge is available before querying or reading files.
 
-    :return: JSON with knowledge_bases, files, and notes attached to this model
+    :return: JSON with knowledge_bases and files attached to this model
     """
     if __request__ is None:
         return json.dumps({'error': 'Request context not available'})
@@ -1894,12 +1297,11 @@ async def list_knowledge(
         return json.dumps({'error': 'User context not available'})
 
     if not __model_knowledge__:
-        return json.dumps({'knowledge_bases': [], 'files': [], 'notes': []})
+        return json.dumps({'knowledge_bases': [], 'files': []})
 
     try:
         from open_webui.models.knowledge import Knowledges
         from open_webui.models.files import Files
-        from open_webui.models.notes import Notes
         from open_webui.models.access_grants import AccessGrants
 
         user_id = __user__.get('id')
@@ -1908,7 +1310,6 @@ async def list_knowledge(
 
         knowledge_bases = []
         files = []
-        notes = []
 
         for item in __model_knowledge__:
             item_type = item.get('type')
@@ -1954,30 +1355,10 @@ async def list_knowledge(
                         }
                     )
 
-            elif item_type == 'note':
-                note = Notes.get_note_by_id(item_id)
-                if note and (
-                    user_role == 'admin'
-                    or note.user_id == user_id
-                    or AccessGrants.has_access(
-                        user_id=user_id,
-                        resource_type='note',
-                        resource_id=note.id,
-                        permission='read',
-                    )
-                ):
-                    notes.append(
-                        {
-                            'id': note.id,
-                            'title': note.title,
-                        }
-                    )
-
         return json.dumps(
             {
                 'knowledge_bases': knowledge_bases,
                 'files': files,
-                'notes': notes,
             },
             ensure_ascii=False,
         )
@@ -1995,8 +1376,8 @@ async def query_knowledge_files(
     __model_knowledge__: list[dict] = None,
 ) -> str:
     """
-    Search knowledge base files using semantic/vector search. Searches across collections (KBs),
-    individual files, and notes that the user has access to.
+    Search knowledge base files using semantic/vector search. Searches across collections (KBs)
+    and individual files that the user has access to.
 
     :param query: The search query to find semantically relevant content
     :param knowledge_ids: Optional list of KB ids to limit search to specific knowledge bases
@@ -2031,7 +1412,6 @@ async def query_knowledge_files(
     try:
         from open_webui.models.knowledge import Knowledges
         from open_webui.models.files import Files
-        from open_webui.models.notes import Notes
         from open_webui.retrieval.utils import query_collection
         from open_webui.models.access_grants import AccessGrants
 
@@ -2044,7 +1424,6 @@ async def query_knowledge_files(
             return json.dumps({'error': 'Embedding function not configured'})
 
         collection_names = []
-        note_results = []  # Notes aren't vectorized, handle separately
 
         # If model has attached knowledge, use those
         if __model_knowledge__:
@@ -2073,29 +1452,6 @@ async def query_knowledge_files(
                     file = Files.get_file_by_id(item_id)
                     if file:
                         collection_names.append(f'file-{item_id}')
-
-                elif item_type == 'note':
-                    # Note - always return full content as context
-                    note = Notes.get_note_by_id(item_id)
-                    if note and (
-                        user_role == 'admin'
-                        or note.user_id == user_id
-                        or AccessGrants.has_access(
-                            user_id=user_id,
-                            resource_type='note',
-                            resource_id=note.id,
-                            permission='read',
-                        )
-                    ):
-                        content = note.data.get('content', {}).get('md', '')
-                        note_results.append(
-                            {
-                                'content': content,
-                                'source': note.title,
-                                'note_id': note.id,
-                                'type': 'note',
-                            }
-                        )
 
         elif knowledge_ids:
             # User specified specific KBs
@@ -2128,9 +1484,6 @@ async def query_knowledge_files(
             collection_names = [knowledge_base.id for knowledge_base in result.items]
 
         chunks = []
-
-        # Add note results first
-        chunks.extend(note_results)
 
         # Query vector collections if any
         if collection_names:

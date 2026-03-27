@@ -9,7 +9,6 @@
 	import Spinner from '../../common/Spinner.svelte';
 	import PDFViewer from '../../common/PDFViewer.svelte';
 	import JsonTreeView from './JsonTreeView.svelte';
-	import NotebookView from './NotebookView.svelte';
 	import SqliteView from './SqliteView.svelte';
 	import FileCodeEditor from './FileCodeEditor.svelte';
 
@@ -26,10 +25,6 @@
 	export let filePdfData: ArrayBuffer | null = null;
 	export let fileSqliteData: ArrayBuffer | null = null;
 	export let fileContent: string | null = null;
-
-	// Terminal connection for notebook execution
-	export let baseUrl: string = '';
-	export let apiKey: string = '';
 
 	// Office preview props
 	export let fileOfficeHtml: string | null = null;
@@ -100,7 +95,6 @@
 	$: isHtml = HTML_EXTS.has(getExt(selectedFile));
 	$: isJson = JSON_EXTS.has(getExt(selectedFile));
 	$: isSvg = getExt(selectedFile) === 'svg';
-	$: isNotebook = getExt(selectedFile) === 'ipynb';
 	$: isCode = isCodeFile(selectedFile);
 	$: csvDelimiter = getExt(selectedFile) === 'tsv' ? '\t' : ',';
 	$: renderedHtml =
@@ -226,19 +220,6 @@
 	} else {
 		parsedJson = undefined;
 		jsonError = null;
-	}
-
-	// ── Notebook parsing ─────────────────────────────────────────────────
-	let parsedNotebook: Record<string, unknown> | null = null;
-
-	$: if (isNotebook && fileContent !== null) {
-		try {
-			parsedNotebook = JSON.parse(fileContent);
-		} catch {
-			parsedNotebook = null;
-		}
-	} else {
-		parsedNotebook = null;
 	}
 
 	export let showRaw = false;
@@ -465,10 +446,6 @@
 						{/each}
 					</tbody>
 				</table>
-			</div>
-		{:else if isNotebook && !showRaw && parsedNotebook}
-			<div class="overflow-auto h-full">
-				<NotebookView notebook={parsedNotebook} filePath={selectedFile ?? ''} {baseUrl} {apiKey} />
 			</div>
 		{:else if isJson && !showRaw && parsedJson !== undefined}
 			<div class="overflow-auto h-full">

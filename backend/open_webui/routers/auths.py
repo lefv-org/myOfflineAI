@@ -1,10 +1,8 @@
-import asyncio
 import re
 import uuid
 import time
 import datetime
 import logging
-from aiohttp import ClientSession
 import urllib
 
 
@@ -13,7 +11,6 @@ from open_webui.models.auths import (
     ApiKey,
     Auths,
     Token,
-    LdapForm,
     SigninForm,
     SigninResponse,
     SignupForm,
@@ -27,7 +24,6 @@ from open_webui.models.users import (
     UserStatus,
 )
 from open_webui.models.groups import Groups
-from open_webui.models.oauth_sessions import OAuthSessions
 
 from open_webui.constants import ERROR_MESSAGES, WEBHOOK_MESSAGES
 from open_webui.env import (
@@ -40,19 +36,11 @@ from open_webui.env import (
     WEBUI_AUTH_COOKIE_SECURE,
     WEBUI_AUTH_SIGNOUT_REDIRECT_URL,
     ENABLE_INITIAL_ADMIN_SIGNUP,
-    ENABLE_OAUTH_TOKEN_EXCHANGE,
-    AIOHTTP_CLIENT_SESSION_SSL,
 )
 from fastapi import APIRouter, Depends, HTTPException, Request, status
-from fastapi.responses import RedirectResponse, Response, JSONResponse
+from fastapi.responses import Response, JSONResponse
 from open_webui.config import (
-    OPENID_PROVIDER_URL,
-    OPENID_END_SESSION_ENDPOINT,
-    ENABLE_OAUTH_SIGNUP,
-    ENABLE_LDAP,
     ENABLE_PASSWORD_AUTH,
-    OAUTH_PROVIDERS,
-    OAUTH_MERGE_ACCOUNTS_BY_EMAIL,
 )
 from pydantic import BaseModel
 
@@ -82,11 +70,6 @@ from open_webui.utils.rate_limit import RateLimiter
 
 from typing import Optional, List
 
-from ssl import CERT_NONE, CERT_REQUIRED, PROTOCOL_TLS
-
-from ldap3 import Server, Connection, NONE, Tls
-from ldap3.utils.conv import escape_filter_chars
-
 router = APIRouter()
 
 log = logging.getLogger(__name__)
@@ -99,7 +82,7 @@ signin_rate_limiter = RateLimiter(redis_client=get_redis_client(), limit=5 * 3, 
 def create_session_response(request: Request, user, db, response: Response = None, set_cookie: bool = False) -> dict:
     """
     Create JWT token and build session response for a user.
-    Shared helper for signin, signup, ldap_auth, add_user, and token_exchange endpoints.
+    Shared helper for signin, signup, and add_user endpoints.
 
     Args:
         request: FastAPI request object
@@ -301,229 +284,6 @@ async def update_password(
     else:
         raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
 
-
-############################
-# LDAP Authentication
-############################
-@router.post('/ldap', response_model=SessionUserResponse)
-async def ldap_auth(
-    request: Request,
-    response: Response,
-    form_data: LdapForm,
-    db: Session = Depends(get_session),
-):
-    # Security checks FIRST - before loading any config
-    if not request.app.state.config.ENABLE_LDAP:
-        raise HTTPException(400, detail='LDAP authentication is not enabled')
-
-    if not ENABLE_PASSWORD_AUTH:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail=ERROR_MESSAGES.ACTION_PROHIBITED,
-        )
-
-    # NOW load LDAP config variables
-    LDAP_SERVER_LABEL = request.app.state.config.LDAP_SERVER_LABEL
-    LDAP_SERVER_HOST = request.app.state.config.LDAP_SERVER_HOST
-    LDAP_SERVER_PORT = request.app.state.config.LDAP_SERVER_PORT
-    LDAP_ATTRIBUTE_FOR_MAIL = request.app.state.config.LDAP_ATTRIBUTE_FOR_MAIL
-    LDAP_ATTRIBUTE_FOR_USERNAME = request.app.state.config.LDAP_ATTRIBUTE_FOR_USERNAME
-    LDAP_SEARCH_BASE = request.app.state.config.LDAP_SEARCH_BASE
-    LDAP_SEARCH_FILTERS = request.app.state.config.LDAP_SEARCH_FILTERS
-    LDAP_APP_DN = request.app.state.config.LDAP_APP_DN
-    LDAP_APP_PASSWORD = request.app.state.config.LDAP_APP_PASSWORD
-    LDAP_USE_TLS = request.app.state.config.LDAP_USE_TLS
-    LDAP_CA_CERT_FILE = request.app.state.config.LDAP_CA_CERT_FILE
-    LDAP_VALIDATE_CERT = CERT_REQUIRED if request.app.state.config.LDAP_VALIDATE_CERT else CERT_NONE
-    LDAP_CIPHERS = request.app.state.config.LDAP_CIPHERS if request.app.state.config.LDAP_CIPHERS else 'ALL'
-
-    try:
-        tls = Tls(
-            validate=LDAP_VALIDATE_CERT,
-            version=PROTOCOL_TLS,
-            ca_certs_file=LDAP_CA_CERT_FILE,
-            ciphers=LDAP_CIPHERS,
-        )
-    except Exception as e:
-        log.error(f'TLS configuration error: {str(e)}')
-        raise HTTPException(400, detail='Failed to configure TLS for LDAP connection.')
-
-    try:
-        server = Server(
-            host=LDAP_SERVER_HOST,
-            port=LDAP_SERVER_PORT,
-            get_info=NONE,
-            use_ssl=LDAP_USE_TLS,
-            tls=tls,
-        )
-        connection_app = Connection(
-            server,
-            LDAP_APP_DN,
-            LDAP_APP_PASSWORD,
-            auto_bind='NONE',
-            authentication='SIMPLE' if LDAP_APP_DN else 'ANONYMOUS',
-        )
-        if not await asyncio.to_thread(connection_app.bind):
-            raise HTTPException(400, detail='Application account bind failed')
-
-        ENABLE_LDAP_GROUP_MANAGEMENT = request.app.state.config.ENABLE_LDAP_GROUP_MANAGEMENT
-        ENABLE_LDAP_GROUP_CREATION = request.app.state.config.ENABLE_LDAP_GROUP_CREATION
-        LDAP_ATTRIBUTE_FOR_GROUPS = request.app.state.config.LDAP_ATTRIBUTE_FOR_GROUPS
-
-        search_attributes = [
-            f'{LDAP_ATTRIBUTE_FOR_USERNAME}',
-            f'{LDAP_ATTRIBUTE_FOR_MAIL}',
-            'cn',
-        ]
-        if ENABLE_LDAP_GROUP_MANAGEMENT:
-            search_attributes.append(f'{LDAP_ATTRIBUTE_FOR_GROUPS}')
-            log.info(f'LDAP Group Management enabled. Adding {LDAP_ATTRIBUTE_FOR_GROUPS} to search attributes')
-        log.info(f'LDAP search attributes: {search_attributes}')
-
-        search_success = await asyncio.to_thread(
-            connection_app.search,
-            search_base=LDAP_SEARCH_BASE,
-            search_filter=f'(&({LDAP_ATTRIBUTE_FOR_USERNAME}={escape_filter_chars(form_data.user.lower())}){LDAP_SEARCH_FILTERS})',
-            attributes=search_attributes,
-        )
-        if not search_success or not connection_app.entries:
-            raise HTTPException(400, detail='User not found in the LDAP server')
-
-        entry = connection_app.entries[0]
-        entry_username = entry[f'{LDAP_ATTRIBUTE_FOR_USERNAME}'].value
-        email = entry[f'{LDAP_ATTRIBUTE_FOR_MAIL}'].value  # retrieve the Attribute value
-
-        username_list = []  # list of usernames from LDAP attribute
-        if isinstance(entry_username, list):
-            username_list = [str(name).lower() for name in entry_username]
-        else:
-            username_list = [str(entry_username).lower()]
-
-        # TODO: support multiple emails if LDAP returns a list
-        if not email:
-            raise HTTPException(400, 'User does not have a valid email address.')
-        elif isinstance(email, str):
-            email = email.lower()
-        elif isinstance(email, list):
-            email = email[0].lower()
-        else:
-            email = str(email).lower()
-
-        cn = str(entry['cn'])  # common name
-        user_dn = entry.entry_dn  # user distinguished name
-
-        user_groups = []
-        if ENABLE_LDAP_GROUP_MANAGEMENT and LDAP_ATTRIBUTE_FOR_GROUPS in entry:
-            group_dns = entry[LDAP_ATTRIBUTE_FOR_GROUPS]
-            log.info(f'LDAP raw group DNs for user {username_list}: {group_dns}')
-
-            if group_dns:
-                log.info(f'LDAP group_dns original: {group_dns}')
-                log.info(f'LDAP group_dns type: {type(group_dns)}')
-                log.info(f'LDAP group_dns length: {len(group_dns)}')
-
-                if hasattr(group_dns, 'value'):
-                    group_dns = group_dns.value
-                    log.info(f'Extracted .value property: {group_dns}')
-                elif hasattr(group_dns, '__iter__') and not isinstance(group_dns, (str, bytes)):
-                    group_dns = list(group_dns)
-                    log.info(f'Converted to list: {group_dns}')
-
-                if isinstance(group_dns, list):
-                    group_dns = [str(item) for item in group_dns]
-                else:
-                    group_dns = [str(group_dns)]
-
-                log.info(f'LDAP group_dns after processing - type: {type(group_dns)}, length: {len(group_dns)}')
-
-                for group_idx, group_dn in enumerate(group_dns):
-                    group_dn = str(group_dn)
-                    log.info(f'Processing group DN #{group_idx + 1}: {group_dn}')
-
-                    try:
-                        group_cn = None
-
-                        for item in group_dn.split(','):
-                            item = item.strip()
-                            if item.upper().startswith('CN='):
-                                group_cn = item[3:]
-                                break
-
-                        if group_cn:
-                            user_groups.append(group_cn)
-
-                        else:
-                            log.warning(f'Could not extract CN from group DN: {group_dn}')
-                    except Exception as e:
-                        log.warning(f'Failed to extract group name from DN {group_dn}: {e}')
-
-                log.info(f'LDAP groups for user {username_list}: {user_groups} (total: {len(user_groups)})')
-            else:
-                log.info(f'No groups found for user {username_list}')
-        elif ENABLE_LDAP_GROUP_MANAGEMENT:
-            log.warning(
-                f'LDAP Group Management enabled but {LDAP_ATTRIBUTE_FOR_GROUPS} attribute not found in user entry'
-            )
-
-        if username_list and form_data.user.lower() in username_list:
-            connection_user = Connection(
-                server,
-                user_dn,
-                form_data.password,
-                auto_bind='NONE',
-                authentication='SIMPLE',
-            )
-            if not await asyncio.to_thread(connection_user.bind):
-                raise HTTPException(400, 'Authentication failed.')
-
-            user = Users.get_user_by_email(email, db=db)
-            if not user:
-                try:
-                    role = 'admin' if not Users.has_users(db=db) else request.app.state.config.DEFAULT_USER_ROLE
-
-                    user = Auths.insert_new_auth(
-                        email=email,
-                        password=str(uuid.uuid4()),
-                        name=cn,
-                        role=role,
-                        db=db,
-                    )
-
-                    if not user:
-                        raise HTTPException(500, detail=ERROR_MESSAGES.CREATE_USER_ERROR)
-
-                    apply_default_group_assignment(
-                        request.app.state.config.DEFAULT_GROUP_ID,
-                        user.id,
-                        db=db,
-                    )
-
-                except HTTPException:
-                    raise
-                except Exception as err:
-                    log.error(f'LDAP user creation error: {str(err)}')
-                    raise HTTPException(500, detail='Internal error occurred during LDAP user creation.')
-
-            user = Auths.authenticate_user_by_email(email, db=db)
-
-            if user:
-                if ENABLE_LDAP_GROUP_MANAGEMENT and user_groups:
-                    if ENABLE_LDAP_GROUP_CREATION:
-                        Groups.create_groups_by_group_names(user.id, user_groups, db=db)
-                    try:
-                        Groups.sync_groups_by_group_names(user.id, user_groups, db=db)
-                        log.info(f'Successfully synced groups for user {user.id}: {user_groups}')
-                    except Exception as e:
-                        log.error(f'Failed to sync groups for user {user.id}: {e}')
-
-                return create_session_response(request, user, db, response, set_cookie=True)
-            else:
-                raise HTTPException(400, detail=ERROR_MESSAGES.INVALID_CRED)
-        else:
-            raise HTTPException(400, 'User record mismatch.')
-    except Exception as e:
-        log.error(f'LDAP authentication error: {str(e)}')
-        raise HTTPException(400, detail='LDAP authentication failed.')
 
 
 ############################
@@ -765,63 +525,6 @@ async def signout(request: Request, response: Response, db: Session = Depends(ge
 
     response.delete_cookie('token')
     response.delete_cookie('oui-session')
-    response.delete_cookie('oauth_id_token')
-
-    oauth_session_id = request.cookies.get('oauth_session_id')
-    if oauth_session_id:
-        response.delete_cookie('oauth_session_id')
-
-        session = OAuthSessions.get_session_by_id(oauth_session_id, db=db)
-
-        # If a custom end_session_endpoint is configured (e.g. AWS Cognito), redirect
-        # there directly instead of attempting OIDC discovery.
-        if OPENID_END_SESSION_ENDPOINT.value:
-            return JSONResponse(
-                status_code=200,
-                content={
-                    'status': True,
-                    'redirect_url': OPENID_END_SESSION_ENDPOINT.value,
-                },
-                headers=response.headers,
-            )
-
-        oauth_server_metadata_url = (
-            request.app.state.oauth_manager.get_server_metadata_url(session.provider) if session else None
-        ) or OPENID_PROVIDER_URL.value
-
-        if session and oauth_server_metadata_url:
-            oauth_id_token = session.token.get('id_token')
-            try:
-                async with ClientSession(trust_env=True) as session:
-                    async with session.get(oauth_server_metadata_url) as r:
-                        if r.status == 200:
-                            openid_data = await r.json()
-                            logout_url = openid_data.get('end_session_endpoint')
-
-                            if logout_url:
-                                return JSONResponse(
-                                    status_code=200,
-                                    content={
-                                        'status': True,
-                                        'redirect_url': f'{logout_url}?id_token_hint={oauth_id_token}'
-                                        + (
-                                            f'&post_logout_redirect_uri={WEBUI_AUTH_SIGNOUT_REDIRECT_URL}'
-                                            if WEBUI_AUTH_SIGNOUT_REDIRECT_URL
-                                            else ''
-                                        ),
-                                    },
-                                    headers=response.headers,
-                                )
-                        else:
-                            raise Exception('Failed to fetch OpenID configuration')
-
-            except Exception as e:
-                log.error(f'OpenID signout error: {str(e)}')
-                raise HTTPException(
-                    status_code=500,
-                    detail='Failed to sign out from the OpenID provider.',
-                    headers=response.headers,
-                )
 
     if WEBUI_AUTH_SIGNOUT_REDIRECT_URL:
         return JSONResponse(
@@ -1052,101 +755,6 @@ async def update_admin_config(request: Request, form_data: AdminConfig, user=Dep
     }
 
 
-class LdapServerConfig(BaseModel):
-    label: str
-    host: str
-    port: Optional[int] = None
-    attribute_for_mail: str = 'mail'
-    attribute_for_username: str = 'uid'
-    app_dn: str
-    app_dn_password: str
-    search_base: str
-    search_filters: str = ''
-    use_tls: bool = True
-    certificate_path: Optional[str] = None
-    validate_cert: bool = True
-    ciphers: Optional[str] = 'ALL'
-
-
-@router.get('/admin/config/ldap/server', response_model=LdapServerConfig)
-async def get_ldap_server(request: Request, user=Depends(get_admin_user)):
-    return {
-        'label': request.app.state.config.LDAP_SERVER_LABEL,
-        'host': request.app.state.config.LDAP_SERVER_HOST,
-        'port': request.app.state.config.LDAP_SERVER_PORT,
-        'attribute_for_mail': request.app.state.config.LDAP_ATTRIBUTE_FOR_MAIL,
-        'attribute_for_username': request.app.state.config.LDAP_ATTRIBUTE_FOR_USERNAME,
-        'app_dn': request.app.state.config.LDAP_APP_DN,
-        'app_dn_password': request.app.state.config.LDAP_APP_PASSWORD,
-        'search_base': request.app.state.config.LDAP_SEARCH_BASE,
-        'search_filters': request.app.state.config.LDAP_SEARCH_FILTERS,
-        'use_tls': request.app.state.config.LDAP_USE_TLS,
-        'certificate_path': request.app.state.config.LDAP_CA_CERT_FILE,
-        'validate_cert': request.app.state.config.LDAP_VALIDATE_CERT,
-        'ciphers': request.app.state.config.LDAP_CIPHERS,
-    }
-
-
-@router.post('/admin/config/ldap/server')
-async def update_ldap_server(request: Request, form_data: LdapServerConfig, user=Depends(get_admin_user)):
-    required_fields = [
-        'label',
-        'host',
-        'attribute_for_mail',
-        'attribute_for_username',
-        'search_base',
-    ]
-    for key in required_fields:
-        value = getattr(form_data, key)
-        if not value:
-            raise HTTPException(400, detail=f'Required field {key} is empty')
-
-    request.app.state.config.LDAP_SERVER_LABEL = form_data.label
-    request.app.state.config.LDAP_SERVER_HOST = form_data.host
-    request.app.state.config.LDAP_SERVER_PORT = form_data.port
-    request.app.state.config.LDAP_ATTRIBUTE_FOR_MAIL = form_data.attribute_for_mail
-    request.app.state.config.LDAP_ATTRIBUTE_FOR_USERNAME = form_data.attribute_for_username
-    request.app.state.config.LDAP_APP_DN = form_data.app_dn or ''
-    request.app.state.config.LDAP_APP_PASSWORD = form_data.app_dn_password or ''
-    request.app.state.config.LDAP_SEARCH_BASE = form_data.search_base
-    request.app.state.config.LDAP_SEARCH_FILTERS = form_data.search_filters
-    request.app.state.config.LDAP_USE_TLS = form_data.use_tls
-    request.app.state.config.LDAP_CA_CERT_FILE = form_data.certificate_path
-    request.app.state.config.LDAP_VALIDATE_CERT = form_data.validate_cert
-    request.app.state.config.LDAP_CIPHERS = form_data.ciphers
-
-    return {
-        'label': request.app.state.config.LDAP_SERVER_LABEL,
-        'host': request.app.state.config.LDAP_SERVER_HOST,
-        'port': request.app.state.config.LDAP_SERVER_PORT,
-        'attribute_for_mail': request.app.state.config.LDAP_ATTRIBUTE_FOR_MAIL,
-        'attribute_for_username': request.app.state.config.LDAP_ATTRIBUTE_FOR_USERNAME,
-        'app_dn': request.app.state.config.LDAP_APP_DN,
-        'app_dn_password': request.app.state.config.LDAP_APP_PASSWORD,
-        'search_base': request.app.state.config.LDAP_SEARCH_BASE,
-        'search_filters': request.app.state.config.LDAP_SEARCH_FILTERS,
-        'use_tls': request.app.state.config.LDAP_USE_TLS,
-        'certificate_path': request.app.state.config.LDAP_CA_CERT_FILE,
-        'validate_cert': request.app.state.config.LDAP_VALIDATE_CERT,
-        'ciphers': request.app.state.config.LDAP_CIPHERS,
-    }
-
-
-@router.get('/admin/config/ldap')
-async def get_ldap_config(request: Request, user=Depends(get_admin_user)):
-    return {'ENABLE_LDAP': request.app.state.config.ENABLE_LDAP}
-
-
-class LdapConfigForm(BaseModel):
-    enable_ldap: Optional[bool] = None
-
-
-@router.post('/admin/config/ldap')
-async def update_ldap_config(request: Request, form_data: LdapConfigForm, user=Depends(get_admin_user)):
-    request.app.state.config.ENABLE_LDAP = form_data.enable_ldap
-    return {'ENABLE_LDAP': request.app.state.config.ENABLE_LDAP}
-
-
 ############################
 # API Key
 ############################
@@ -1191,105 +799,3 @@ async def get_api_key(user=Depends(get_current_user), db: Session = Depends(get_
         }
     else:
         raise HTTPException(404, detail=ERROR_MESSAGES.API_KEY_NOT_FOUND)
-
-
-############################
-# Token Exchange
-############################
-
-
-class TokenExchangeForm(BaseModel):
-    token: str  # OAuth access token from external provider
-
-
-@router.post('/oauth/{provider}/token/exchange', response_model=SessionUserResponse)
-async def token_exchange(
-    request: Request,
-    response: Response,
-    provider: str,
-    form_data: TokenExchangeForm,
-    db: Session = Depends(get_session),
-):
-    """
-    Exchange an external OAuth provider token for an OpenWebUI JWT.
-    This endpoint is disabled by default. Set ENABLE_OAUTH_TOKEN_EXCHANGE=True to enable.
-    """
-    if not ENABLE_OAUTH_TOKEN_EXCHANGE:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='Token exchange is disabled',
-        )
-
-    provider = provider.lower()
-
-    # Check if provider is configured
-    if provider not in OAUTH_PROVIDERS:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Provider '{provider}' is not configured",
-        )
-    # Get the OAuth client for this provider
-    oauth_manager = request.app.state.oauth_manager
-    client = oauth_manager.get_client(provider)
-    if not client:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"OAuth client for '{provider}' not found",
-        )
-
-    # Validate the token by calling the userinfo endpoint
-    try:
-        token_data = {'access_token': form_data.token, 'token_type': 'Bearer'}
-        user_data = await client.userinfo(token=token_data)
-
-        if not user_data:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail='Invalid token or unable to fetch user info',
-            )
-    except Exception as e:
-        log.warning(f'Token exchange failed for provider {provider}: {e}')
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Invalid token or unable to validate with provider',
-        )
-
-    # Extract user information from the token claims
-    email_claim = request.app.state.config.OAUTH_EMAIL_CLAIM
-    username_claim = request.app.state.config.OAUTH_USERNAME_CLAIM
-
-    # Get sub claim
-    sub = user_data.get(request.app.state.config.OAUTH_SUB_CLAIM or OAUTH_PROVIDERS[provider].get('sub_claim', 'sub'))
-    if not sub:
-        log.warning(f'Token exchange failed: sub claim missing from user data')
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Token missing required 'sub' claim",
-        )
-
-    email = user_data.get(email_claim, '')
-    if not email:
-        log.warning(f'Token exchange failed: email claim missing from user data')
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Token missing required email claim',
-        )
-    email = email.lower()
-
-    # Try to find the user by OAuth sub
-    user = Users.get_user_by_oauth_sub(provider, sub, db=db)
-
-    if not user and OAUTH_MERGE_ACCOUNTS_BY_EMAIL.value:
-        # Try to find by email if merge is enabled
-        user = Users.get_user_by_email(email, db=db)
-        if user:
-            # Link the OAuth sub to this user
-            Users.update_user_oauth_by_id(user.id, provider, sub, db=db)
-
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail='User not found. Please sign in via the web interface first.',
-        )
-
-    return create_session_response(request, user, db)

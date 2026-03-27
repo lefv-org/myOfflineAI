@@ -41,20 +41,12 @@ from open_webui.routers.tasks import (
     generate_image_prompt,
     generate_chat_tags,
 )
-from open_webui.routers.retrieval import (
-    process_web_search,
-    SearchForm,
-)
 from open_webui.utils.tools import get_builtin_tools
 from open_webui.routers.images import (
     image_generations,
     CreateImageForm,
     image_edits,
     EditImageForm,
-)
-from open_webui.routers.pipelines import (
-    process_pipeline_inlet_filter,
-    process_pipeline_outlet_filter,
 )
 from open_webui.routers.memories import query_memory, QueryMemoryForm
 
@@ -231,7 +223,7 @@ def get_citation_source_from_tool_result(
 
     Returns a list of sources (usually one, but query_knowledge_files may return multiple).
     """
-    _EXPECTS_LIST = {'search_web', 'query_knowledge_files'}
+    _EXPECTS_LIST = {'query_knowledge_files'}
     _EXPECTS_DICT = {'view_knowledge_file', 'view_file'}
 
     try:
@@ -248,35 +240,7 @@ def get_citation_source_from_tool_result(
         elif tool_name in _EXPECTS_DICT and not isinstance(tool_result, dict):
             return []
 
-        if tool_name == 'search_web':
-            # Parse JSON array: [{"title": "...", "link": "...", "snippet": "..."}]
-            results = tool_result
-            documents = []
-            metadata = []
-
-            for result in results:
-                title = result.get('title', '')
-                link = result.get('link', '')
-                snippet = result.get('snippet', '')
-
-                documents.append(f'{title}\n{snippet}')
-                metadata.append(
-                    {
-                        'source': link,
-                        'name': title,
-                        'url': link,
-                    }
-                )
-
-            return [
-                {
-                    'source': {'name': 'search_web', 'id': 'search_web'},
-                    'document': documents,
-                    'metadata': metadata,
-                }
-            ]
-
-        elif tool_name in ('view_knowledge_file', 'view_file'):
+        if tool_name in ('view_knowledge_file', 'view_file'):
             file_data = tool_result
             filename = file_data.get('filename', 'Unknown File')
             file_id = file_data.get('id', '')
@@ -1425,166 +1389,6 @@ async def chat_memory_handler(request: Request, form_data: dict, extra_params: d
     return form_data
 
 
-async def chat_web_search_handler(request: Request, form_data: dict, extra_params: dict, user):
-    event_emitter = extra_params['__event_emitter__']
-    await event_emitter(
-        {
-            'type': 'status',
-            'data': {
-                'action': 'web_search',
-                'description': 'Searching the web',
-                'done': False,
-            },
-        }
-    )
-
-    messages = form_data['messages']
-    user_message = get_last_user_message(messages)
-
-    queries = []
-    try:
-        res = await generate_queries(
-            request,
-            {
-                'model': form_data['model'],
-                'messages': messages,
-                'prompt': user_message,
-                'type': 'web_search',
-                'chat_id': extra_params.get('__chat_id__'),
-            },
-            user,
-        )
-
-        response = res['choices'][0]['message']['content']
-
-        try:
-            bracket_start = response.rfind('{')
-            bracket_end = response.rfind('}') + 1
-
-            if bracket_start == -1 or bracket_end == -1:
-                raise Exception('No JSON object found in the response')
-
-            response = response[bracket_start:bracket_end]
-            queries = json.loads(response)
-            queries = queries.get('queries', [])
-        except Exception as e:
-            queries = [response]
-
-        if ENABLE_QUERIES_CACHE:
-            request.state.cached_queries = queries
-
-    except Exception as e:
-        log.exception(e)
-        queries = [user_message]
-
-    # Check if generated queries are empty
-    if len(queries) == 1 and queries[0].strip() == '':
-        queries = [user_message]
-
-    # Check if queries are not found
-    if len(queries) == 0:
-        await event_emitter(
-            {
-                'type': 'status',
-                'data': {
-                    'action': 'web_search',
-                    'description': 'No search query generated',
-                    'done': True,
-                },
-            }
-        )
-        return form_data
-
-    await event_emitter(
-        {
-            'type': 'status',
-            'data': {
-                'action': 'web_search_queries_generated',
-                'queries': queries,
-                'done': False,
-            },
-        }
-    )
-
-    try:
-        results = await process_web_search(
-            request,
-            SearchForm(queries=queries),
-            user=user,
-        )
-
-        if results:
-            files = form_data.get('files', [])
-
-            if results.get('collection_names'):
-                for col_idx, collection_name in enumerate(results.get('collection_names')):
-                    files.append(
-                        {
-                            'collection_name': collection_name,
-                            'name': ', '.join(queries),
-                            'type': 'web_search',
-                            'urls': results['filenames'],
-                            'queries': queries,
-                        }
-                    )
-            elif results.get('docs'):
-                # Invoked when bypass embedding and retrieval is set to True
-                docs = results['docs']
-                files.append(
-                    {
-                        'docs': docs,
-                        'name': ', '.join(queries),
-                        'type': 'web_search',
-                        'urls': results['filenames'],
-                        'queries': queries,
-                    }
-                )
-
-            form_data['files'] = files
-
-            await event_emitter(
-                {
-                    'type': 'status',
-                    'data': {
-                        'action': 'web_search',
-                        'description': 'Searched {{count}} sites',
-                        'urls': results['filenames'],
-                        'items': results.get('items', []),
-                        'done': True,
-                    },
-                }
-            )
-        else:
-            await event_emitter(
-                {
-                    'type': 'status',
-                    'data': {
-                        'action': 'web_search',
-                        'description': 'No search results found',
-                        'done': True,
-                        'error': True,
-                    },
-                }
-            )
-
-    except Exception as e:
-        log.exception(e)
-        await event_emitter(
-            {
-                'type': 'status',
-                'data': {
-                    'action': 'web_search',
-                    'description': 'An error occurred while searching the web',
-                    'queries': queries,
-                    'done': True,
-                    'error': True,
-                },
-            }
-        )
-
-    return form_data
-
-
 def get_images_from_messages(message_list):
     images = []
 
@@ -2298,12 +2102,6 @@ async def process_chat_payload(request, form_data, user, metadata, model):
 
     variables = form_data.pop('variables', None)
 
-    # Process the form_data through the pipeline
-    try:
-        form_data = await process_pipeline_inlet_filter(request, form_data, user, models)
-    except Exception as e:
-        raise e
-
     try:
         filter_ids = get_sorted_filter_ids(request, model, metadata.get('filter_ids', []))
         filter_functions = Functions.get_functions_by_ids(filter_ids)
@@ -2337,11 +2135,6 @@ async def process_chat_payload(request, form_data, user, metadata, model):
             # Skip forced memory injection when native FC is enabled - model can use memory tools
             if metadata.get('params', {}).get('function_calling') != 'native':
                 form_data = await chat_memory_handler(request, form_data, extra_params, user)
-
-        if 'web_search' in features and features['web_search']:
-            # Skip forced RAG web search when native FC is enabled - model can use web_search tool
-            if metadata.get('params', {}).get('function_calling') != 'native':
-                form_data = await chat_web_search_handler(request, form_data, extra_params, user)
 
         if 'image_generation' in features and features['image_generation']:
             # Skip forced image generation when native FC is enabled - model can use generate_image tool
@@ -2823,16 +2616,7 @@ def build_response_object(response, response_data):
 
 
 async def get_system_oauth_token(request, user):
-    oauth_token = None
-    try:
-        if request.cookies.get('oauth_session_id', None):
-            oauth_token = await request.app.state.oauth_manager.get_oauth_token(
-                user.id,
-                request.cookies.get('oauth_session_id', None),
-            )
-    except Exception as e:
-        log.error(f'Error getting OAuth token: {e}')
-    return oauth_token
+    return None
 
 
 async def background_tasks_handler(ctx):
@@ -4192,7 +3976,6 @@ async def streaming_chat_response_handler(response, ctx):
                             citations_enabled
                             and tool_function_name
                             in [
-                                'search_web',
                                 'fetch_url',
                                 'view_file',
                                 'view_knowledge_file',

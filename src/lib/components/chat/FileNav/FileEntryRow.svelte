@@ -1,7 +1,13 @@
 <script lang="ts">
 	import { getContext, tick, onDestroy } from 'svelte';
 	import { formatFileSize } from '$lib/utils';
-	import type { FileEntry } from '$lib/apis/terminal';
+	type FileEntry = {
+		name: string;
+		path: string;
+		is_dir: boolean;
+		size: number;
+		modified: number;
+	};
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
 	import Folder from '../../icons/Folder.svelte';

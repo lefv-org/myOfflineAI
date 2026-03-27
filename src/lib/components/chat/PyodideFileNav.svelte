@@ -6,7 +6,13 @@
 	import { getContext, onMount, onDestroy, tick } from 'svelte';
 	import { pyodideWorker } from '$lib/stores';
 	import PyodideWorkerConstructor from '$lib/workers/pyodide.worker?worker';
-	import type { FileEntry } from '$lib/apis/terminal';
+	type FileEntry = {
+		name: string;
+		path: string;
+		is_dir: boolean;
+		size: number;
+		modified: number;
+	};
 
 	import FileNavToolbar from './FileNav/FileNavToolbar.svelte';
 	import FileEntryRow from './FileNav/FileEntryRow.svelte';
