@@ -39,7 +39,8 @@ class TestOllamaRouterRegistered:
 
 
 class TestRemovedRoutersGone:
-    """After Phase 2, these endpoints should return 404."""
+    """After Phase 2, these API endpoints should not return JSON (the SPA catch-all
+    serves index.html for unregistered paths, so status is 200 but content is HTML)."""
 
     @pytest.mark.parametrize("path", [
         "/api/v1/channels",
@@ -49,6 +50,9 @@ class TestRemovedRoutersGone:
         "/api/v1/terminals",
         "/openai/api/chat/completions",
     ])
-    def test_removed_endpoint_is_404(self, client, path):
+    def test_removed_endpoint_has_no_json_api(self, client, path):
         response = client.get(path)
-        assert response.status_code == 404, f"{path} should be removed but returned {response.status_code}"
+        content_type = response.headers.get("content-type", "")
+        assert "application/json" not in content_type, (
+            f"{path} should be removed but still serves a JSON API response"
+        )
