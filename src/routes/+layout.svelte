@@ -50,10 +50,6 @@
 	import { getSessionUser, userSignOut } from '$lib/apis/auths';
 	import { getAllTags, getChatList } from '$lib/apis/chats';
 	import { chatCompletion } from '$lib/apis/openai';
-	import {
-		addOpenAIConnection,
-		removeOpenAIConnection
-	} from '$lib/utils/connections';
 
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL, WEBUI_HOSTNAME } from '$lib/constants';
 	import { bestMatchingLanguage, displayFileHandler } from '$lib/utils';
@@ -601,26 +597,6 @@
 			return;
 		}
 
-		const token = localStorage.token;
-		if (!token) return;
-
-		// Only admins can modify system-level connections
-		if ($user?.role !== 'admin') return;
-
-		try {
-			if (event.type === 'connections:openai') {
-				if (event.data.action === 'add') {
-					await addOpenAIConnection(token, {
-						url: event.data.url,
-						key: event.data.key
-					});
-				} else if (event.data.action === 'remove') {
-					await removeOpenAIConnection(token, event.data.url);
-				}
-			}
-		} catch (e) {
-			console.error('Desktop connection update failed:', e);
-		}
 	};
 
 	const windowMessageEventHandler = async (event) => {

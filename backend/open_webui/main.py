@@ -122,8 +122,6 @@ from open_webui.config import (
     THREAD_POOL_SIZE,
     # Tool Server Configs
     TOOL_SERVER_CONNECTIONS,
-    # Terminal Server
-    TERMINAL_SERVER_CONNECTIONS,
     # Code Execution
     ENABLE_CODE_EXECUTION,
     CODE_EXECUTION_ENGINE,
@@ -379,7 +377,7 @@ from open_webui.utils.middleware import (
     process_chat_payload,
     process_chat_response,
 )
-from open_webui.utils.tools import set_tool_servers, set_terminal_servers
+from open_webui.utils.tools import set_tool_servers
 
 from open_webui.utils.auth import (
     get_license_data,
@@ -541,11 +539,8 @@ async def lifespan(app: FastAPI):
             )
             await set_tool_servers(mock_request)
             log.info(f'Initialized {len(app.state.TOOL_SERVERS)} tool server(s)')
-
-            await set_terminal_servers(mock_request)
-            log.info(f'Initialized {len(app.state.TERMINAL_SERVERS)} terminal server(s)')
         except Exception as e:
-            log.warning(f'Failed to initialize tool/terminal servers at startup: {e}')
+            log.warning(f'Failed to initialize tool servers at startup: {e}')
 
     # Mark application as ready to accept traffic from a startup perspective.
     app.state.startup_complete = True
@@ -606,15 +601,6 @@ app.state.OLLAMA_MODELS = {}
 
 app.state.config.TOOL_SERVER_CONNECTIONS = TOOL_SERVER_CONNECTIONS
 app.state.TOOL_SERVERS = []
-
-########################################
-#
-# TERMINAL SERVER
-#
-########################################
-
-app.state.config.TERMINAL_SERVER_CONNECTIONS = TERMINAL_SERVER_CONNECTIONS
-app.state.TERMINAL_SERVERS = []
 
 ########################################
 #
