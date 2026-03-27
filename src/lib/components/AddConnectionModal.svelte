@@ -4,13 +4,11 @@
 	const i18n = getContext('i18n');
 
 	import { settings } from '$lib/stores';
-	import { verifyOpenAIConnection } from '$lib/apis/openai';
 	import { verifyOllamaConnection } from '$lib/apis/ollama';
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import Plus from '$lib/components/icons/Plus.svelte';
 	import Minus from '$lib/components/icons/Minus.svelte';
-	import PencilSolid from '$lib/components/icons/PencilSolid.svelte';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
@@ -18,7 +16,6 @@
 	import Tags from './common/Tags.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
-	import Textarea from './common/Textarea.svelte';
 
 	export let onSubmit: Function = () => {};
 	export let onDelete: Function = () => {};
@@ -36,14 +33,9 @@
 	let auth_type = 'bearer';
 
 	let connectionType = 'external';
-	let azure = false;
-	$: azure =
-		(url.includes('azure.') || url.includes('cognitive.microsoft.com')) && !direct ? true : false;
 
 	let prefixId = '';
 	let enable = true;
-	let apiVersion = '';
-	let apiType = ''; // '' = chat completions (default), 'responses' = Responses API
 
 	let headers = '';
 
@@ -71,54 +63,8 @@
 		}
 	};
 
-	const verifyOpenAIHandler = async () => {
-		// remove trailing slash from url
-		url = url.replace(/\/$/, '');
-
-		let _headers = null;
-
-		if (headers) {
-			try {
-				_headers = JSON.parse(headers);
-				if (typeof _headers !== 'object' || Array.isArray(_headers)) {
-					_headers = null;
-					throw new Error('Headers must be a valid JSON object');
-				}
-				headers = JSON.stringify(_headers, null, 2);
-			} catch (error) {
-				toast.error($i18n.t('Headers must be a valid JSON object'));
-				return;
-			}
-		}
-
-		const res = await verifyOpenAIConnection(
-			localStorage.token,
-			{
-				url,
-				key,
-				config: {
-					auth_type,
-					azure: azure,
-					api_version: apiVersion,
-					...(_headers ? { headers: _headers } : {})
-				}
-			},
-			direct
-		).catch((error) => {
-			toast.error(`${error}`);
-		});
-
-		if (res) {
-			toast.success($i18n.t('Server connection verified'));
-		}
-	};
-
 	const verifyHandler = () => {
-		if (ollama) {
-			verifyOllamaHandler();
-		} else {
-			verifyOpenAIHandler();
-		}
+		verifyOllamaHandler();
 	};
 
 	const addModelHandler = () => {
@@ -135,28 +81,6 @@
 			loading = false;
 			toast.error($i18n.t('URL is required'));
 			return;
-		}
-
-		if (azure) {
-			if (!apiVersion) {
-				loading = false;
-
-				toast.error($i18n.t('API Version is required'));
-				return;
-			}
-
-			if (!key && !['azure_ad', 'microsoft_entra_id'].includes(auth_type)) {
-				loading = false;
-
-				toast.error($i18n.t('Key is required'));
-				return;
-			}
-
-			if (modelIds.length === 0) {
-				loading = false;
-				toast.error($i18n.t('Deployment names are required for Azure OpenAI'));
-				return;
-			}
 		}
 
 		if (headers) {
@@ -185,9 +109,7 @@
 				model_ids: modelIds,
 				connection_type: connectionType,
 				auth_type,
-				headers: headers ? JSON.parse(headers) : undefined,
-				...(!ollama && azure ? { azure: true, api_version: apiVersion } : {}),
-				...(apiType ? { api_type: apiType } : {})
+				headers: headers ? JSON.parse(headers) : undefined
 			}
 		};
 
@@ -223,9 +145,6 @@
 				connectionType = connection.config?.connection_type ?? 'local';
 			} else {
 				connectionType = connection.config?.connection_type ?? 'external';
-				azure = connection.config?.azure ?? false;
-				apiVersion = connection.config?.api_version ?? '';
-				apiType = connection.config?.api_type ?? '';
 			}
 		}
 	};
@@ -311,21 +230,8 @@
 										bind:value={url}
 										placeholder={$i18n.t('API Base URL')}
 										autocomplete="off"
-										list={ollama ? undefined : 'suggestions'}
 										required
 									/>
-
-									{#if !ollama}
-										<datalist id="suggestions">
-											<option value="https://api.openai.com/v1" />
-											<option value="https://api.anthropic.com/v1" />
-											<option value="https://generativelanguage.googleapis.com/v1beta/openai" />
-											<option value="https://api.mistral.ai/v1" />
-											<option value="https://api.groq.com/openai/v1" />
-											<option value="https://openrouter.ai/api/v1" />
-											<option value="https://api.x.ai/v1" />
-										</datalist>
-									{/if}
 								</div>
 							</div>
 
@@ -381,16 +287,6 @@
 										>
 											<option value="none">{$i18n.t('None')}</option>
 											<option value="bearer">{$i18n.t('Bearer')}</option>
-
-											{#if !ollama}
-												<option value="session">{$i18n.t('Session')}</option>
-												{#if !direct}
-													<option value="system_oauth">{$i18n.t('OAuth')}</option>
-													{#if azure}
-														<option value="microsoft_entra_id">{$i18n.t('Entra ID')}</option>
-													{/if}
-												{/if}
-											{/if}
 										</select>
 									</div>
 
@@ -407,58 +303,12 @@
 											>
 												{$i18n.t('No authentication')}
 											</div>
-										{:else if auth_type === 'session'}
-											<div
-												class={`text-xs self-center translate-y-[1px] ${($settings?.highContrastMode ?? false) ? 'text-gray-800 dark:text-gray-100' : 'text-gray-500'}`}
-											>
-												{$i18n.t('Forwards system user session credentials to authenticate')}
-											</div>
-										{:else if auth_type === 'system_oauth'}
-											<div
-												class={`text-xs self-center translate-y-[1px] ${($settings?.highContrastMode ?? false) ? 'text-gray-800 dark:text-gray-100' : 'text-gray-500'}`}
-											>
-												{$i18n.t('Forwards system user OAuth access token to authenticate')}
-											</div>
-										{:else if ['azure_ad', 'microsoft_entra_id'].includes(auth_type)}
-											<div
-												class={`text-xs self-center translate-y-[1px] ${($settings?.highContrastMode ?? false) ? 'text-gray-800 dark:text-gray-100' : 'text-gray-500'}`}
-											>
-												{$i18n.t('Uses DefaultAzureCredential to authenticate')}
-											</div>
 										{/if}
 									</div>
 								</div>
 							</div>
 						</div>
 
-						{#if !ollama && !direct}
-							<div class="flex gap-2 mt-2">
-								<div class="flex flex-col w-full">
-									<label
-										for="headers-input"
-										class={`mb-0.5 text-xs text-gray-500
-								${($settings?.highContrastMode ?? false) ? 'text-gray-800 dark:text-gray-100' : ''}`}
-										>{$i18n.t('Headers')}</label
-									>
-
-									<div class="flex-1">
-										<Tooltip
-											content={$i18n.t(
-												'Enter additional headers in JSON format (e.g. {"X-Custom-Header": "value"}'
-											)}
-										>
-											<Textarea
-												className="w-full text-sm outline-hidden"
-												bind:value={headers}
-												placeholder={$i18n.t('Enter additional headers in JSON format')}
-												required={false}
-												minSize={30}
-											/>
-										</Tooltip>
-									</div>
-								</div>
-							</div>
-						{/if}
 
 						<div class="flex gap-2 mt-2">
 							<div class="flex flex-col w-full">
@@ -488,92 +338,6 @@
 							</div>
 						</div>
 
-						{#if !ollama && !direct}
-							<div class="flex flex-row justify-between items-center w-full mt-2">
-								<label
-									for="prefix-id-input"
-									class={`mb-0.5 text-xs text-gray-500
-								${($settings?.highContrastMode ?? false) ? 'text-gray-800 dark:text-gray-100' : ''}`}
-									>{$i18n.t('Provider Type')}</label
-								>
-
-								<div>
-									<button
-										on:click={() => {
-											azure = !azure;
-										}}
-										type="button"
-										class=" text-xs text-gray-700 dark:text-gray-300"
-									>
-										{azure ? $i18n.t('Azure OpenAI') : $i18n.t('OpenAI')}
-									</button>
-								</div>
-							</div>
-						{/if}
-
-						{#if azure}
-							<div class="flex gap-2 mt-2">
-								<div class="flex flex-col w-full">
-									<label
-										for="api-version-input"
-										class={`mb-0.5 text-xs text-gray-500
-								${($settings?.highContrastMode ?? false) ? 'text-gray-800 dark:text-gray-100' : ''}`}
-										>{$i18n.t('API Version')}</label
-									>
-
-									<div class="flex-1">
-										<input
-											id="api-version-input"
-											class={`w-full text-sm bg-transparent ${($settings?.highContrastMode ?? false) ? 'placeholder:text-gray-700 dark:placeholder:text-gray-100' : 'outline-hidden placeholder:text-gray-300 dark:placeholder:text-gray-700'}`}
-											type="text"
-											bind:value={apiVersion}
-											placeholder={$i18n.t('API Version')}
-											autocomplete="off"
-											required
-										/>
-									</div>
-								</div>
-							</div>
-						{/if}
-
-						{#if !ollama && !direct}
-							<div class="flex flex-row justify-between items-center w-full mt-1">
-								<label
-									for="api-type-toggle"
-									class={`mb-0.5 text-xs text-gray-500
-							${($settings?.highContrastMode ?? false) ? 'text-gray-800 dark:text-gray-100' : ''}`}
-									>{$i18n.t('API Type')}</label
-								>
-
-								<div>
-									<button
-										on:click={() => {
-											apiType = apiType === 'responses' ? '' : 'responses';
-										}}
-										type="button"
-										id="api-type-toggle"
-										class=" text-xs text-gray-700 dark:text-gray-300"
-									>
-										{#if apiType === 'responses'}
-											<Tooltip
-												className="flex items-center gap-1"
-												content={$i18n.t(
-													'This feature is currently experimental and may not work as expected.'
-												)}
-											>
-												<span class=" text-gray-400 dark:text-gray-600"
-													>{$i18n.t('Experimental')}</span
-												>
-
-												{$i18n.t('Responses')}
-											</Tooltip>
-										{:else}
-											{$i18n.t('Chat Completions')}
-										{/if}
-									</button>
-								</div>
-							</div>
-						{/if}
 
 						<div class="flex flex-col w-full mt-2">
 							<div class="mb-1 flex justify-between">
@@ -617,11 +381,6 @@
 										{$i18n.t('Leave empty to include all models from "{{url}}/api/tags" endpoint', {
 											url: url
 										})}
-									{:else if azure}
-										{$i18n.t('Deployment names are required for Azure OpenAI')}
-										<!-- {$i18n.t('Leave empty to include all models from "{{url}}" endpoint', {
-											url: `${url}/openai/deployments`
-										})} -->
 									{:else}
 										{$i18n.t('Leave empty to include all models from "{{url}}/models" endpoint', {
 											url: url
