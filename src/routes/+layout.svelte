@@ -52,9 +52,7 @@
 	import { chatCompletion } from '$lib/apis/openai';
 	import {
 		addOpenAIConnection,
-		removeOpenAIConnection,
-		addTerminalConnection,
-		removeTerminalConnection
+		removeOpenAIConnection
 	} from '$lib/utils/connections';
 
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL, WEBUI_HOSTNAME } from '$lib/constants';
@@ -343,23 +341,9 @@
 
 	const resolveToolServer = (serverUrl) => {
 		let toolServer = $settings?.toolServers?.find((server) => server.url === serverUrl);
-		if (!toolServer) {
-			const terminalServer = ($settings?.terminalServers ?? []).find(
-				(server) => server.url === serverUrl
-			);
-			if (terminalServer) {
-				toolServer = {
-					url: terminalServer.url,
-					auth_type: terminalServer.auth_type ?? 'bearer',
-					key: terminalServer.key ?? '',
-					path: terminalServer.path ?? '/openapi.json'
-				};
-			}
-		}
 
 		let toolServerData =
-			$toolServers?.find((server) => server.url === serverUrl) ??
-			$terminalServers?.find((server) => server.url === serverUrl);
+			$toolServers?.find((server) => server.url === serverUrl);
 
 		let token = null;
 		if (toolServer) {
@@ -624,17 +608,7 @@
 		if ($user?.role !== 'admin') return;
 
 		try {
-			if (event.type === 'connections:terminal') {
-				if (event.data.action === 'add') {
-					await addTerminalConnection(token, {
-						url: event.data.url,
-						key: event.data.key,
-						name: 'Local Open Terminal'
-					});
-				} else if (event.data.action === 'remove') {
-					await removeTerminalConnection(token, event.data.url);
-				}
-			} else if (event.type === 'connections:openai') {
+			if (event.type === 'connections:openai') {
 				if (event.data.action === 'add') {
 					await addOpenAIConnection(token, {
 						url: event.data.url,
