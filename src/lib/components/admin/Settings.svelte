@@ -1,5 +1,6 @@
-<script>
-	import { getContext, tick, onMount } from 'svelte';
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	import { tick, onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
@@ -20,6 +21,7 @@
 
 	import Evaluations from './Settings/Evaluations.svelte';
 	import CodeExecution from './Settings/CodeExecution.svelte';
+	import Filesystem from './Settings/Filesystem.svelte';
 	import Integrations from './Settings/Integrations.svelte';
 
 	import ChartBar from '../icons/ChartBar.svelte';
@@ -27,7 +29,7 @@
 	import Search from '../icons/Search.svelte';
 	import XMark from '../icons/XMark.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let selectedTab = 'general';
 
@@ -48,7 +50,8 @@
 			'audio',
 			'images',
 			'pipelines',
-			'db'
+			'db',
+			'filesystem'
 		].includes(tabFromPath)
 			? tabFromPath
 			: 'general';
@@ -68,7 +71,7 @@
 
 	let search = '';
 	let searchDebounceTimeout;
-	let filteredSettings = [];
+	let filteredSettings: any[] = [];
 
 	const allSettings = [
 		{
@@ -243,6 +246,12 @@
 			title: 'Database',
 			route: '/admin/settings/db',
 			keywords: ['database', 'export', 'import', 'backup', 'chats', 'users']
+		},
+		{
+			id: 'filesystem',
+			title: 'Filesystem',
+			route: '/admin/settings/filesystem',
+			keywords: ['filesystem', 'watch', 'directory', 'sync', 'vector', 'local', 'files']
 		}
 	];
 
@@ -496,6 +505,20 @@
 								d="M8 12.5c1.84 0 3.579-.37 4.914-1.037.366-.183.74-.41 1.086-.684V12c0 1.657-2.686 3-6 3s-6-1.343-6-3v-1.22c.346.273.72.5 1.087.683C4.42 12.131 6.16 12.5 8 12.5Z"
 							/>
 						</svg>
+					{:else if tab.id === 'filesystem'}
+						<svg
+							xmlns="http://www.w3.org/2000/svg"
+							viewBox="0 0 16 16"
+							fill="currentColor"
+							class="w-4 h-4"
+						>
+							<path
+								d="M2 3.5A1.5 1.5 0 0 1 3.5 2h2.879a1.5 1.5 0 0 1 1.06.44l1.122 1.12A1.5 1.5 0 0 0 9.62 4H12.5A1.5 1.5 0 0 1 14 5.5v1.401a2.986 2.986 0 0 0-1.5-.401h-9c-.546 0-1.059.146-1.5.401V3.5Z"
+							/>
+							<path
+								d="M2 9.5v3A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5v-3A1.5 1.5 0 0 0 12.5 8h-9A1.5 1.5 0 0 0 2 9.5Z"
+							/>
+						</svg>
 					{/if}
 				</div>
 				<div class=" self-center">{$i18n.t(tab.title)}</div>
@@ -580,6 +603,12 @@
 			/>
 		{:else if selectedTab === 'pipelines'}
 			<Pipelines
+				saveHandler={() => {
+					toast.success($i18n.t('Settings saved successfully!'));
+				}}
+			/>
+		{:else if selectedTab === 'filesystem'}
+			<Filesystem
 				saveHandler={() => {
 					toast.success($i18n.t('Settings saved successfully!'));
 				}}
