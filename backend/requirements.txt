@@ -145,6 +145,9 @@ ldap3==2.9.1
 ## Firecrawl
 firecrawl-py==4.18.0
 
+## Filesystem watcher
+watchdog==6.0.0
+
 ## Trace
 opentelemetry-api==1.40.0
 opentelemetry-sdk==1.40.0
