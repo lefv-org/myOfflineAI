@@ -1,7 +1,7 @@
 import { RETRIEVAL_API_BASE_URL } from '$lib/constants';
 
 export const getRAGConfig = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/config`, {
 		method: 'GET',
@@ -58,10 +58,11 @@ type RAGConfigForm = {
 	content_extraction?: ContentExtractConfigForm;
 	web_loader_ssl_verification?: boolean;
 	youtube?: YoutubeConfigForm;
+	web?: any;
 };
 
 export const updateRAGConfig = async (token: string, payload: RAGConfigForm) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/config/update`, {
 		method: 'POST',
@@ -91,7 +92,7 @@ export const updateRAGConfig = async (token: string, payload: RAGConfigForm) => 
 };
 
 export const getQuerySettings = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/query/settings`, {
 		method: 'GET',
@@ -124,7 +125,7 @@ type QuerySettings = {
 };
 
 export const updateQuerySettings = async (token: string, settings: QuerySettings) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/query/settings/update`, {
 		method: 'POST',
@@ -154,7 +155,7 @@ export const updateQuerySettings = async (token: string, settings: QuerySettings
 };
 
 export const getEmbeddingConfig = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/embedding`, {
 		method: 'GET',
@@ -200,7 +201,7 @@ type EmbeddingModelUpdateForm = {
 };
 
 export const updateEmbeddingConfig = async (token: string, payload: EmbeddingModelUpdateForm) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/embedding/update`, {
 		method: 'POST',
@@ -230,7 +231,7 @@ export const updateEmbeddingConfig = async (token: string, payload: EmbeddingMod
 };
 
 export const getRerankingConfig = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/reranking`, {
 		method: 'GET',
@@ -261,7 +262,7 @@ type RerankingModelUpdateForm = {
 };
 
 export const updateRerankingConfig = async (token: string, payload: RerankingModelUpdateForm) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/reranking/update`, {
 		method: 'POST',
@@ -297,7 +298,7 @@ export interface SearchDocument {
 }
 
 export const processYoutubeVideo = async (token: string, url: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/process/youtube`, {
 		method: 'POST',
@@ -333,7 +334,7 @@ export const processWeb = async (
 	url: string,
 	process: boolean = true
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 
@@ -375,7 +376,7 @@ export const processWebSearch = async (
 	query: string,
 	collection_name?: string
 ): Promise<SearchDocument | null> => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/process/web/search`, {
 		method: 'POST',
@@ -411,7 +412,7 @@ export const queryDoc = async (
 	query: string,
 	k: number | null = null
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/query/doc`, {
 		method: 'POST',
@@ -448,7 +449,7 @@ export const queryCollection = async (
 	query: string,
 	k: number | null = null
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/query/collection`, {
 		method: 'POST',
@@ -480,7 +481,7 @@ export const queryCollection = async (
 };
 
 export const resetUploadDir = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/reset/uploads`, {
 		method: 'POST',
@@ -506,7 +507,7 @@ export const resetUploadDir = async (token: string) => {
 };
 
 export const resetVectorDB = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${RETRIEVAL_API_BASE_URL}/reset/db`, {
 		method: 'POST',

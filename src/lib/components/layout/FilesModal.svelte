@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 	import type { Writable } from 'svelte/store';
 	import dayjs from 'dayjs';
 
@@ -16,7 +17,7 @@
 	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 	import FileItemModal from '$lib/components/common/FileItemModal.svelte';
 
-	const i18n: Writable<any> = getContext('i18n');
+	const i18n: Writable<any> = getI18nContext();
 
 	export let show = false;
 
@@ -351,7 +352,7 @@
 														}
 													}}
 												>
-													<GarbageBin class="size-4" strokeWidth="1.5" />
+													<GarbageBin className="size-4" strokeWidth="1.5" />
 												</button>
 											</Tooltip>
 										</div>

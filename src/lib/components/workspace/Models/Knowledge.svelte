@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import { config, knowledge, settings, user } from '$lib/stores';
 
 	import KnowledgeSelector from './Knowledge/KnowledgeSelector.svelte';
@@ -12,13 +13,13 @@
 	import { v4 as uuidv4 } from 'uuid';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-	export let selectedItems = [];
-	const i18n = getContext('i18n');
+	export let selectedItems: any[] = [];
+	const i18n = getI18nContext();
 
 	let loaded = false;
 
-	let filesInputElement = null;
-	let inputFiles = null;
+	let filesInputElement: any = null;
+	let inputFiles: any = null;
 
 	$: if (selectedItems === null) {
 		selectedItems = [];
@@ -54,7 +55,7 @@
 
 		try {
 			// If the file is an audio file, provide the language for STT.
-			let metadata = null;
+			let metadata: any = null;
 			if (
 				(file.type.startsWith('audio/') || file.type.startsWith('video/')) &&
 				$settings?.audio?.stt?.language
@@ -170,7 +171,6 @@
 			<div class=" flex flex-wrap items-center gap-2 mb-2.5">
 				{#each selectedItems as file, fileIdx}
 					<FileItem
-						{file}
 						small={true}
 						item={file}
 						name={file.name}
@@ -180,6 +180,7 @@
 						type={file?.legacy
 							? `Legacy${file.type ? ` ${file.type}` : ''}`
 							: (file?.type ?? 'collection')}
+						size={file?.size ?? 0}
 						dismissible
 						on:dismiss={(e) => {
 							selectedItems = selectedItems.filter((_, idx) => idx !== fileIdx);

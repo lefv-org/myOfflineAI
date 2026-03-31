@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, onMount, getContext } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { getToolServersData } from '$lib/apis';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { settings, toolServers } from '$lib/stores';
 
@@ -17,7 +18,7 @@
 
 	export let saveSettings: Function;
 
-	let servers = null;
+	let servers: any = null;
 	let showConnectionModal = false;
 
 	const addConnectionHandler = async (server) => {
@@ -32,7 +33,7 @@
 
 		let toolServersData = await getToolServersData($settings?.toolServers ?? []);
 		toolServersData = toolServersData.filter((data) => {
-			if (data.error) {
+			if (data?.error) {
 				toast.error(
 					$i18n.t(`Failed to connect to {{URL}} OpenAPI tool server`, { URL: data?.url })
 				);

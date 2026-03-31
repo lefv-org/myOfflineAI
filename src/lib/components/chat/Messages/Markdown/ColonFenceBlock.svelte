@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/i18n';
+	;
+	const i18n = getI18nContext();
 
 	import { copyToClipboard } from '$lib/utils';
 	import { settings } from '$lib/stores';
@@ -15,8 +16,8 @@
 	export let done: boolean = true;
 	export let editCodeBlock: boolean = true;
 	export let sourceIds: string[] = [];
-	export let onTaskClick: Function = () => {};
-	export let onSourceClick: Function = () => {};
+	export let onTaskClick: (e?: any) => void = () => {};
+	export let onSourceClick: (e?: any) => void = () => {};
 
 	const fenceType: string = token.fenceType ?? 'default';
 

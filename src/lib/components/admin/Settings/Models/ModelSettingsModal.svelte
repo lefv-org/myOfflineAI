@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 
-	import { createEventDispatcher, getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	import { createEventDispatcher, onMount } from 'svelte';
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	import { models, config as _config } from '$lib/stores';
@@ -34,19 +35,19 @@
 	import Eye from '$lib/components/icons/Eye.svelte';
 
 	export let show = false;
-	export let initHandler = () => {};
+	export let initHandler: Function = () => {};
 
-	let config = null;
+	let config: any = null;
 
 	let selectedTab = 'defaults';
 
 	let selectedModelId = '';
-	let defaultModelIds = [];
+	let defaultModelIds: any[] = [];
 
 	let selectedPinnedModelId = '';
-	let defaultPinnedModelIds = [];
+	let defaultPinnedModelIds: any[] = [];
 
-	let modelIds = [];
+	let modelIds: any[] = [];
 
 	let sortKey = '';
 	let sortOrder = '';
@@ -57,11 +58,11 @@
 	let showDefaultParams = false;
 	let showDefaultPromptSuggestions = false;
 
-	let defaultCapabilities = {};
-	let defaultFeatureIds = [];
-	let defaultParams = {};
-	let builtinTools = {};
-	let promptSuggestions = [];
+	let defaultCapabilities: any = {};
+	let defaultFeatureIds: any[] = [];
+	let defaultParams: any = {};
+	let builtinTools: any = {};
+	let promptSuggestions: any[] = [];
 
 	$: if (show) {
 		init();
@@ -155,7 +156,7 @@
 	message={$i18n.t('This will delete all models including custom models and cannot be undone.')}
 	bind:show={showResetModal}
 	onConfirm={async () => {
-		const res = deleteAllModels(localStorage.token);
+		const res = await deleteAllModels(localStorage.token);
 		if (res) {
 			toast.success($i18n.t('All models deleted successfully'));
 			initHandler();

@@ -5,10 +5,10 @@ import tippy from 'tippy.js';
 
 export function getSuggestionRenderer(Component: any, ComponentProps = {}) {
 	return function suggestionRenderer() {
-		let component = null;
+		let component: any = null;
 		let container: HTMLDivElement | null = null;
 
-		let popup: TippyInstance | null = null;
+		let popup: any = null;
 		let refEl: HTMLDivElement | null = null; // dummy reference
 
 		return {
@@ -29,7 +29,7 @@ export function getSuggestionRenderer(Component: any, ComponentProps = {}) {
 						},
 						...ComponentProps
 					},
-					context: new Map<string, any>([['i18n', ComponentProps?.i18n]])
+					context: new Map<string, any>([['i18n', (ComponentProps as any)?.i18n]])
 				});
 
 				// Create a tiny reference element so outside taps are truly "outside"

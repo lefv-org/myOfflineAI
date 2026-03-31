@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { getContext, createEventDispatcher, onMount, onDestroy } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	import ChevronDown from '../icons/ChevronDown.svelte';
@@ -45,7 +46,7 @@
 
 			if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
 				// Iterate over all items in the DataTransferItemList use functional programming
-				for (const item of Array.from(e.dataTransfer.items)) {
+				for (const item of Array.from(e.dataTransfer.items) as DataTransferItem[]) {
 					// If dropped items aren't files, reject them
 					if (item.kind === 'file') {
 						const file = item.getAsFile();
@@ -56,7 +57,7 @@
 							const reader = new FileReader();
 							reader.onload = async function (event) {
 								try {
-									const fileContent = JSON.parse(event.target.result);
+									const fileContent = JSON.parse(event.target!.result as string);
 									console.log('Parsed JSON Content: ', fileContent);
 									open = true;
 									dispatch('import', fileContent);

@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 	import { WEBUI_NAME, config, user, showSidebar } from '$lib/stores';
 	import { goto } from '$app/navigation';
-	import { onMount, getContext, onDestroy } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
@@ -35,19 +36,19 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import ProfilePreview from '$lib/components/common/ProfilePreview.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let page = 1;
 
-	let users = null;
-	let total = null;
+	let users: any = null;
+	let total: any = null;
 
 	let query = '';
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;
 	let orderBy = 'created_at'; // default sort key
 	let direction = 'asc'; // default sort order
 
-	let selectedUser = null;
+	let selectedUser: any = null;
 
 	let showDeleteConfirmDialog = false;
 	let showAddUserModal = false;
@@ -379,7 +380,7 @@
 										src={`${WEBUI_API_BASE_URL}/users/${user.id}/profile/image`}
 										alt="user"
 										on:error={(e) => {
-											e.currentTarget.src = '/favicon.png';
+											(e.currentTarget as HTMLImageElement).src = '/favicon.png';
 										}}
 									/>
 								</ProfilePreview>
@@ -410,7 +411,7 @@
 
 						<td class="px-3 py-1 text-right">
 							<div class="flex justify-end w-full">
-								{#if $config.features.enable_admin_chat_access && user.role !== 'admin'}
+								{#if $config?.features?.enable_admin_chat_access && user.role !== 'admin'}
 									<Tooltip content={$i18n.t('Chats')}>
 										<button
 											class="self-center w-fit text-sm px-2 py-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl"

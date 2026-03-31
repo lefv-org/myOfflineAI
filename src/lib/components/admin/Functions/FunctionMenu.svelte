@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
 	import GarbageBin from '$lib/components/icons/GarbageBin.svelte';
@@ -10,7 +11,7 @@
 	import Switch from '$lib/components/common/Switch.svelte';
 	import GlobeAlt from '$lib/components/icons/GlobeAlt.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let func;
 
@@ -19,7 +20,7 @@
 	export let cloneHandler: Function;
 	export let exportHandler: Function;
 	export let deleteHandler: Function;
-	export let toggleGlobalHandler: Function;
+	export let toggleGlobalHandler: (e: CustomEvent<any>) => void;
 
 	export let onClose: Function;
 

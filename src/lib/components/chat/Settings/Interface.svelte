@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { config, models, settings, user } from '$lib/stores';
-	import { createEventDispatcher, onMount, onDestroy, getContext } from 'svelte';
+	import { createEventDispatcher, onMount, onDestroy } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import { updateUserInfo } from '$lib/apis/users';
@@ -15,12 +16,12 @@
 
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let saveSettings: Function;
 
-	let backgroundImageUrl = null;
-	let inputFiles = null;
+	let backgroundImageUrl: any = null;
+	let inputFiles: any = null;
 	let filesInputElement;
 
 	// Addons
@@ -74,7 +75,7 @@
 	let showChatTitleInTab = true;
 
 	let showFloatingActionButtons = true;
-	let floatingActionButtons = null;
+	let floatingActionButtons: any = null;
 
 	let imageCompression = false;
 	let imageCompressionSize = {
@@ -94,7 +95,7 @@
 	let voiceInterruption = false;
 	let hapticFeedback = false;
 
-	let webSearch = null;
+	let webSearch: any = null;
 
 	let iframeSandboxAllowSameOrigin = false;
 	let iframeSandboxAllowForms = false;
@@ -102,7 +103,7 @@
 	let showManageFloatingActionButtonsModal = false;
 	let showManageImageCompressionModal = false;
 
-	let textScale = null;
+	let textScale: any = null;
 
 	const toggleLandingPageMode = async () => {
 		landingPageMode = landingPageMode === '' ? 'chat' : '';
@@ -310,7 +311,7 @@
 		on:change={() => {
 			let reader = new FileReader();
 			reader.onload = (event) => {
-				let originalImageUrl = `${event.target.result}`;
+				let originalImageUrl = `${event.target!.result as string}`;
 
 				backgroundImageUrl = originalImageUrl;
 				saveSettings({ backgroundImageUrl });
@@ -736,7 +737,7 @@
 				</div>
 			</div>
 
-			{#if $user.role === 'admin' || $user?.permissions?.chat?.temporary}
+			{#if $user?.role === 'admin' || $user?.permissions?.chat?.temporary}
 				<div>
 					<div class=" py-0.5 flex w-full justify-between">
 						<div id="temp-chat-default-label" class=" self-center text-xs">

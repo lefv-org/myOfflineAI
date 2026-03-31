@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { marked } from 'marked';
 
-	import { getContext, tick } from 'svelte';
+	import { tick } from 'svelte';
 	import dayjs from '$lib/dayjs';
 
 	import { mobile, settings, user } from '$lib/stores';
@@ -17,7 +18,7 @@
 	import Tag from '$lib/components/icons/Tag.svelte';
 	import Label from '$lib/components/icons/Label.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let selectedModelIdx: number = -1;
 	export let item: any = {};
@@ -83,7 +84,7 @@
 						class="rounded-full size-5 flex items-center"
 						loading="lazy"
 						on:error={(e) => {
-							e.currentTarget.src = '/favicon.png';
+							(e.currentTarget as HTMLImageElement).src = '/favicon.png';
 						}}
 					/>
 				</Tooltip>

@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext } from 'svelte';
+	;
 
 	import dayjs from 'dayjs';
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -25,7 +26,7 @@
 	import LinkSlash from '../icons/LinkSlash.svelte';
 	import Clipboard from '../icons/Clipboard.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
 
@@ -41,15 +42,15 @@
 	export let orderBy = 'updated_at';
 	export let direction = 'desc'; // 'asc' or 'desc'
 
-	export let chatList = null;
+	export let chatList: any = null;
 	export let allChatsLoaded = false;
 	export let chatListLoading = false;
 
-	let selectedChatId = null;
+	let selectedChatId: any = null;
 	let selectedIdx = 0;
 	let showDeleteConfirmDialog = false;
 
-	export let onUpdate = () => {};
+	export let onUpdate: Function = () => {};
 	export let onDelete: (id: string) => void = () => {};
 
 	export let loadHandler: null | Function = null;
@@ -334,7 +335,7 @@
 																toast.success($i18n.t('Share link copied to clipboard.'));
 															}}
 														>
-															<Clipboard class="size-4" strokeWidth="1.5" />
+															<Clipboard className="size-4" strokeWidth="1.5" />
 														</button>
 													</Tooltip>
 												{/if}

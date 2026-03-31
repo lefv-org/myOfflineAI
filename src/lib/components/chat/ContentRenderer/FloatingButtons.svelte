@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 
 	import DOMPurify from 'dompurify';
 	import { marked } from 'marked';
 
-	import { getContext, tick, onDestroy } from 'svelte';
-	const i18n = getContext('i18n');
+	import { tick, onDestroy } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { chatCompletion } from '$lib/apis/openai';
 
@@ -18,21 +19,21 @@
 	export let id = '';
 	export let messageId = '';
 
-	export let model = null;
-	export let messages = [];
-	export let actions = [];
+	export let model: any = null;
+	export let messages: any[] = [];
+	export let actions: any[] = [];
 	export let onAdd = (e) => {};
 
 	let floatingInput = false;
-	let selectedAction = null;
+	let selectedAction: any = null;
 
 	let selectedText = '';
 	let floatingInputValue = '';
 
 	let content = '';
-	let responseContent = null;
+	let responseContent: any = null;
 	let responseDone = false;
-	let controller = null;
+	let controller: any = null;
 
 	$: if (actions.length === 0) {
 		actions = DEFAULT_ACTIONS;
@@ -85,7 +86,7 @@
 		}
 
 		let prompt = selectedAction?.prompt ?? '';
-		let toolIds = [];
+		let toolIds: any[] = [];
 
 		// Handle: {{variableId|tool:id="toolId"}} pattern
 		// This regex captures variableId and toolId from {{variableId|tool:id="toolId"}}
@@ -193,7 +194,7 @@
 			// Process the stream in the background
 			try {
 				await processStream();
-			} catch (e) {
+			} catch (e: any) {
 				if (e.name !== 'AbortError') {
 					console.error(e);
 				}
@@ -257,7 +258,7 @@
 						aria-label={action.label}
 						class="px-1.5 py-[1px] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl flex items-center gap-1 min-w-fit transition"
 						on:click={async () => {
-							selectedText = window.getSelection().toString();
+							selectedText = window.getSelection()?.toString() ?? '';
 							selectedAction = action;
 
 							if (action.prompt.includes('{{INPUT_CONTENT}}')) {

@@ -49,26 +49,26 @@ export const shortCodesToEmojis = writable(
 	}, {})
 );
 
-export const TTSWorker = writable(null);
+export const TTSWorker = writable<any>(null);
 
 export const chatId = writable('');
 export const chatTitle = writable('');
 
-export const chats = writable(null);
-export const pinnedChats = writable([]);
-export const tags = writable([]);
-export const folders = writable([]);
+export const chats = writable<any>(null);
+export const pinnedChats = writable<any[]>([]);
+export const tags = writable<any[]>([]);
+export const folders = writable<any[]>([]);
 
-export const selectedFolder = writable(null);
+export const selectedFolder = writable<any>(null);
 
 export const models: Writable<Model[]> = writable([]);
 
 export const knowledge: Writable<null | Document[]> = writable(null);
-export const tools = writable(null);
-export const skills = writable(null);
-export const functions = writable(null);
+export const tools: Writable<null | any[]> = writable(null);
+export const skills: Writable<null | any[]> = writable(null);
+export const functions: Writable<null | any[]> = writable(null);
 
-export const toolServers = writable([]);
+export const toolServers = writable<any[]>([]);
 
 // Persistent Pyodide worker for code interpreter FS
 export const pyodideWorker: Writable<Worker | null> = writable(null);
@@ -99,10 +99,10 @@ export const showCallOverlay = writable(false);
 export const showFileNav = writable(false);
 export const showFileNavPath: Writable<string | null> = writable(null);
 export const showFileNavDir: Writable<string | null> = writable(null);
-export const artifactCode = writable(null);
-export const artifactContents = writable(null);
+export const artifactCode = writable<any>(null);
+export const artifactContents = writable<any>(null);
 
-export const embed = writable(null);
+export const embed = writable<any>(null);
 
 export const temporaryChatEnabled = writable(false);
 export const scrollPaginationEnabled = writable(false);
@@ -118,6 +118,7 @@ type BaseModel = {
 	name: string;
 	info?: ModelConfig;
 	owned_by: 'ollama' | 'openai' | 'arena';
+	[key: string]: any;
 };
 
 export interface OpenAIModel extends BaseModel {
@@ -162,8 +163,12 @@ type OllamaModelDetails = {
 };
 
 type Settings = {
-	pinnedModels?: never[];
-	toolServers?: never[];
+	pinnedModels?: any[];
+	toolServers?: any[];
+	insertSuggestionPrompt?: boolean;
+	tools?: any;
+	temporaryChatByDefault?: boolean;
+	[key: string]: any;
 	detectArtifacts?: boolean;
 	showUpdateToast?: boolean;
 	showChangelog?: boolean;
@@ -190,7 +195,7 @@ type Settings = {
 	memory?: boolean;
 	autoTags?: boolean;
 	autoFollowUps?: boolean;
-	splitLargeChunks?(body: any, splitLargeChunks: any): unknown;
+	splitLargeChunks?: boolean;
 	backgroundImageUrl?: null;
 	landingPageMode?: string;
 	iframeSandboxAllowForms?: boolean;
@@ -260,8 +265,12 @@ type Config = {
 	name: string;
 	version: string;
 	default_locale: string;
-	default_models: string;
-	default_prompt_suggestions: PromptSuggestion[];
+	default_models?: string;
+	default_pinned_models?: string[];
+	default_prompt_suggestions?: PromptSuggestion[];
+	user_count?: number;
+	active_entries?: number;
+	onboarding?: boolean;
 	features: {
 		auth: boolean;
 		auth_trusted_header: boolean;
@@ -277,16 +286,35 @@ type Config = {
 		enable_autocomplete_generation: boolean;
 		enable_direct_connections: boolean;
 		enable_version_update_check: boolean;
+		enable_code_execution?: boolean;
 		folder_max_file_count?: number;
+		[key: string]: any;
 	};
-	oauth: {
+	oauth?: {
 		providers: {
 			[key: string]: string;
 		};
 	};
+	audio?: {
+		tts?: { engine?: string; voice?: string; split_on?: string };
+		stt?: { engine?: string };
+	};
+	file?: {
+		max_size?: number;
+		max_count?: number;
+		image_compression?: { width?: number; height?: number };
+	};
+	code?: {
+		engine?: string;
+		interpreter_engine?: string;
+	};
+	permissions?: Record<string, any>;
+	metadata?: Record<string, any>;
 	ui?: {
 		pending_user_overlay_title?: string;
 		pending_user_overlay_content?: string;
+		response_watermark?: string;
+		[key: string]: any;
 	};
 };
 
@@ -302,4 +330,7 @@ export type SessionUser = {
 	name: string;
 	role: string;
 	profile_image_url: string;
+	is_active?: boolean;
+	status_emoji?: string;
+	status_message?: string;
 };

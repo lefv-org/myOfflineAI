@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 
 	import { config, functions, models, settings, tools, user } from '$lib/stores';
-	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
 
 	import {
 		getUserValvesSpecById as getToolUserValvesSpecById,
@@ -23,7 +24,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
 
@@ -32,8 +33,8 @@
 
 	let loading = false;
 
-	let valvesSpec = null;
-	let valves = {};
+	let valvesSpec: any = null;
+	let valves: any = {};
 
 	let debounceTimer;
 
@@ -172,7 +173,7 @@
 									>{$i18n.t('Select a tool')}</option
 								>
 
-								{#each $tools
+								{#each ($tools ?? [])
 									.filter((tool) => !tool?.id?.startsWith('server:'))
 									.sort((a, b) => (a.name ?? '').localeCompare(b.name ?? '')) as tool, toolIdx}
 									<option value={tool.id} class="bg-gray-100 dark:bg-gray-800">{tool.name}</option>
@@ -182,7 +183,7 @@
 									>{$i18n.t('Select a function')}</option
 								>
 
-								{#each $functions.sort( (a, b) => (a.name ?? '').localeCompare(b.name ?? '') ) as func, funcIdx}
+								{#each ($functions ?? []).sort( (a, b) => (a.name ?? '').localeCompare(b.name ?? '') ) as func, funcIdx}
 									<option value={func.id} class="bg-gray-100 dark:bg-gray-800">{func.name}</option>
 								{/each}
 							{/if}

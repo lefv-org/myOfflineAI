@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { getContext, createEventDispatcher, onDestroy } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher, onDestroy } from 'svelte';
 	import { useSvelteFlow, useNodesInitialized, useStore } from '@xyflow/svelte';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { onMount, tick } from 'svelte';
 
@@ -26,10 +27,10 @@
 	export let onClose;
 	export let onNodeClick;
 
-	let selectedMessageId = null;
+	let selectedMessageId: any = null;
 
-	const nodes = writable([]);
-	const edges = writable([]);
+	const nodes = writable<any[]>([]);
+	const edges = writable<any[]>([]);
 
 	let layoutDirection = 'vertical';
 
@@ -56,8 +57,8 @@
 	};
 
 	const drawFlow = async (direction) => {
-		const nodeList = [];
-		const edgeList = [];
+		const nodeList: any[] = [];
+		const edgeList: any[] = [];
 		const levelOffset = direction === 'vertical' ? 150 : 300;
 		const siblingOffset = direction === 'vertical' ? 250 : 150;
 
@@ -71,7 +72,7 @@
 		}
 
 		// Create nodes and map children to ensure alignment in width
-		let layerWidths = {}; // Track widths of each layer
+		let layerWidths: any = {}; // Track widths of each layer
 
 		Object.keys(history.messages).forEach((id) => {
 			const message = history.messages[id];

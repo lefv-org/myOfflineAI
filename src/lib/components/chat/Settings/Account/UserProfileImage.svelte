@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext } from 'svelte';
+	;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { canvasPixelTest, generateInitialsImage } from '$lib/utils';
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	export let profileImageUrl;
-	export let user = null;
+	export let user: any = null;
 
 	export let imageClassName = 'size-14 md:size-18';
 
@@ -26,7 +27,7 @@
 		const files = profileImageInputElement.files ?? [];
 		let reader = new FileReader();
 		reader.onload = (event) => {
-			let originalImageUrl = `${event.target.result}`;
+			let originalImageUrl = `${event.target!.result as string}`;
 
 			const img = new Image();
 			img.src = originalImageUrl;
@@ -57,7 +58,7 @@
 				const offsetY = (250 - newHeight) / 2;
 
 				// Draw the image on the canvas
-				ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+				ctx?.drawImage(img, offsetX, offsetY, newWidth, newHeight);
 
 				// Get the base64 representation of the compressed image
 				const compressedSrc = canvas.toDataURL('image/webp', 0.8);

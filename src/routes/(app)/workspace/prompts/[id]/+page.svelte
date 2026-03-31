@@ -1,16 +1,17 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { getPromptById, updatePromptById } from '$lib/apis/prompts';
 	import { page } from '$app/stores';
 
 	import PromptEditor from '$lib/components/workspace/Prompts/PromptEditor.svelte';
 
-	let prompt = null;
+	let prompt: any = null;
 	let disabled = false;
 
 	// Get prompt ID from route params
@@ -47,7 +48,7 @@
 			});
 
 			if (_prompt) {
-				disabled = !_prompt.write_access ?? true;
+				disabled = !(_prompt.write_access ?? true);
 				prompt = {
 					id: _prompt.id,
 					name: _prompt.name,

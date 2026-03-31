@@ -1,20 +1,21 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Textarea from '$lib/components/common/Textarea.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import EllipsisVertical from '$lib/components/icons/EllipsisVertical.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import Sortable from 'sortablejs';
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	;
+	const i18n = getI18nContext();
 
-	export let banners = [];
+	export let banners: any[] = [];
 
-	let sortable = null;
-	let bannerListElement = null;
+	let sortable: any = null;
+	let bannerListElement: any = null;
 
 	const positionChangeHandler = () => {
-		const bannerIdOrder = Array.from(bannerListElement.children).map((child) =>
+		const bannerIdOrder = Array.from(bannerListElement.children).map((child: any) =>
 			child.id.replace('banner-item-', '')
 		);
 

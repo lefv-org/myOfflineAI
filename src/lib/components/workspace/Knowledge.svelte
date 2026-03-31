@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	dayjs.extend(relativeTime);
 
 	import { toast } from 'svelte-sonner';
-	import { onMount, getContext, tick, onDestroy } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount, tick, onDestroy } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { WEBUI_NAME, knowledge, user } from '$lib/stores';
 	import {
@@ -32,15 +33,15 @@
 	let showDeleteConfirm = false;
 	let tagsContainerElement: HTMLDivElement;
 
-	let selectedItem = null;
+	let selectedItem: any = null;
 
 	let page = 1;
 	let query = '';
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;
 	let viewOption = '';
 
-	let items = null;
-	let total = null;
+	let items: any = null;
+	let total: any = null;
 
 	let allItemsLoaded = false;
 	let itemsLoading = false;
@@ -280,7 +281,7 @@
 											<div class="flex items-center gap-2">
 												<div class=" flex self-center">
 													<ItemMenu
-														onExport={$user.role === 'admin'
+														onExport={$user?.role === 'admin'
 															? () => {
 																	exportHandler(item);
 																}

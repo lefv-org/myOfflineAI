@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { v4 as uuidv4 } from 'uuid';
 
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { settings } from '$lib/stores';
 	import Modal from '$lib/components/common/Modal.svelte';
@@ -33,9 +34,9 @@
 	export let edit = false;
 
 	export let direct = false;
-	export let connection = null;
+	export let connection: any = null;
 
-	let inputElement = null;
+	let inputElement: any = null;
 
 	let type = 'openapi'; // 'openapi', 'mcp'
 
@@ -50,13 +51,13 @@
 	let headers = '';
 
 	let functionNameFilterList = '';
-	let accessGrants = [];
+	let accessGrants: any[] = [];
 
 	let id = '';
 	let name = '';
 	let description = '';
 
-	let oauthClientInfo = null;
+	let oauthClientInfo: any = null;
 
 	let oauthClientId = '';
 	let oauthClientSecret = '';
@@ -189,7 +190,7 @@
 
 		const reader = new FileReader();
 		reader.onload = (event) => {
-			const json = event.target.result;
+			const json = event.target!.result as string;
 			console.log('importHandler', json);
 
 			try {
@@ -622,7 +623,6 @@
 								<div class="flex justify-between items-center">
 									<div class="flex gap-2 items-center">
 										<div
-											for="select-bearer-or-session"
 											class={`text-xs ${($settings?.highContrastMode ?? false) ? 'text-gray-800 dark:text-gray-100' : 'text-gray-500'}`}
 										>
 											{$i18n.t('Auth')}
@@ -783,7 +783,6 @@
 										<div class="flex justify-between items-center mb-0.5">
 											<div class="flex gap-2 items-center">
 												<div
-													for="select-bearer-or-session"
 													class={`text-xs ${($settings?.highContrastMode ?? false) ? 'text-gray-800 dark:text-gray-100' : 'text-gray-500'}`}
 												>
 													{$i18n.t('OpenAPI Spec')}

@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-	import { onMount, getContext, tick, onDestroy } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount, tick, onDestroy } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { WEBUI_NAME, config, tools as _tools, user } from '$lib/stores';
 
@@ -51,12 +52,12 @@
 
 	let showManifestModal = false;
 	let showValvesModal = false;
-	let selectedTool = null;
+	let selectedTool: any = null;
 
 	let showDeleteConfirm = false;
 
-	let tools = [];
-	let filteredItems = [];
+	let tools: any[] = [];
+	let filteredItems: any[] = [];
 
 	let tagsContainerElement: HTMLDivElement;
 	let viewOption = '';
@@ -105,7 +106,7 @@
 		const messageHandler = (event) => {
 			if (event.origin !== url) return;
 			if (event.data === 'loaded') {
-				tab.postMessage(JSON.stringify(item), '*');
+				tab?.postMessage(JSON.stringify(item), '*');
 				window.removeEventListener('message', messageHandler);
 			}
 		};
@@ -161,7 +162,7 @@
 		_tools.set(await getTools(localStorage.token));
 	};
 
-	onMount(async () => {
+	(onMount as any)(async () => {
 		viewOption = localStorage?.workspaceViewOption || '';
 		await init();
 		loaded = true;
@@ -609,7 +610,7 @@
 		on:confirm={() => {
 			const reader = new FileReader();
 			reader.onload = async (event) => {
-				const _tools = JSON.parse(event.target.result);
+				const _tools = JSON.parse(event.target!.result as string);
 				console.log(_tools);
 
 				for (const tool of _tools) {

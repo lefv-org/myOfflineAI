@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import dayjs from 'dayjs';
-	import { onMount, tick, getContext } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 
 	import { mobile, models, settings } from '$lib/stores';
@@ -19,13 +20,13 @@
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
 	import ProfileImage from './ProfileImage.svelte';
 	import { WEBUI_BASE_URL } from '$lib/constants';
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	dayjs.extend(localizedFormat);
 
 	export let chatId;
 	export let history;
 	export let messageId;
-	export let selectedModels = [];
+	export let selectedModels: any[] = [];
 
 	export let isLastMessage;
 	export let readOnly = false;
@@ -55,10 +56,10 @@
 
 	let currentMessageId;
 	let parentMessage;
-	let groupedMessageIds = {};
-	let groupedMessageIdsIdx = {};
+	let groupedMessageIds: any = {};
+	let groupedMessageIdsIdx: any = {};
 
-	let selectedModelIdx = null;
+	let selectedModelIdx: any = null;
 
 	let message = structuredClone(history.messages[messageId]);
 	$: if (history.messages) {
@@ -391,7 +392,7 @@
 			{#if !Object.keys(groupedMessageIds).find((modelIdx) => {
 				const { messageIds } = groupedMessageIds[modelIdx];
 				const _messageId = messageIds[groupedMessageIdsIdx[modelIdx]];
-				return !history.messages[_messageId]?.done ?? false;
+				return !(history.messages[_messageId]?.done ?? false);
 			})}
 				<div class="flex justify-end">
 					<div class="w-full">

@@ -2,7 +2,7 @@ import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 import type { Banner } from '$lib/types';
 
 export const importConfig = async (token: string, config) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/import`, {
 		method: 'POST',
@@ -32,7 +32,7 @@ export const importConfig = async (token: string, config) => {
 };
 
 export const exportConfig = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/export`, {
 		method: 'GET',
@@ -59,7 +59,7 @@ export const exportConfig = async (token: string) => {
 };
 
 export const getConnectionsConfig = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/connections`, {
 		method: 'GET',
@@ -86,7 +86,7 @@ export const getConnectionsConfig = async (token: string) => {
 };
 
 export const setConnectionsConfig = async (token: string, config: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/connections`, {
 		method: 'POST',
@@ -116,7 +116,7 @@ export const setConnectionsConfig = async (token: string, config: object) => {
 };
 
 export const getToolServerConnections = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/tool_servers`, {
 		method: 'GET',
@@ -143,7 +143,7 @@ export const getToolServerConnections = async (token: string) => {
 };
 
 export const setToolServerConnections = async (token: string, connections: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/tool_servers`, {
 		method: 'POST',
@@ -182,7 +182,7 @@ export const putOrchestratorPolicy = async (
 	policyId: string,
 	policyData: object
 ): Promise<object | null> => {
-	let error = null;
+	let error: any = null;
 
 	const baseUrl = url.replace(/\/$/, '');
 	const headers: Record<string, string> = {
@@ -215,7 +215,7 @@ export const putOrchestratorPolicy = async (
 };
 
 export const verifyToolServerConnection = async (token: string, connection: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/tool_servers/verify`, {
 		method: 'POST',
@@ -256,7 +256,7 @@ export const registerOAuthClient = async (
 	formData: RegisterOAuthClientForm,
 	type: null | string = null
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = type ? `?type=${type}` : '';
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/oauth/clients/register${searchParams}`, {
@@ -292,7 +292,7 @@ export const getOAuthClientAuthorizationUrl = (clientId: string, type: null | st
 };
 
 export const getCodeExecutionConfig = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/code_execution`, {
 		method: 'GET',
@@ -319,7 +319,7 @@ export const getCodeExecutionConfig = async (token: string) => {
 };
 
 export const setCodeExecutionConfig = async (token: string, config: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/code_execution`, {
 		method: 'POST',
@@ -349,7 +349,7 @@ export const setCodeExecutionConfig = async (token: string, config: object) => {
 };
 
 export const getModelsDefaults = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/models/defaults`, {
 		method: 'GET',
@@ -376,7 +376,7 @@ export const getModelsDefaults = async (token: string) => {
 };
 
 export const getModelsConfig = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/models`, {
 		method: 'GET',
@@ -403,7 +403,7 @@ export const getModelsConfig = async (token: string) => {
 };
 
 export const setModelsConfig = async (token: string, config: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/models`, {
 		method: 'POST',
@@ -432,8 +432,8 @@ export const setModelsConfig = async (token: string, config: object) => {
 	return res;
 };
 
-export const setDefaultPromptSuggestions = async (token: string, promptSuggestions: string) => {
-	let error = null;
+export const setDefaultPromptSuggestions = async (token: string, promptSuggestions: any[]) => {
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/suggestions`, {
 		method: 'POST',
@@ -463,7 +463,7 @@ export const setDefaultPromptSuggestions = async (token: string, promptSuggestio
 };
 
 export const getBanners = async (token: string): Promise<Banner[]> => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/banners`, {
 		method: 'GET',
@@ -490,7 +490,7 @@ export const getBanners = async (token: string): Promise<Banner[]> => {
 };
 
 export const setBanners = async (token: string, banners: Banner[]) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/configs/banners`, {
 		method: 'POST',

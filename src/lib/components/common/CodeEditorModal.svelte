@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { onMount, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 
 	import CodeEditor from './CodeEditor.svelte';
 	import Drawer from './Drawer.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let {
 		show = $bindable(),
@@ -12,11 +13,17 @@
 		lang = 'python',
 		onChange = () => {},
 		onSave = () => {}
+	}: {
+		show?: boolean;
+		value?: string;
+		lang?: string;
+		onChange?: (value?: any) => void;
+		onSave?: () => void;
 	} = $props();
 
 	let boilerplate = ``;
 
-	let codeEditor = $state(null);
+	let codeEditor: any = $state(null);
 	let _content = $state(value);
 
 	$effect(() => {

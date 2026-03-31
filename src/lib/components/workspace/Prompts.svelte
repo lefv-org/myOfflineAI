@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
 	import { goto } from '$app/navigation';
-	import { onMount, getContext, tick, onDestroy } from 'svelte';
+	import { onMount, tick, onDestroy } from 'svelte';
 	import { WEBUI_NAME, config, user } from '$lib/stores';
 
 	import {
@@ -36,21 +37,21 @@
 
 	let shiftKey = false;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	let promptsImportInputElement: HTMLInputElement;
 	let loaded = false;
 
-	let importFiles = null;
+	let importFiles: any = null;
 	let query = '';
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;
 
-	let prompts = null;
-	let tags = [];
-	let total = null;
+	let prompts: any = null;
+	let tags: any[] = [];
+	let total: any = null;
 	let loading = false;
 
 	let showDeleteConfirm = false;
-	let deletePrompt = null;
+	let deletePrompt: any = null;
 
 	let tagsContainerElement: HTMLDivElement;
 	let viewOption = '';
@@ -120,7 +121,7 @@
 			(event) => {
 				if (event.origin !== url) return;
 				if (event.data === 'loaded') {
-					tab.postMessage(JSON.stringify(prompt), '*');
+					tab?.postMessage(JSON.stringify(prompt), '*');
 				}
 			},
 			false
@@ -173,7 +174,7 @@
 		getPromptList();
 	};
 
-	onMount(async () => {
+	(onMount as any)(async () => {
 		viewOption = localStorage?.workspaceViewOption || '';
 		loaded = true;
 
@@ -243,7 +244,7 @@
 
 				const reader = new FileReader();
 				reader.onload = async (event) => {
-					const savedPrompts = JSON.parse(event.target.result);
+					const savedPrompts = JSON.parse(event.target!.result as string);
 					console.log(savedPrompts);
 
 					try {

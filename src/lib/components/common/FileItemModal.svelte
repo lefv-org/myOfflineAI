@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import type { WorkBook } from 'xlsx';
 	import DOMPurify from 'dompurify';
 
-	import { getContext, onMount, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
 	import { formatFileSize, getLineCount } from '$lib/utils';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
@@ -13,7 +14,7 @@
 	import CodeBlock from '$lib/components/chat/Messages/CodeBlock.svelte';
 	import Markdown from '$lib/components/chat/Messages/Markdown.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	const CONTENT_PREVIEW_LIMIT = 10000;
 	let expandedContent = false;
@@ -189,7 +190,7 @@
 				getFileContentById(item.id),
 				import('mammoth')
 			]);
-			const result = await mammoth.convertToHtml({ arrayBuffer });
+			const result = await mammoth.convertToHtml({ arrayBuffer: arrayBuffer as ArrayBuffer });
 			docxHtml = DOMPurify.sanitize(result.value);
 		} catch (error) {
 			console.error('Error loading DOCX file:', error);
@@ -204,7 +205,7 @@
 				getFileContentById(item.id),
 				import('$lib/utils/pptxToHtml')
 			]);
-			const result = await pptxToImages(arrayBuffer);
+			const result = await pptxToImages(arrayBuffer as ArrayBuffer);
 			pptxSlides = result.images;
 			pptxCurrentSlide = 0;
 		} catch (error) {

@@ -6,7 +6,7 @@ export const createNewKnowledge = async (
 	description: string,
 	accessGrants: object[]
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/create`, {
 		method: 'POST',
@@ -39,7 +39,7 @@ export const createNewKnowledge = async (
 };
 
 export const getKnowledgeBases = async (token: string = '', page: number | null = null) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (page) searchParams.append('page', page.toString());
@@ -78,7 +78,7 @@ export const searchKnowledgeBases = async (
 	viewOption: string | null = null,
 	page: number | null = null
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (query) searchParams.append('query', query);
@@ -115,13 +115,13 @@ export const searchKnowledgeBases = async (
 
 export const searchKnowledgeFiles = async (
 	token: string,
-	query?: string | null = null,
-	viewOption?: string | null = null,
-	orderBy?: string | null = null,
-	direction?: string | null = null,
+	query: string | null = null,
+	viewOption: string | null = null,
+	orderBy: string | null = null,
+	direction: string | null = null,
 	page: number = 1
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (query) searchParams.append('query', query);
@@ -163,7 +163,7 @@ export const searchKnowledgeFiles = async (
 };
 
 export const getKnowledgeById = async (token: string, id: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/${id}`, {
 		method: 'GET',
@@ -197,13 +197,13 @@ export const getKnowledgeById = async (token: string, id: string) => {
 export const searchKnowledgeFilesById = async (
 	token: string,
 	id: string,
-	query?: string | null = null,
-	viewOption?: string | null = null,
-	orderBy?: string | null = null,
-	direction?: string | null = null,
+	query: string | null = null,
+	viewOption: string | null = null,
+	orderBy: string | null = null,
+	direction: string | null = null,
 	page: number = 1
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (query) searchParams.append('query', query);
@@ -252,7 +252,7 @@ type KnowledgeUpdateForm = {
 };
 
 export const updateKnowledgeById = async (token: string, id: string, form: KnowledgeUpdateForm) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/${id}/update`, {
 		method: 'POST',
@@ -294,7 +294,7 @@ export const updateKnowledgeAccessGrants = async (
 	id: string,
 	accessGrants: any[]
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/${id}/access/update`, {
 		method: 'POST',
@@ -323,7 +323,7 @@ export const updateKnowledgeAccessGrants = async (
 };
 
 export const addFileToKnowledgeById = async (token: string, id: string, fileId: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/${id}/file/add`, {
 		method: 'POST',
@@ -358,7 +358,7 @@ export const addFileToKnowledgeById = async (token: string, id: string, fileId: 
 };
 
 export const updateFileFromKnowledgeById = async (token: string, id: string, fileId: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/${id}/file/update`, {
 		method: 'POST',
@@ -393,7 +393,7 @@ export const updateFileFromKnowledgeById = async (token: string, id: string, fil
 };
 
 export const removeFileFromKnowledgeById = async (token: string, id: string, fileId: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/${id}/file/remove`, {
 		method: 'POST',
@@ -428,7 +428,7 @@ export const removeFileFromKnowledgeById = async (token: string, id: string, fil
 };
 
 export const resetKnowledgeById = async (token: string, id: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/${id}/reset`, {
 		method: 'POST',
@@ -460,7 +460,7 @@ export const resetKnowledgeById = async (token: string, id: string) => {
 };
 
 export const deleteKnowledgeById = async (token: string, id: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/${id}/delete`, {
 		method: 'DELETE',
@@ -492,7 +492,7 @@ export const deleteKnowledgeById = async (token: string, id: string) => {
 };
 
 export const reindexKnowledgeFiles = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/reindex`, {
 		method: 'POST',
@@ -520,7 +520,7 @@ export const reindexKnowledgeFiles = async (token: string) => {
 };
 
 export const exportKnowledgeById = async (token: string, id: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/knowledge/${id}/export`, {
 		method: 'GET',

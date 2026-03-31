@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
@@ -7,8 +8,8 @@
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	dayjs.extend(relativeTime);
 
-	import { onMount, getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { deleteFeedbackById, exportAllFeedbacks, getFeedbackItems } from '$lib/apis/evaluations';
 
@@ -28,8 +29,8 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 
 	let page = 1;
-	let items = null;
-	let total = null;
+	let items: any = null;
+	let total: any = null;
 
 	let orderBy: string = 'updated_at';
 	let direction: 'asc' | 'desc' = 'desc';
@@ -44,7 +45,7 @@
 	};
 
 	let showFeedbackModal = false;
-	let selectedFeedback = null;
+	let selectedFeedback: any = null;
 
 	const openFeedbackModal = (feedback) => {
 		showFeedbackModal = true;
@@ -100,7 +101,7 @@
 		toast.success($i18n.t('Redirecting you to Open WebUI Community'));
 
 		// remove snapshot from feedbacks
-		const feedbacksToShare = feedbacks.map((f) => {
+		const feedbacksToShare = items?.map((f) => {
 			const { snapshot, user, ...rest } = f;
 			return rest;
 		});
@@ -113,7 +114,7 @@
 		const messageHandler = (event) => {
 			if (event.origin !== url) return;
 			if (event.data === 'loaded') {
-				tab.postMessage(JSON.stringify(feedbacksToShare), '*');
+				tab?.postMessage(JSON.stringify(feedbacksToShare), '*');
 
 				// Remove the event listener after handling the message
 				window.removeEventListener('message', messageHandler);

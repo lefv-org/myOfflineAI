@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 	import { marked } from 'marked';
 
 	import { config, user, models as _models, temporaryChatEnabled } from '$lib/stores';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 
 	import { blur, fade } from 'svelte/transition';
 
@@ -12,10 +13,10 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import EyeSlash from '$lib/components/icons/EyeSlash.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
-	export let modelIds = [];
-	export let models = [];
+	export let modelIds: any[] = [];
+	export let models: any[] = [];
 	export let atSelectedModel;
 
 	export let onSelect = (e) => {};
@@ -58,7 +59,7 @@
 								alt="logo"
 								draggable="false"
 								on:error={(e) => {
-									e.currentTarget.src = '/favicon.png';
+									(e.currentTarget as HTMLImageElement).src = '/favicon.png';
 								}}
 							/>
 						</Tooltip>

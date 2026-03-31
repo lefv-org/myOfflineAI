@@ -1,6 +1,7 @@
 <script lang="ts">
-	const i18n = getContext('i18n');
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	const i18n = getI18nContext();
+	;
 	import { settings } from '$lib/stores';
 	export let id = 'password-input';
 	export let value: string = '';
@@ -12,7 +13,12 @@
 	export let inputClassName = 'w-full text-sm py-0.5 bg-transparent';
 	export let showButtonClassName = 'pl-1.5  transition bg-transparent';
 	export let screenReader = true;
+	export let name = '';
 	export let autocomplete = 'off';
+
+	// Allow 'class' prop for compatibility (maps to outerClassName)
+	let className = '';
+	export { className as class };
 
 	let show = false;
 </script>
@@ -29,7 +35,7 @@
 		bind:value
 		required={required && !readOnly}
 		disabled={readOnly}
-		{autocomplete}
+		autocomplete={autocomplete as any}
 	/>
 	<button
 		class={showButtonClassName}

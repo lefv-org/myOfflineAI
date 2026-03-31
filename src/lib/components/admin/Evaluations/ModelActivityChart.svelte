@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { onMount, onDestroy } from 'svelte';
-	import { getContext } from 'svelte';
+	;
 	import Spinner from '$lib/components/common/Spinner.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let history: Array<{ date: string; won: number; lost: number }> = [];
 	export let loading = false;
@@ -49,13 +50,15 @@
 				weeklyData[weekKey].lost += h.lost;
 			});
 
-			chartData = Object.values(weeklyData).sort(
-				(a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime()
+			chartData = Object.values(weeklyData).map(
+				(d: any) => ({ date: d.startDate ?? '', won: d.won, lost: d.lost })
+			).sort(
+				(a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
 			);
 		}
 
 		const labels = chartData.map((h) => {
-			const date = new Date('startDate' in h ? h.startDate : h.date);
+			const date = new Date(h.date);
 			if (aggregateWeekly) {
 				return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 			}

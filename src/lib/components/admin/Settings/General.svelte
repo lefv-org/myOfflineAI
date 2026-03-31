@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import DOMPurify from 'dompurify';
 	import { v4 as uuidv4 } from 'uuid';
 
@@ -20,24 +21,24 @@
 	import { banners as _banners, config, showChangelog } from '$lib/stores';
 	import type { Banner } from '$lib/types';
 	import { compareVersion } from '$lib/utils';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import Textarea from '$lib/components/common/Textarea.svelte';
 	import Banners from './Interface/Banners.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let saveHandler: Function;
 
-	let updateAvailable = null;
+	let updateAvailable: any = null;
 	let version = {
 		current: '',
 		latest: ''
 	};
 
-	let adminConfig = null;
+	let adminConfig: any = null;
 	let webhookUrl = '';
-	let groups = [];
+	let groups: any[] = [];
 
 	let banners: Banner[] = [];
 
@@ -55,7 +56,8 @@
 		search_filters: '',
 		use_tls: false,
 		certificate_path: '',
-		ciphers: ''
+		ciphers: '',
+		validate_cert: false
 	};
 
 	const checkForVersionUpdates = async () => {
@@ -833,7 +835,7 @@
 								class="p-1 px-3 text-xs flex rounded-sm transition"
 								type="button"
 								on:click={() => {
-									if (banners.length === 0 || banners.at(-1).content !== '') {
+									if (banners.length === 0 || banners.at(-1)?.content !== '') {
 										banners = [
 											...banners,
 											{

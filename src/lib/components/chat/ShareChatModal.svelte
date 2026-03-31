@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import { models, config } from '$lib/stores';
 
 	import { toast } from 'svelte-sonner';
@@ -12,9 +13,9 @@
 
 	export let chatId;
 
-	let chat = null;
-	let shareUrl = null;
-	const i18n = getContext('i18n');
+	let chat: any = null;
+	let shareUrl: any = null;
+	const i18n = getI18nContext();
 
 	const shareLocalChat = async () => {
 		const _chat = chat;
@@ -41,7 +42,7 @@
 			(event) => {
 				if (event.origin !== url) return;
 				if (event.data === 'loaded') {
-					tab.postMessage(
+					tab?.postMessage(
 						JSON.stringify({
 							chat: _chat,
 							models: $models.filter((m) => _chat.models.includes(m.id))

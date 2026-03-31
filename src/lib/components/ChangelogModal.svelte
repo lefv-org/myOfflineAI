@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import DOMPurify from 'dompurify';
 
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { Confetti } from 'svelte-confetti';
 
 	import { WEBUI_NAME, config, settings } from '$lib/stores';
@@ -13,19 +14,19 @@
 	import { updateUserSettings } from '$lib/apis/users';
 	import XMark from '$lib/components/icons/XMark.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
 
-	let changelog = null;
+	let changelog: any = null;
 
 	const init = async () => {
 		changelog = await getChangelog();
 	};
 
 	const closeModal = async () => {
-		localStorage.version = $config.version;
-		await settings.set({ ...$settings, ...{ version: $config.version } });
+		localStorage.version = $config?.version;
+		await settings.set({ ...$settings, ...{ version: $config?.version } });
 		await updateUserSettings(localStorage.token, { ui: $settings });
 		show = false;
 	};

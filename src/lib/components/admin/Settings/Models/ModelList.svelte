@@ -1,17 +1,18 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Sortable from 'sortablejs';
 
-	import { createEventDispatcher, getContext, onMount, onDestroy, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	import { createEventDispatcher, onMount, onDestroy, tick } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { models } from '$lib/stores';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import EllipsisVertical from '$lib/components/icons/EllipsisVertical.svelte';
 
-	export let modelIds = [];
+	export let modelIds: any[] = [];
 
-	let sortable = null;
-	let modelListElement = null;
+	let sortable: any = null;
+	let modelListElement: any = null;
 
 	const positionChangeHandler = (event) => {
 		const { oldIndex, newIndex, item } = event;
@@ -75,7 +76,7 @@
 
 						<div class=" text-sm flex-1 py-1 rounded-lg line-clamp-1">
 							{#if $models.find((model) => model.id === modelId)}
-								{$models.find((model) => model.id === modelId).name}
+								{$models.find((model) => model.id === modelId)?.name}
 							{:else}
 								{modelId}
 							{/if}

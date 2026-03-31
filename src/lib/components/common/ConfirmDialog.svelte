@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import DOMPurify from 'dompurify';
 
-	import { onMount, getContext, createEventDispatcher, onDestroy, tick } from 'svelte';
+	import { onMount, createEventDispatcher, onDestroy, tick } from 'svelte';
 	import * as FocusTrap from 'focus-trap';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	import { fade } from 'svelte/transition';
@@ -18,7 +19,7 @@
 	export let cancelLabel = $i18n.t('Cancel');
 	export let confirmLabel = $i18n.t('Confirm');
 
-	export let onConfirm = () => {};
+	export let onConfirm: Function = () => {};
 
 	export let input = false;
 	export let inputPlaceholder = '';
@@ -33,7 +34,7 @@
 		init();
 	}
 
-	let modalElement = null;
+	let modalElement: any = null;
 	let mounted = false;
 
 	let focusTrap: FocusTrap.FocusTrap | null = null;
@@ -76,7 +77,7 @@
 			window.addEventListener('keydown', handleKeyDown);
 			document.body.style.overflow = 'hidden';
 		} else if (modalElement) {
-			focusTrap.deactivate();
+			focusTrap?.deactivate();
 
 			window.removeEventListener('keydown', handleKeyDown);
 			document.body.removeChild(modalElement);
@@ -89,7 +90,7 @@
 		show = false;
 		window.removeEventListener('keydown', handleKeyDown);
 		if (focusTrap) {
-			focusTrap.deactivate();
+			focusTrap?.deactivate();
 		}
 		if (modalElement) {
 			document.body.removeChild(modalElement);

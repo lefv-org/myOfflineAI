@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 
-	import { tick, getContext, onMount, createEventDispatcher } from 'svelte';
+	import { tick, onMount, createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { settings } from '$lib/stores';
 	import { copyToClipboard } from '$lib/utils';
@@ -13,7 +14,7 @@
 	import UserMessage from './UserMessage.svelte';
 
 	export let chatId;
-	export let selectedModels = [];
+	export let selectedModels: any[] = [];
 	export let idx = 0;
 
 	export let history;
@@ -61,7 +62,7 @@
 				isFirstMessage={idx === 0}
 				siblings={history.messages[messageId].parentId !== null
 					? (history.messages[history.messages[messageId].parentId]?.childrenIds ?? [])
-					: (Object.values(history.messages)
+					: ((Object.values(history.messages) as any[])
 							.filter((message) => message.parentId === null)
 							.map((message) => message.id) ?? [])}
 				{gotoMessage}

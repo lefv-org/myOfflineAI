@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import CodeBlock from './CodeBlock.svelte';
 	import Modal from '$lib/components/common/Modal.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import Badge from '$lib/components/common/Badge.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
-	export let codeExecution = null;
+	export let codeExecution: any = null;
 </script>
 
 <Modal size="lg" bind:show>
@@ -61,6 +62,7 @@
 				<div class="flex flex-col w-full">
 					<CodeBlock
 						id="code-exec-{codeExecution?.id}-code"
+						token={null}
 						lang={codeExecution?.language ?? ''}
 						code={codeExecution?.code ?? ''}
 						className=""

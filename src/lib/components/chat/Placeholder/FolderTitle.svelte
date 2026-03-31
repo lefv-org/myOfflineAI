@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/i18n';
+	;
+	const i18n = getI18nContext();
 
 	import DOMPurify from 'dompurify';
 
@@ -24,7 +25,7 @@
 	import Emoji from '$lib/components/common/Emoji.svelte';
 	import EmojiPicker from '$lib/components/common/EmojiPicker.svelte';
 
-	export let folder = null;
+	export let folder: any = null;
 
 	export let onUpdate: Function = (folderId) => {};
 	export let onDelete: Function = (folderId) => {};
@@ -150,7 +151,7 @@
 			})} -->
 
 			{$i18n.t(`Are you sure you want to delete "{{NAME}}"?`, {
-				NAME: folders[folderId].name
+				NAME: folder?.name
 			})}
 		</div>
 

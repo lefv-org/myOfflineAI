@@ -184,7 +184,7 @@ export function listDragHandlePlugin(options = {}) {
 						el.setAttribute('aria-label', 'Drag list item');
 						el.contentEditable = 'false';
 						el.innerHTML = handleInnerHTML;
-						el.pmGetPos = getPos;
+						/** @type {any} */ (el).pmGetPos = getPos;
 						return el;
 					},
 					{ side: -1, ignoreSelection: true }
@@ -395,7 +395,7 @@ export function listDragHandlePlugin(options = {}) {
 					if (!handle) return false;
 					event.preventDefault();
 
-					const getPos = handle.pmGetPos;
+					const getPos = /** @type {any} */ (handle).pmGetPos;
 					if (typeof getPos !== 'function') return true;
 
 					const posInside = getPos();

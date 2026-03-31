@@ -1,20 +1,21 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Fuse from 'fuse.js';
 
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
-	import { tick, getContext } from 'svelte';
+	import { tick } from 'svelte';
 
 	import { models } from '$lib/stores';
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let query = '';
 	export let onSelect = (e) => {};
 
 	let selectedIdx = 0;
-	export let filteredItems = [];
+	export let filteredItems: any[] = [];
 
 	let fuse = new Fuse(
 		$models
@@ -87,7 +88,7 @@
 						alt={model?.name ?? model.id}
 						class="rounded-full size-5 items-center mr-2"
 						on:error={(e) => {
-							e.currentTarget.src = '/favicon.png';
+							(e.currentTarget as HTMLImageElement).src = '/favicon.png';
 						}}
 					/>
 					<div class="truncate">

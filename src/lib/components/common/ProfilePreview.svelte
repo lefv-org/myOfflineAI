@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { LinkPreview } from 'bits-ui';
-	import { getContext } from 'svelte';
+	;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	import UserStatus from './UserStatus.svelte';
 	import UserStatusLinkPreview from './UserStatusLinkPreview.svelte';
 
-	export let user = null;
+	export let user: any = null;
 
-	export let align = 'center';
-	export let side = 'right';
+	export let align: 'start' | 'end' | 'center' = 'center';
+	export let side: 'left' | 'right' | 'bottom' | 'top' = 'right';
 	export let sideOffset = 8;
 
 	let openPreview = false;

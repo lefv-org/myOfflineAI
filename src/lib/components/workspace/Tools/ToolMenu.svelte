@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
 	import GarbageBin from '$lib/components/icons/GarbageBin.svelte';
@@ -10,7 +11,7 @@
 	import Download from '$lib/components/icons/Download.svelte';
 	import { config, user } from '$lib/stores';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let editHandler: Function;
 	export let shareHandler: Function;
@@ -63,7 +64,7 @@
 				<div class="flex items-center">{$i18n.t('Edit')}</div>
 			</button>
 
-			{#if $config.features.enable_community_sharing}
+			{#if $config?.features?.enable_community_sharing}
 				<button
 					class="select-none flex gap-2 items-center px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl w-full"
 					draggable="false"

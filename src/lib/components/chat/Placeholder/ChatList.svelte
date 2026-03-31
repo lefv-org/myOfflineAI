@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import dayjs from 'dayjs';
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -12,14 +13,15 @@
 
 	dayjs.extend(localizedFormat);
 
-	export let chats = [];
+	export let chats: any[] = [];
 
 	export let chatListLoading = false;
 	export let allChatsLoaded = false;
 
-	export let loadHandler: Function = null;
+	export let loadHandler: Function | null = null;
+	export let show = false;
 
-	let chatList = null;
+	let chatList: any = null;
 
 	const init = async () => {
 		if (chats.length === 0) {

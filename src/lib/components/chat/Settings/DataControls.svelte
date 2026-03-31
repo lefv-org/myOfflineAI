@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
@@ -21,7 +22,7 @@
 		importChats
 	} from '$lib/apis/chats';
 	import { getImportOrigin, convertOpenAIChats } from '$lib/utils';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import ArchivedChatsModal from '$lib/components/layout/ArchivedChatsModal.svelte';
@@ -29,7 +30,7 @@
 	import FilesModal from '$lib/components/layout/FilesModal.svelte';
 	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let saveSettings: Function;
 
@@ -49,7 +50,7 @@
 
 		let reader = new FileReader();
 		reader.onload = (event) => {
-			let chats = JSON.parse(event.target.result);
+			let chats = JSON.parse(event.target!.result as string);
 			console.log(chats);
 			if (getImportOrigin(chats) == 'openai') {
 				try {
@@ -202,7 +203,7 @@
 				</div>
 			</div>
 
-			{#if $user?.role === 'admin' || ($user.permissions?.chat?.export ?? true)}
+			{#if $user?.role === 'admin' || ($user?.permissions?.chat?.export ?? true)}
 				<div>
 					<div class="py-0.5 flex w-full justify-between">
 						<div class="self-center text-xs">{$i18n.t('Export Chats')}</div>

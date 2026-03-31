@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { decode } from 'html-entities';
 	import { v4 as uuidv4 } from 'uuid';
 
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	;
+	const i18n = getI18nContext();
 
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
@@ -42,7 +43,7 @@
 
 	const componentId = id || uuidv4();
 
-	function parseJSONString(str: string) {
+	function parseJSONString(str: string): any {
 		try {
 			return parseJSONString(JSON.parse(str));
 		} catch (e) {

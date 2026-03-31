@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, onMount, getContext } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { getModels as _getModels } from '$lib/apis';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { models, settings, user } from '$lib/stores';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
@@ -24,9 +25,9 @@
 		setToolServerConnections
 	} from '$lib/apis/configs';
 
-	export let saveSettings: Function;
+	export let saveSettings: Function = () => {};
 
-	let servers = null;
+	let servers: any = null;
 	let showConnectionModal = false;
 
 	const addConnectionHandler = async (server) => {
