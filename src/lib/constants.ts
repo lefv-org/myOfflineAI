@@ -1,9 +1,12 @@
 import { browser, dev } from '$app/environment';
 // import { version } from '../../package.json';
 
+declare const APP_VERSION: string;
+declare const APP_BUILD_HASH: string;
+
 export const APP_NAME = 'Open WebUI';
 
-export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:8080` : ``) : '';
+export const WEBUI_HOSTNAME = browser ? (dev ? `${location.hostname}:8081` : ``) : '';
 export const WEBUI_BASE_URL = browser ? (dev ? `http://${WEBUI_HOSTNAME}` : ``) : ``;
 export const WEBUI_API_BASE_URL = `${WEBUI_BASE_URL}/api/v1`;
 

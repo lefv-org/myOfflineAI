@@ -5,6 +5,11 @@ else
     DOCKER_COMPOSE := docker compose
 endif
 
+dev:
+	@echo "Starting backend and frontend..."
+	cd backend && ./dev.sh &
+	npm run dev
+
 install:
 	$(DOCKER_COMPOSE) up -d
 
