@@ -71,6 +71,7 @@ from open_webui.socket.main import (
 from open_webui.routers import (
     analytics,
     audio,
+    filesystem,
     images,
     ollama,
     retrieval,
@@ -542,10 +543,22 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             log.warning(f'Failed to initialize tool servers at startup: {e}')
 
+    # Start filesystem watcher
+    from open_webui.services.filesystem_watcher import FilesystemWatcherService
+    app.state.filesystem_watcher = FilesystemWatcherService(app)
+    try:
+        await app.state.filesystem_watcher.start()
+    except Exception as e:
+        log.warning(f"Failed to start filesystem watcher: {e}")
+
     # Mark application as ready to accept traffic from a startup perspective.
     app.state.startup_complete = True
 
     yield
+
+    # Stop filesystem watcher
+    if hasattr(app.state, "filesystem_watcher"):
+        await app.state.filesystem_watcher.stop()
 
     if hasattr(app.state, 'redis_task_command_listener'):
         app.state.redis_task_command_listener.cancel()
@@ -1144,6 +1157,7 @@ app.include_router(evaluations.router, prefix='/api/v1/evaluations', tags=['eval
 if ENABLE_ADMIN_ANALYTICS:
     app.include_router(analytics.router, prefix='/api/v1/analytics', tags=['analytics'])
 app.include_router(utils.router, prefix='/api/v1/utils', tags=['utils'])
+app.include_router(filesystem.router, prefix='/api/v1/filesystem', tags=['filesystem'])
 
 
 try:
