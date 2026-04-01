@@ -113,7 +113,7 @@ async def send_get_request_with_openai_fallback(base_url, key=None, user: UserMo
     if result is not None and 'models' in result:
         return result
 
-    # Fallback: OpenAI-compatible /v1/models
+    # Fallback: OpenAI-compatible /v1/models (e.g. MLX, vLLM, llama.cpp)
     openai_result = await send_get_request(f'{base_url}/v1/models', key, user)
     if openai_result and 'data' in openai_result:
         models = []
@@ -124,6 +124,7 @@ async def send_get_request_with_openai_fallback(base_url, key=None, user: UserMo
                 'size': 0,
                 'digest': '',
                 'details': {'family': 'openai-compatible', 'parameter_size': ''},
+                'openai_compatible': True,
             })
         return {'models': models}
 

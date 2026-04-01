@@ -45,7 +45,7 @@ async def fetch_ollama_models(request: Request, user: UserModel = None):
             'name': model['name'],
             'object': 'model',
             'created': int(time.time()),
-            'owned_by': 'ollama',
+            'owned_by': 'openai' if model.get('openai_compatible') else 'ollama',
             'ollama': model,
             'connection_type': model.get('connection_type', 'local'),
             'tags': model.get('tags', []),
