@@ -170,13 +170,19 @@ class FilesystemWatcherService:
         self._observer.start()
         log.info("Filesystem observer started with %d directories.", len(self._watches))
 
-        # Run initial scan for each directory.
-        for wd in enabled:
-            if os.path.isdir(wd.path):
-                await self._initial_scan(wd)
+        # Run initial scan in background so it doesn't block server startup.
+        async def _background_scan():
+            for wd in enabled:
+                if os.path.isdir(wd.path):
+                    await self._initial_scan(wd)
+
+        self._scan_task = asyncio.create_task(_background_scan())
 
     async def stop(self):
         """Stop the observer and clean up."""
+        if hasattr(self, '_scan_task') and self._scan_task and not self._scan_task.done():
+            self._scan_task.cancel()
+            self._scan_task = None
         if self._observer is not None:
             self._observer.stop()
             self._observer.join()
