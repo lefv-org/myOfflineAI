@@ -8,6 +8,7 @@
 		createWatchedDirectory,
 		deleteWatchedDirectory,
 		resyncWatchedDirectory,
+		browseDirectories,
 		type WatchedDirectory
 	} from '$lib/apis/filesystem';
 
@@ -25,6 +26,59 @@
 	let newName = '';
 	let newExtensions = '.md,.txt,.pdf,.py,.ts,.js';
 	let newExclude = '.git,node_modules,__pycache__,.venv';
+
+	// Folder picker state
+	let showBrowser = false;
+	let browserPath = '';
+	let browserDirs: string[] = [];
+	let browserLoading = false;
+
+	const openBrowser = async () => {
+		showBrowser = true;
+		browserLoading = true;
+		try {
+			const res = await browseDirectories(localStorage.token, newPath || undefined);
+			browserPath = res.path;
+			browserDirs = res.dirs;
+		} catch (err) {
+			toast.error(`${err}`);
+		}
+		browserLoading = false;
+	};
+
+	const navigateTo = async (dir: string) => {
+		browserLoading = true;
+		try {
+			const target = browserPath === '/' ? `/${dir}` : `${browserPath}/${dir}`;
+			const res = await browseDirectories(localStorage.token, target);
+			browserPath = res.path;
+			browserDirs = res.dirs;
+		} catch (err) {
+			toast.error(`${err}`);
+		}
+		browserLoading = false;
+	};
+
+	const navigateUp = async () => {
+		const parent = browserPath.substring(0, browserPath.lastIndexOf('/')) || '/';
+		browserLoading = true;
+		try {
+			const res = await browseDirectories(localStorage.token, parent);
+			browserPath = res.path;
+			browserDirs = res.dirs;
+		} catch (err) {
+			toast.error(`${err}`);
+		}
+		browserLoading = false;
+	};
+
+	const selectBrowserPath = () => {
+		newPath = browserPath;
+		if (!newName) {
+			newName = browserPath.split('/').filter(Boolean).pop() || '';
+		}
+		showBrowser = false;
+	};
 
 	const loadDirectories = async () => {
 		try {
@@ -169,12 +223,20 @@
 						<label class="text-xs font-medium mb-0.5 block" for="fs-path"
 							>{$i18n.t('Path')}</label
 						>
-						<input
-							id="fs-path"
-							class="w-full text-sm bg-transparent outline-hidden border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5"
-							bind:value={newPath}
-							placeholder="/home/user/documents"
-						/>
+						<div class="flex gap-2">
+							<input
+								id="fs-path"
+								class="flex-1 text-sm bg-transparent outline-hidden border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-1.5"
+								bind:value={newPath}
+								placeholder="/home/user/documents"
+							/>
+							<button
+								class="px-3 py-1.5 text-sm font-medium border border-gray-200 dark:border-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+								on:click={openBrowser}
+							>
+								{$i18n.t('Browse')}
+							</button>
+						</div>
 					</div>
 					<div>
 						<label class="text-xs font-medium mb-0.5 block" for="fs-name"
@@ -225,3 +287,86 @@
 		</div>
 	{/if}
 </div>
+
+{#if showBrowser}
+	<!-- svelte-ignore a11y-no-static-element-interactions -->
+	<div
+		class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+		on:mousedown|self={() => (showBrowser = false)}
+		on:keydown={(e) => e.key === 'Escape' && (showBrowser = false)}
+	>
+		<div
+			class="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-lg mx-4 flex flex-col max-h-[70vh]"
+		>
+			<div class="flex items-center justify-between px-4 pt-4 pb-2">
+				<div class="text-sm font-medium">{$i18n.t('Select Directory')}</div>
+				<button
+					class="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+					on:click={() => (showBrowser = false)}
+				>
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="size-4">
+						<path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+					</svg>
+				</button>
+			</div>
+
+			<div class="px-4 pb-2">
+				<div class="text-xs text-gray-500 dark:text-gray-400 font-mono truncate bg-gray-50 dark:bg-gray-850 rounded-lg px-3 py-1.5">
+					{browserPath}
+				</div>
+			</div>
+
+			<div class="flex-1 overflow-y-auto px-4 min-h-0">
+				{#if browserLoading}
+					<div class="flex justify-center py-6"><Spinner /></div>
+				{:else}
+					<div class="space-y-0.5">
+						{#if browserPath !== '/'}
+							<button
+								class="flex items-center gap-2 w-full text-left px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition text-sm"
+								on:click={navigateUp}
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4 text-gray-400">
+									<path fill-rule="evenodd" d="M14 8a.75.75 0 0 1-.75.75H4.56l3.22 3.22a.75.75 0 1 1-1.06 1.06l-4.5-4.5a.75.75 0 0 1 0-1.06l4.5-4.5a.75.75 0 0 1 1.06 1.06L4.56 7.25h8.69A.75.75 0 0 1 14 8Z" clip-rule="evenodd" />
+								</svg>
+								<span class="text-gray-500 dark:text-gray-400">..</span>
+							</button>
+						{/if}
+						{#each browserDirs as dir}
+							<button
+								class="flex items-center gap-2 w-full text-left px-3 py-1.5 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition text-sm"
+								on:click={() => navigateTo(dir)}
+							>
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="size-4 text-yellow-500">
+									<path d="M2 3.5A1.5 1.5 0 0 1 3.5 2h2.879a1.5 1.5 0 0 1 1.06.44l1.122 1.12A1.5 1.5 0 0 0 9.62 4H12.5A1.5 1.5 0 0 1 14 5.5v1.401a2.986 2.986 0 0 0-1.5-.401h-9c-.546 0-1.059.146-1.5.401V3.5Z" />
+									<path d="M2 9.5v3A1.5 1.5 0 0 0 3.5 14h9a1.5 1.5 0 0 0 1.5-1.5v-3A1.5 1.5 0 0 0 12.5 8h-9A1.5 1.5 0 0 0 2 9.5Z" />
+								</svg>
+								{dir}
+							</button>
+						{/each}
+						{#if browserDirs.length === 0}
+							<div class="text-center text-gray-400 dark:text-gray-500 py-4 text-xs">
+								{$i18n.t('No subdirectories')}
+							</div>
+						{/if}
+					</div>
+				{/if}
+			</div>
+
+			<div class="flex justify-end gap-2 px-4 py-3 border-t border-gray-100 dark:border-gray-800">
+				<button
+					class="px-3 py-1.5 text-sm rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition"
+					on:click={() => (showBrowser = false)}
+				>
+					{$i18n.t('Cancel')}
+				</button>
+				<button
+					class="px-3 py-1.5 text-sm font-medium bg-black hover:bg-gray-900 text-white dark:bg-white dark:text-black dark:hover:bg-gray-100 transition rounded-lg"
+					on:click={selectBrowserPath}
+				>
+					{$i18n.t('Select This Directory')}
+				</button>
+			</div>
+		</div>
+	</div>
+{/if}

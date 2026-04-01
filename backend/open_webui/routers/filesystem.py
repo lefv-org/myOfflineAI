@@ -30,6 +30,32 @@ class WatchedDirectoryResponse(BaseModel):
     updated_at: int
 
 
+class BrowseResponse(BaseModel):
+    path: str
+    dirs: list[str]
+
+
+@router.get("/browse")
+async def browse_directories(
+    path: str = os.path.expanduser("~"),
+    user=Depends(get_admin_user),
+) -> BrowseResponse:
+    """List subdirectories at the given path for the folder picker."""
+    resolved = os.path.abspath(os.path.expanduser(path))
+    if not os.path.isdir(resolved):
+        raise HTTPException(status_code=400, detail=f"Not a directory: {resolved}")
+
+    dirs = []
+    try:
+        for entry in sorted(os.scandir(resolved), key=lambda e: e.name.lower()):
+            if entry.is_dir() and not entry.name.startswith("."):
+                dirs.append(entry.name)
+    except PermissionError:
+        raise HTTPException(status_code=403, detail=f"Permission denied: {resolved}")
+
+    return BrowseResponse(path=resolved, dirs=dirs)
+
+
 @router.get("/", response_model=list[WatchedDirectoryResponse])
 async def list_watched_directories(user=Depends(get_admin_user)):
     return WatchedDirectories.get_all()

@@ -1,5 +1,41 @@
 import { WEBUI_API_BASE_URL } from '$lib/constants';
 
+export type BrowseResult = {
+	path: string;
+	dirs: string[];
+};
+
+export const browseDirectories = async (
+	token: string,
+	path?: string
+): Promise<BrowseResult> => {
+	let error: any = null;
+	const params = path ? `?path=${encodeURIComponent(path)}` : '';
+
+	const res = await fetch(`${WEBUI_API_BASE_URL}/filesystem/browse${params}`, {
+		method: 'GET',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+			authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			error = err.detail;
+			return null;
+		});
+
+	if (error) {
+		throw error;
+	}
+
+	return res;
+};
+
 export type WatchedDirectory = {
 	id: string;
 	path: string;
