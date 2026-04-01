@@ -291,7 +291,6 @@ async def generate_chat_completion(
                 request=request,
                 form_data=form_data,
                 user=user,
-                bypass_system_prompt=bypass_system_prompt,
             )
 
 
