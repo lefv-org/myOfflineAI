@@ -6,8 +6,8 @@ else
 endif
 
 dev:
-	@-kill $$(lsof -ti :8081) 2>/dev/null
-	@-kill $$(lsof -ti :5173) 2>/dev/null
+	@lsof -ti :8081 | xargs kill 2>/dev/null || true
+	@lsof -ti :5173 | xargs kill 2>/dev/null || true
 	@sleep 1
 	@echo "Starting backend and frontend..."
 	cd backend && ./dev.sh &
