@@ -8,6 +8,14 @@ endif
 dev:
 	@echo "Starting backend and frontend..."
 	cd backend && ./dev.sh &
+	@echo "Waiting for backend to be ready..."
+	@for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20; do \
+		curl -sf http://localhost:8081/api/config > /dev/null 2>&1 && break; \
+		sleep 1; \
+	done
+	@curl -sf http://localhost:8081/api/config > /dev/null 2>&1 \
+		&& echo "Backend ready on :8081" \
+		|| echo "WARNING: Backend may not be ready yet"
 	npm run dev
 
 install:
