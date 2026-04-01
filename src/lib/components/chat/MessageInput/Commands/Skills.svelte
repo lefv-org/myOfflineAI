@@ -1,16 +1,17 @@
 <script lang="ts">
-	import { getContext, onDestroy } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onDestroy } from 'svelte';
 	import { getSkillItems } from '$lib/apis/skills';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Keyframes from '$lib/components/icons/Keyframes.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let query = '';
 	export let onSelect = (e) => {};
 
 	let selectedIdx = 0;
-	export let filteredItems = [];
+	export let filteredItems: any[] = [];
 
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;
 

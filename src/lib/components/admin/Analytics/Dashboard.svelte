@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import { models } from '$lib/stores';
 	import {
 		getSummary,
@@ -19,7 +20,7 @@
 	import { formatNumber } from '$lib/utils';
 	import { goto } from '$app/navigation';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	// Time period - persist in localStorage
 	let selectedPeriod =
@@ -56,7 +57,7 @@
 	// Data
 	let summary = { total_messages: 0, total_chats: 0, total_models: 0, total_users: 0 };
 	let modelStats: Array<{ model_id: string; count: number; name?: string }> = [];
-	let userStats: Array<{ user_id: string; name?: string; email?: string; count: number }> = [];
+	let userStats: Array<{ user_id: string; name?: string; email?: string; count: number; total_tokens?: number }> = [];
 	let dailyStats: Array<{ date: string; models: Record<string, number> }> = [];
 	let tokenStats: Record<
 		string,
@@ -156,7 +157,7 @@
 
 	$: sortedModels = [...modelStats].sort((a, b) => {
 		if (modelOrderBy === 'name') {
-			return modelDirection === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+			return modelDirection === 'asc' ? (a.name ?? '').localeCompare(b.name ?? '') : (b.name ?? '').localeCompare(a.name ?? '');
 		}
 		if (modelOrderBy === 'tokens') {
 			const aTokens = tokenStats[a.model_id]?.total_tokens ?? 0;
@@ -382,7 +383,7 @@
 							<tr
 								class="bg-white dark:bg-gray-900 dark:border-gray-850 text-xs cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
 								on:click={() => {
-									selectedModel = { id: model.model_id, name: model.name };
+									selectedModel = { id: model.model_id, name: model.name ?? model.model_id };
 									showModelModal = true;
 								}}
 							>
@@ -394,7 +395,7 @@
 											alt={model.name}
 											class="size-5 rounded-full object-cover shrink-0"
 											on:error={(e) => {
-												e.target.src = '/favicon.png';
+												(e.target as HTMLImageElement).src = '/favicon.png';
 											}}
 										/>
 										<span class="truncate max-w-[150px]">{model.name}</span>
@@ -500,7 +501,7 @@
 											alt={user.name || 'User'}
 											class="size-5 rounded-full object-cover shrink-0"
 											on:error={(e) => {
-												e.target.src = '/user.png';
+												(e.target as HTMLImageElement).src = '/user.png';
 											}}
 										/>
 										<span class="truncate max-w-[150px]"

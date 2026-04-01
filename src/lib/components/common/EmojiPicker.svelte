@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import VirtualList from '@sveltejs/svelte-virtual-list';
 
-	import { getContext } from 'svelte';
+	;
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
@@ -11,25 +12,25 @@
 	import emojiGroups from '$lib/emoji-groups.json';
 	import emojiShortCodes from '$lib/emoji-shortcodes.json';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
-	export let onClose = () => {};
+	export let onClose: Function = () => {};
 	export let onSubmit = (name) => {};
 	export let side = 'top';
 	export let align = 'start';
-	export let user = null;
-	export let selected = null;
+	export let user: any = null;
+	export let selected: any = null;
 
 	let show = false;
 	let emojis = emojiShortCodes;
 	let search = '';
-	let flattenedEmojis = [];
-	let emojiRows = [];
+	let flattenedEmojis: any[] = [];
+	let emojiRows: any[] = [];
 
 	// Reactive statement to filter the emojis based on search query
 	$: {
 		if (search) {
-			emojis = Object.keys(emojiShortCodes).reduce((acc, key) => {
+			emojis = Object.keys(emojiShortCodes).reduce((acc: any, key) => {
 				if (key.includes(search.toLowerCase())) {
 					acc[key] = emojiShortCodes[key];
 				} else {
@@ -73,7 +74,7 @@
 		});
 		// Group emojis into rows of 8
 		emojiRows = [];
-		let currentRow = [];
+		let currentRow: any[] = [];
 		flattenedEmojis.forEach((item) => {
 			if (item.type === 'emoji') {
 				currentRow.push(item);

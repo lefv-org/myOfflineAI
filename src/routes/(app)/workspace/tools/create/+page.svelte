@@ -1,18 +1,19 @@
-<script>
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { goto } from '$app/navigation';
 	import { createNewTool, getTools } from '$lib/apis/tools';
 	import ToolkitEditor from '$lib/components/workspace/Tools/ToolkitEditor.svelte';
 	import { WEBUI_VERSION } from '$lib/constants';
 	import { tools } from '$lib/stores';
 	import { compareVersion, extractFrontmatter } from '$lib/utils';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let mounted = false;
 	let clone = false;
-	let tool = null;
+	let tool: any = null;
 
 	const saveHandler = async (data) => {
 		console.log(data);

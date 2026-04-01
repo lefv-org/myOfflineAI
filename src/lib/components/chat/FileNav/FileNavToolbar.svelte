@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, afterUpdate } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { afterUpdate } from 'svelte';
 	import { tick } from 'svelte';
 	import Folder from '../../icons/Folder.svelte';
 	import NewFolderAlt from '../../icons/NewFolderAlt.svelte';
@@ -7,7 +8,7 @@
 	import Spinner from '../../common/Spinner.svelte';
 	import Tooltip from '../../common/Tooltip.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let breadcrumbs: { label: string; path: string }[] = [];
 	export let selectedFile: string | null = null;

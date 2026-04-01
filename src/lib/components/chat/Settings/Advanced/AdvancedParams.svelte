@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Switch from '$lib/components/common/Switch.svelte';
 	import Textarea from '$lib/components/common/Textarea.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Plus from '$lib/components/icons/Plus.svelte';
-	import { getContext } from 'svelte';
+	;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let onChange: (params: any) => void = () => {};
 
@@ -47,7 +48,7 @@
 		num_gpu: null
 	};
 
-	export let params = defaultParams;
+	export let params: Record<string, any> = defaultParams;
 	$: if (params) {
 		onChange(params);
 	}
@@ -1640,7 +1641,7 @@
 									placeholder={$i18n.t('Custom Parameter Name')}
 									value={key}
 									on:change={(e) => {
-										const newKey = e.target.value.trim();
+										const newKey = (e.target as HTMLInputElement).value.trim();
 										if (newKey && newKey !== key) {
 											params.custom_params[newKey] = params.custom_params[key];
 											delete params.custom_params[key];

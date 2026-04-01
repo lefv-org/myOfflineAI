@@ -1,7 +1,8 @@
-<script>
-	import { getContext, createEventDispatcher, onMount, onDestroy, tick } from 'svelte';
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher, onMount, onDestroy, tick } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	import DOMPurify from 'dompurify';
@@ -44,7 +45,7 @@
 	import Emoji from '$lib/components/common/Emoji.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 
-	export let folderRegistry = {};
+	export let folderRegistry: any = {};
 	export let open = false;
 
 	export let folders;
@@ -66,12 +67,12 @@
 	let edit = false;
 
 	let showCreateSubFolderModal = false;
-	let createSubFolderParentId = null;
+	let createSubFolderParentId: any = null;
 
 	let draggedOver = false;
 	let dragged = false;
 
-	let clickTimer = null;
+	let clickTimer: any = null;
 
 	let name = '';
 
@@ -96,7 +97,7 @@
 
 			if (e.dataTransfer.items && e.dataTransfer.items.length > 0) {
 				// Iterate over all items in the DataTransferItemList use functional programming
-				for (const item of Array.from(e.dataTransfer.items)) {
+				for (const item of Array.from(e.dataTransfer.items) as DataTransferItem[]) {
 					// If dropped items aren't files, reject them
 					if (item.kind === 'file') {
 						const file = item.getAsFile();
@@ -107,7 +108,7 @@
 							const reader = new FileReader();
 							reader.onload = async function (event) {
 								try {
-									const fileContent = JSON.parse(event.target.result);
+									const fileContent = JSON.parse(event.target!.result as string);
 									open = true;
 									dispatch('import', {
 										folderId: folderId,
@@ -307,7 +308,7 @@
 		}
 	};
 
-	const updateHandler = async ({ name, meta, data }) => {
+	const updateHandler = async ({ name, meta, data }: { name: any; meta?: any; data?: any }) => {
 		if (name === '') {
 			toast.error($i18n.t('Folder name cannot be empty.'));
 			return;
@@ -370,7 +371,7 @@
 		}, 500);
 	};
 
-	let chats = null;
+	let chats: any = null;
 	export const setFolderItems = async () => {
 		await tick();
 		if (open) {
@@ -396,7 +397,7 @@
 		await tick();
 		await tick();
 
-		const input = document.getElementById(`folder-${folderId}-input`);
+		const input = document.getElementById(`folder-${folderId}-input`) as HTMLInputElement | null;
 		if (input) {
 			input.focus();
 			input.select();

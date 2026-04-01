@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { v4 as uuidv4 } from 'uuid';
 	import { toast } from 'svelte-sonner';
 	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
 
-	import { getContext, onDestroy, onMount, tick } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
-	const i18n: Writable<i18nType> = getContext('i18n');
+	const i18n: Writable<i18nType> = getI18nContext();
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -129,20 +130,20 @@
 	let eventConfirmationInputPlaceholder = '';
 	let eventConfirmationInputValue = '';
 	let eventConfirmationInputType = '';
-	let eventCallback = null;
+	let eventCallback: any = null;
 
 	let selectedModels = [''];
 	let atSelectedModel: Model | undefined;
-	let selectedModelIds = [];
+	let selectedModelIds: any[] = [];
 	$: if (atSelectedModel !== undefined) {
 		selectedModelIds = [atSelectedModel.id];
 	} else {
 		selectedModelIds = selectedModels;
 	}
 
-	let selectedToolIds = [];
-	let selectedFilterIds = [];
-	let pendingOAuthTools = [];
+	let selectedToolIds: any[] = [];
+	let selectedFilterIds: any[] = [];
+	let pendingOAuthTools: any[] = [];
 
 	let imageGenerationEnabled = false;
 	let webSearchEnabled = false;
@@ -152,23 +153,23 @@
 
 	let generating = false;
 	let dragged = false;
-	let generationController = null;
+	let generationController: any = null;
 
-	let chat = null;
-	let tags = [];
+	let chat: any = null;
+	let tags: any[] = [];
 
-	let history = {
+	let history: any = {
 		messages: {},
 		currentId: null
 	};
 
-	let taskIds = null;
+	let taskIds: any = null;
 
 	// Chat Input
 	let prompt = '';
-	let chatFiles = [];
-	let files = [];
-	let params = {};
+	let chatFiles: any[] = [];
+	let files: any[] = [];
+	let params: Record<string, any> = {};
 
 	$: if (chatIdProp) {
 		navigateHandler();
@@ -300,15 +301,15 @@
 			if (model?.info?.meta?.toolIds) {
 				const defaultIds = [
 					...new Set(
-						[...(model?.info?.meta?.toolIds ?? [])].filter((id) => $tools.find((t) => t.id === id))
+						[...(model?.info?.meta?.toolIds ?? [])].filter((id) => ($tools ?? []).find((t: any) => t.id === id))
 					)
 				];
 
 				// Separate unauthenticated OAuth tools
-				const unauthed = [];
-				const authed = [];
+				const unauthed: any[] = [];
+				const authed: any[] = [];
 				for (const id of defaultIds) {
-					const tool = $tools.find((t) => t.id === id);
+					const tool: any = (($tools ?? []) as any[]).find((t: any) => t.id === id);
 					if (tool && tool.authenticated === false) {
 						const parts = id.split(':');
 						const serverId = parts.at(-1) ?? id;
@@ -367,7 +368,7 @@
 		const _chatId = JSON.parse(JSON.stringify($chatId));
 		let _messageId = JSON.parse(JSON.stringify(message.id));
 
-		let messageChildrenIds = [];
+		let messageChildrenIds: any[] = [];
 		if (_messageId === null) {
 			messageChildrenIds = Object.keys(history.messages).filter(
 				(id) => history.messages[id].parentId === null
@@ -656,7 +657,7 @@
 
 		$audioQueue?.destroy();
 
-		const audioQueueInstance = new AudioQueue(document.getElementById('audioElement'));
+		const audioQueueInstance = new AudioQueue(document.getElementById('audioElement') as HTMLAudioElement | null);
 		audioQueue.set(audioQueueInstance);
 
 		const pageSubscribe = page.subscribe(async (p) => {
@@ -772,7 +773,7 @@
 			name: fileData.name,
 			url: fileData.url,
 			headers: {
-				Authorization: `Bearer ${token}`
+				Authorization: `Bearer ${localStorage.token}`
 			}
 		});
 
@@ -850,7 +851,7 @@
 			}
 
 			// If the file is an audio file, provide the language for STT.
-			let metadata = null;
+			let metadata: any = null;
 			if (
 				(file.type.startsWith('audio/') || file.type.startsWith('video/')) &&
 				$settings?.audio?.stt?.language
@@ -880,12 +881,12 @@
 
 			files = files;
 			toast.success($i18n.t('File uploaded successfully'));
-		} catch (e) {
+		} catch (e: any) {
 			console.error('Error uploading file:', e);
 			files = files.filter((f) => f.itemId !== tempItemId);
 			toast.error(
 				$i18n.t('Error uploading file: {{error}}', {
-					error: e.message || 'Unknown error'
+					error: e?.message || 'Unknown error'
 				})
 			);
 		}
@@ -932,7 +933,7 @@
 
 				files = [...files];
 			} catch (e) {
-				files = files.filter((f) => f.name !== url);
+				files = files.filter((f) => f.name !== fileItem.url);
 				toast.error(`${e}`);
 			}
 		}
@@ -964,12 +965,12 @@
 
 	const getContents = () => {
 		const messages = history ? createMessagesList(history, history.currentId) : [];
-		let contents = [];
+		let contents: any[] = [];
 		messages.forEach((message) => {
 			if (message?.role !== 'user' && message?.content) {
-				const { codeBlocks: codeBlocks, htmlGroups: htmlGroups } = getCodeBlockContents(
+				const { codeBlocks, htmlGroups } = getCodeBlockContents(
 					message.content
-				);
+				) as any;
 
 				if (htmlGroups && htmlGroups.length > 0) {
 					htmlGroups.forEach((group) => {
@@ -1056,7 +1057,7 @@
 						modelSelectorButton.click();
 						await tick();
 
-						const modelSelectorInput = document.getElementById('model-search-input');
+						const modelSelectorInput = document.getElementById('model-search-input') as HTMLInputElement | null;
 						if (modelSelectorInput) {
 							modelSelectorInput.focus();
 							modelSelectorInput.value = urlModels[0];
@@ -1165,17 +1166,17 @@
 		}
 
 		if ($page.url.searchParams.get('tools')) {
-			selectedToolIds = $page.url.searchParams
+			selectedToolIds = ($page.url.searchParams
 				.get('tools')
 				?.split(',')
 				.map((id) => id.trim())
-				.filter((id) => id);
+				.filter((id) => id)) ?? [];
 		} else if ($page.url.searchParams.get('tool-ids')) {
-			selectedToolIds = $page.url.searchParams
+			selectedToolIds = ($page.url.searchParams
 				.get('tool-ids')
 				?.split(',')
 				.map((id) => id.trim())
-				.filter((id) => id);
+				.filter((id) => id)) ?? [];
 		}
 
 		// Restore tool selection after OAuth redirect
@@ -1259,7 +1260,7 @@
 				await tick();
 
 				if (history.currentId) {
-					for (const message of Object.values(history.messages)) {
+					for (const message of Object.values(history.messages) as any[]) {
 						if (message && message.role === 'assistant' && message.done !== false) {
 							message.done = true;
 						}
@@ -1283,7 +1284,7 @@
 		}
 	};
 
-	const scrollToBottom = async (behavior = 'auto') => {
+	const scrollToBottom = async (behavior: ScrollBehavior = 'auto') => {
 		await tick();
 		if (messagesContainerElement) {
 			messagesContainerElement.scrollTo({
@@ -1293,8 +1294,8 @@
 		}
 	};
 
-	let scrollRAF = null;
-	let contentsRAF = null;
+	let scrollRAF: any = null;
+	let contentsRAF: any = null;
 	const scheduleScrollToBottom = () => {
 		if (!scrollRAF) {
 			scrollRAF = requestAnimationFrame(async () => {
@@ -1336,7 +1337,7 @@
 			filter_ids: selectedFilterIds.length > 0 ? selectedFilterIds : undefined,
 			model_item: $models.find((m) => m.id === modelId),
 			chat_id: _chatId,
-			session_id: $socket?.id,
+			session_id: $socket?.id ?? "",
 			id: responseMessageId
 		}).catch((error) => {
 			toast.error(`${error}`);
@@ -1397,7 +1398,7 @@
 			...(event ? { event: event } : {}),
 			model_item: $models.find((m) => m.id === modelId),
 			chat_id: _chatId,
-			session_id: $socket?.id,
+			session_id: $socket?.id ?? "",
 			id: responseMessageId
 		}).catch((error) => {
 			toast.error(`${error}`);
@@ -1540,8 +1541,8 @@
 					parentId: currentParentId,
 					childrenIds: [],
 					done: true,
-					model: model.id,
-					modelName: model.name ?? model.id,
+					model: model!.id,
+					modelName: model!.name ?? model!.id,
 					modelIdx: 0,
 					timestamp: Math.floor(Date.now() / 1000),
 					...message
@@ -1782,7 +1783,7 @@
 
 		if (
 			($config?.file?.max_count ?? null) !== null &&
-			files.length + chatFiles.length > $config?.file?.max_count
+			files.length + chatFiles.length > ($config?.file?.max_count ?? Infinity)
 		) {
 			toast.error(
 				$i18n.t(`You can only chat with a maximum of {{maxCount}} file(s) at a time.`, {
@@ -1973,7 +1974,7 @@
 
 					if (
 						hasImages &&
-						!(model.info?.meta?.capabilities?.vision ?? true) &&
+						!((model.info?.meta?.capabilities as any)?.vision ?? true) &&
 						!imageGenerationEnabled
 					) {
 						toast.error(
@@ -2007,7 +2008,7 @@
 	};
 
 	const getFeatures = () => {
-		let features = {};
+		let features: any = {};
 
 		if ($config?.features)
 			features = {
@@ -2032,7 +2033,7 @@
 		const currentModels = atSelectedModel?.id ? [atSelectedModel.id] : selectedModels;
 		if (
 			currentModels.filter(
-				(model) => $models.find((m) => m.id === model)?.info?.meta?.capabilities?.web_search ?? true
+				(model) => ($models.find((m) => m.id === model)?.info?.meta?.capabilities as any)?.web_search ?? true
 			).length === currentModels.length
 		) {
 			if ($config?.features?.enable_web_search && ($settings?.webSearch ?? false) === 'always') {
@@ -2157,8 +2158,8 @@
 			})
 			.filter((message) => message?.role === 'user' || message?.content?.trim());
 
-		const toolIds = [];
-		const toolServerIds = [];
+		const toolIds: any[] = [];
+		const toolServerIds: any[] = [];
 
 		for (const toolId of selectedToolIds) {
 			if (toolId.startsWith('direct_server:')) {
@@ -2176,7 +2177,7 @@
 
 		// Parse skill mentions (<$skillId|label>) from user messages
 		const skillMentionRegex = /<\$([^|>]+)\|?[^>]*>/g;
-		const skillIds = [];
+		const skillIds: any[] = [];
 		for (const message of messages) {
 			const content =
 				typeof message.content === 'string' ? message.content : (message.content?.[0]?.text ?? '');
@@ -2227,8 +2228,8 @@
 				tool_ids: toolIds.length > 0 ? toolIds : undefined,
 				skill_ids: skillIds.length > 0 ? skillIds : undefined,
 				tool_servers: [
-					...($toolServers ?? []).filter(
-						(server, idx) => toolServerIds.includes(idx) || toolServerIds.includes(server?.id)
+					...(($toolServers ?? []) as any[]).filter(
+						(server: any, idx: number) => toolServerIds.includes(idx) || toolServerIds.includes(server?.id)
 					)
 				],
 				features: getFeatures(),
@@ -2241,7 +2242,7 @@
 				},
 				model_item: $models.find((m) => m.id === model.id),
 
-				session_id: $socket?.id,
+				session_id: $socket?.id ?? "",
 				chat_id: $chatId,
 				folder_id: $selectedFolder?.id ?? undefined,
 
@@ -2506,7 +2507,7 @@
 				message.model ?? '',
 				message.parentId ? history.messages[message.parentId].content : '',
 				responses
-			);
+			) as [Response | null, AbortController];
 
 			if (res && res.ok && res.body && generating) {
 				generationController = controller as AbortController;
@@ -2600,7 +2601,7 @@
 	const MAX_DRAFT_LENGTH = 5000;
 	let saveDraftTimeout: ReturnType<typeof setTimeout> | null = null;
 
-	const saveDraft = async (draft, chatId = null) => {
+	const saveDraft = async (draft: any, chatId: any = null) => {
 		if (saveDraftTimeout) {
 			clearTimeout(saveDraftTimeout);
 		}
@@ -2737,8 +2738,7 @@
 							}
 						}}
 						{history}
-						title={$chatTitle}
-						bind:selectedModels
+												bind:selectedModels
 						shareEnabled={!!history.currentId}
 						{initNewChat}
 						{archiveChatHandler}
@@ -2838,7 +2838,6 @@
 									bind:atSelectedModel
 									bind:showCommands
 									bind:dragged
-									toolServers={$toolServers}
 									{generating}
 									{stopResponse}
 									{createMessagePair}

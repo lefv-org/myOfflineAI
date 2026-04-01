@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import dayjs from '$lib/dayjs';
 	import duration from 'dayjs/plugin/duration';
 	import relativeTime from 'dayjs/plugin/relativeTime';
@@ -6,8 +7,8 @@
 	dayjs.extend(duration);
 	dayjs.extend(relativeTime);
 
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	;
+	const i18n = getI18nContext();
 
 	import { capitalizeFirstLetter, formatFileSize } from '$lib/utils';
 
@@ -18,9 +19,9 @@
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 
-	export let knowledge = null;
-	export let selectedFileId = null;
-	export let files = [];
+	export let knowledge: any = null;
+	export let selectedFileId: any = null;
+	export let files: any[] = [];
 
 	export let onClick = (fileId) => {};
 	export let onDelete = (fileId) => {};

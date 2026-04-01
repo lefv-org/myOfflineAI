@@ -1,14 +1,15 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import DOMPurify from 'dompurify';
 	import { marked } from 'marked';
 
 	import { getAdminDetails } from '$lib/apis/auths';
-	import { onMount, tick, getContext } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { config } from '$lib/stores';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
-	let adminDetails = null;
+	let adminDetails: any = null;
 
 	onMount(async () => {
 		adminDetails = await getAdminDetails(localStorage.token).catch((err) => {
@@ -29,7 +30,7 @@
 					style="white-space: pre-wrap;"
 				>
 					{#if ($config?.ui?.pending_user_overlay_title ?? '').trim() !== ''}
-						{$config.ui.pending_user_overlay_title}
+						{$config?.ui?.pending_user_overlay_title}
 					{:else}
 						{$i18n.t('Account Activation Pending')}<br />
 						{$i18n.t('Contact Admin for WebUI Access')}

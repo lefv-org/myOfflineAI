@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
 	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
@@ -7,7 +8,7 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import EllipsisHorizontal from '$lib/components/icons/EllipsisHorizontal.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let isProduction = false;
 	export let onDelete: Function;

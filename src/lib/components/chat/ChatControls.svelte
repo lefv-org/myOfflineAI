@@ -1,4 +1,5 @@
 <script context="module" lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	let savedTab: 'controls' | 'files' | 'overview' = 'controls';
 </script>
 
@@ -7,7 +8,7 @@
 	import { slide } from 'svelte/transition';
 	import { Pane, PaneResizer } from 'paneforge';
 
-	import { onDestroy, onMount, tick, getContext } from 'svelte';
+	import { onDestroy, onMount, tick } from 'svelte';
 	import {
 		config,
 		mobile,
@@ -30,15 +31,15 @@
 	import PyodideFileNav from './PyodideFileNav.svelte';
 	import Overview from './Overview.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let history;
-	export let models = [];
+	export let models: any[] = [];
 
-	export let chatId = null;
+	export let chatId: any = null;
 
-	export let chatFiles = [];
-	export let params = {};
+	export let chatFiles: any[] = [];
+	export let params: any = {};
 
 	export let eventTarget: EventTarget;
 	export let submitPrompt: Function;
@@ -49,7 +50,7 @@
 
 	export let codeInterpreterEnabled = false;
 
-	export let pane: Pane | null = null;
+	export let pane: any = null;
 
 	let largeScreen = false;
 	let dragged = false;
@@ -88,16 +89,15 @@
 		showControls.set(true);
 	}
 
-
 		export const openPane = () => {
 		if (parseInt(localStorage?.chatControlsSize)) {
-			const container = document.getElementById('chat-container');
+			const container = document.getElementById('chat-container')!;
 			let size = Math.floor(
 				(parseInt(localStorage?.chatControlsSize) / container.clientWidth) * 100
 			);
-			pane.resize(size);
+			pane?.resize(size);
 		} else {
-			pane.resize(minSize);
+			pane?.resize(minSize);
 		}
 	};
 
@@ -230,7 +230,7 @@
 				{:else if $showEmbeds}
 					<Embeds />
 				{:else if $showArtifacts}
-					<Artifacts {history} />
+					<Artifacts />
 				{:else}
 					<!-- Controls + Files tabs -->
 					<div class="flex flex-col h-full min-h-0">
@@ -332,12 +332,12 @@
 		bind:pane
 		defaultSize={0}
 		onResize={(size) => {
-			if ($showControls && pane.isExpanded()) {
-				if (size < minSize) pane.resize(minSize);
+			if ($showControls && pane?.isExpanded()) {
+				if (size < minSize) pane?.resize(minSize);
 				if (size < minSize) {
 					localStorage.chatControlsSize = 0;
 				} else {
-					const container = document.getElementById('chat-container');
+					const container = document.getElementById('chat-container')!;
 					localStorage.chatControlsSize = Math.floor((size / 100) * container.clientWidth);
 				}
 			}
@@ -374,7 +374,7 @@
 					{:else if $showEmbeds}
 						<Embeds overlay={dragged} />
 					{:else if $showArtifacts}
-						<Artifacts {history} overlay={dragged} />
+						<Artifacts overlay={dragged} />
 					{:else}
 						<!-- Controls + Files tabs -->
 						<div class="flex flex-col h-full min-h-0">

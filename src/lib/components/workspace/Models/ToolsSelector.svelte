@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Checkbox from '$lib/components/common/Checkbox.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
-	import { getContext, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
-	export let tools = [];
+	export let tools: any[] = [];
 
-	let _tools = {};
+	let _tools: any = {};
 
-	export let selectedToolIds = [];
+	export let selectedToolIds: any[] = [];
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	onMount(() => {
 		_tools = tools.reduce((acc, tool) => {

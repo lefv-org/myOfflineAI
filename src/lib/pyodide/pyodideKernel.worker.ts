@@ -75,7 +75,7 @@ const executeCode = async (id: string, code: string) => {
 		const result = await self.pyodide.runPythonAsync(code);
 		self.cells[id].result = result;
 		self.cells[id].status = 'completed';
-	} catch (error) {
+	} catch (error: any) {
 		self.cells[id].status = 'error';
 		self.cells[id].stderr += `\n${error.toString()}`;
 	} finally {

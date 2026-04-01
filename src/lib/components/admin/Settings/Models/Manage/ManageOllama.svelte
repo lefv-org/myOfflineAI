@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { WEBUI_NAME, models, MODEL_DOWNLOAD_POOL, user, config, settings } from '$lib/stores';
 	import { splitStream } from '$lib/utils';
@@ -30,13 +31,13 @@
 	let loading = true;
 
 	// Models
-	export let urlIdx: number | null = null;
+	export let urlIdx: any = null;
 
-	let ollamaModels = [];
+	let ollamaModels: any[] = [];
 
-	let updateModelId = null;
-	let updateProgress = null;
-	let updateModelsControllers = {};
+	let updateModelId: any = null;
+	let updateProgress: any = null;
+	let updateModelsControllers: Record<string, any> = {};
 	let updateCancelled = false;
 	let showExperimentalOllama = false;
 
@@ -50,18 +51,18 @@
 	let createModelObject = '';
 
 	let createModelDigest = '';
-	let createModelPullProgress = null;
+	let createModelPullProgress: any = null;
 
 	let digest = '';
-	let pullProgress = null;
+	let pullProgress: any = null;
 
 	let modelUploadMode = 'file';
-	let modelInputFile: File[] | null = null;
+	let modelInputFile: FileList | null = null;
 	let modelFileUrl = '';
 	let modelFileContent = `TEMPLATE """{{ .System }}\nUSER: {{ .Prompt }}\nASSISTANT: """\nPARAMETER num_ctx 4096\nPARAMETER stop "</s>"\nPARAMETER stop "USER:"\nPARAMETER stop "ASSISTANT:"`;
 	let modelFileDigest = '';
 
-	let uploadProgress = null;
+	let uploadProgress: any = null;
 	let uploadMessage = '';
 
 	let deleteModelTag = '';
@@ -93,7 +94,7 @@
 			};
 
 			if (res) {
-				const reader = res.body
+				const reader = (res as Response).body!
 					.pipeThrough(new TextDecoderStream())
 					.pipeThrough(splitStream('\n'))
 					.getReader();
@@ -128,7 +129,7 @@
 								}
 							}
 						}
-					} catch (err) {
+					} catch (err: any) {
 						if (err.name !== 'AbortError') {
 							console.error(err);
 						}
@@ -179,7 +180,7 @@
 		);
 
 		if (res) {
-			const reader = res.body
+			const reader = (res as Response).body!
 				.pipeThrough(new TextDecoderStream())
 				.pipeThrough(splitStream('\n'))
 				.getReader();
@@ -241,7 +242,7 @@
 							}
 						}
 					}
-				} catch (err) {
+				} catch (err: any) {
 					if (err.name !== 'AbortError') {
 						console.error(err);
 						if (typeof err !== 'string') {
@@ -268,7 +269,7 @@
 				models.set(
 					await getModels(
 						localStorage.token,
-						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+						($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null)
 					)
 				);
 			} else {
@@ -290,7 +291,7 @@
 		modelLoading = true;
 
 		let uploaded = false;
-		let fileResponse = null;
+		let fileResponse: any = null;
 		let name = '';
 
 		if (modelUploadMode === 'file') {
@@ -315,7 +316,7 @@
 		}
 
 		if (fileResponse && fileResponse.ok) {
-			const reader = fileResponse.body
+			const reader = (fileResponse as Response).body!
 				.pipeThrough(new TextDecoderStream())
 				.pipeThrough(splitStream('\n'))
 				.getReader();
@@ -349,7 +350,7 @@
 							}
 						}
 					}
-				} catch (err) {
+				} catch (err: any) {
 					console.error(err);
 				}
 			}
@@ -361,12 +362,12 @@
 		if (uploaded) {
 			const res = await createModel(
 				localStorage.token,
-				`${name}:latest`,
+				`${name}:latest` as any,
 				`FROM @${modelFileDigest}\n${modelFileContent}`
 			);
 
 			if (res && res.ok) {
-				const reader = res.body
+				const reader = (res as Response).body!
 					.pipeThrough(new TextDecoderStream())
 					.pipeThrough(splitStream('\n'))
 					.getReader();
@@ -412,7 +413,7 @@
 								}
 							}
 						}
-					} catch (err) {
+					} catch (err: any) {
 						console.error(err);
 						toast.error(`${err}`);
 					}
@@ -432,7 +433,7 @@
 		models.set(
 			await getModels(
 				localStorage.token,
-				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+				($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null)
 			)
 		);
 	};
@@ -450,7 +451,7 @@
 		models.set(
 			await getModels(
 				localStorage.token,
-				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+				($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null)
 			)
 		);
 
@@ -487,7 +488,7 @@
 	const createModelHandler = async () => {
 		createModelLoading = true;
 
-		let modelObject = {};
+		let modelObject: any = {};
 		// parse createModelObject
 		try {
 			modelObject = JSON.parse(createModelObject);
@@ -510,7 +511,7 @@
 		});
 
 		if (res && res.ok) {
-			const reader = res.body
+			const reader = (res as Response).body!
 				.pipeThrough(new TextDecoderStream())
 				.pipeThrough(splitStream('\n'))
 				.getReader();
@@ -557,7 +558,7 @@
 							}
 						}
 					}
-				} catch (err) {
+				} catch (err: any) {
 					console.error(err);
 					toast.error(`${err}`);
 				}
@@ -567,7 +568,7 @@
 		models.set(
 			await getModels(
 				localStorage.token,
-				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+				($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null)
 			)
 		);
 
@@ -903,7 +904,7 @@
 
 					{#if createModelDigest !== ''}
 						<div class="flex flex-col mt-1">
-							<div class="font-medium mb-1">{createModelTag}</div>
+							<div class="font-medium mb-1">{createModelName}</div>
 							<div class="">
 								<div class="flex flex-row justify-between space-x-4 pr-2">
 									<div class=" flex-1">

@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { getContext, createEventDispatcher } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
 	import GarbageBin from '$lib/components/icons/GarbageBin.svelte';

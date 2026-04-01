@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { onMount, getContext, createEventDispatcher } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount, createEventDispatcher } from 'svelte';
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	import {
@@ -37,15 +38,17 @@
 	}
 
 	const iframeLoadHandler = () => {
-		iframeElement.contentWindow.addEventListener(
+		const cw = iframeElement.contentWindow;
+		if (!cw) return;
+		cw.addEventListener(
 			'click',
 			function (e) {
-				const target = e.target.closest('a');
+				const target = (e.target as HTMLElement)?.closest('a');
 				if (target && target.href) {
 					e.preventDefault();
 					const url = new URL(target.href, iframeElement.baseURI);
 					if (url.origin === window.location.origin) {
-						iframeElement.contentWindow.history.pushState(
+						cw.history.pushState(
 							null,
 							'',
 							url.pathname + url.search + url.hash
@@ -59,21 +62,25 @@
 		);
 
 		// Cancel drag when hovering over iframe
-		iframeElement.contentWindow.addEventListener('mouseenter', function (e) {
+		cw.addEventListener('mouseenter', function (e) {
 			e.preventDefault();
-			iframeElement.contentWindow.addEventListener('dragstart', (event) => {
+			cw.addEventListener('dragstart', (event) => {
 				event.preventDefault();
 			});
 		});
 	};
 
 	const showFullScreen = () => {
-		if (iframeElement.requestFullscreen) {
-			iframeElement.requestFullscreen();
-		} else if (iframeElement.webkitRequestFullscreen) {
-			iframeElement.webkitRequestFullscreen();
-		} else if (iframeElement.msRequestFullscreen) {
-			iframeElement.msRequestFullscreen();
+		const el = iframeElement as HTMLIFrameElement & {
+			webkitRequestFullscreen?: () => void;
+			msRequestFullscreen?: () => void;
+		};
+		if (el.requestFullscreen) {
+			el.requestFullscreen();
+		} else if (el.webkitRequestFullscreen) {
+			el.webkitRequestFullscreen();
+		} else if (el.msRequestFullscreen) {
+			el.msRequestFullscreen();
 		}
 	};
 

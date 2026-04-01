@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, createEventDispatcher } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
@@ -8,7 +9,7 @@
 	import Download from '$lib/components/icons/Download.svelte';
 	import EllipsisHorizontal from '$lib/components/icons/EllipsisHorizontal.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let onExport: null | Function = null;
 	export let onClose: Function = () => {};

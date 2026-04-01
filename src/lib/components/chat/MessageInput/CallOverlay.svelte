@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { config, models, settings, showCallOverlay, TTSWorker } from '$lib/stores';
-	import { onMount, tick, getContext, onDestroy, createEventDispatcher } from 'svelte';
+	import { onMount, tick, onDestroy, createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 
@@ -15,7 +16,7 @@
 	import { KokoroWorker } from '$lib/workers/KokoroWorker';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let eventTarget: EventTarget;
 	export let submitPrompt: Function;
@@ -24,28 +25,28 @@
 	export let chatId;
 	export let modelId;
 
-	let wakeLock = null;
+	let wakeLock: any = null;
 
-	let model = null;
+	let model: any = null;
 
 	let loading = false;
 	let confirmed = false;
 	let interrupted = false;
 	let assistantSpeaking = false;
 
-	let emoji = null;
+	let emoji: any = null;
 	let camera = false;
-	let cameraStream = null;
+	let cameraStream: any = null;
 
 	let chatStreaming = false;
 	let rmsLevel = 0;
 	let hasStartedSpeaking = false;
-	let mediaRecorder;
-	let audioStream = null;
-	let audioChunks = [];
+	let mediaRecorder: any;
+	let audioStream: any = null;
+	let audioChunks: any[] = [];
 
-	let videoInputDevices = [];
-	let selectedVideoInputDeviceId = null;
+	let videoInputDevices: any[] = [];
+	let selectedVideoInputDeviceId: any = null;
 
 	const getVideoInputDevices = async () => {
 		const devices = await navigator.mediaDevices.enumerateDevices();
@@ -82,13 +83,11 @@
 	};
 
 	const startVideoStream = async () => {
-		const video = document.getElementById('camera-feed');
+		const video = document.getElementById('camera-feed') as HTMLVideoElement | null;
 		if (video) {
 			if (selectedVideoInputDeviceId === 'screen') {
 				cameraStream = await navigator.mediaDevices.getDisplayMedia({
-					video: {
-						cursor: 'always'
-					},
+					video: true,
 					audio: false
 				});
 			} else {
@@ -117,8 +116,8 @@
 	};
 
 	const takeScreenshot = () => {
-		const video = document.getElementById('camera-feed');
-		const canvas = document.getElementById('camera-canvas');
+		const video = document.getElementById('camera-feed') as HTMLVideoElement | null;
+		const canvas = document.getElementById('camera-canvas') as HTMLCanvasElement | null;
 
 		if (!canvas) {
 			return;
@@ -127,11 +126,11 @@
 		const context = canvas.getContext('2d');
 
 		// Make the canvas match the video dimensions
-		canvas.width = video.videoWidth;
-		canvas.height = video.videoHeight;
+		canvas.width = video?.videoWidth ?? 0;
+		canvas.height = video?.videoHeight ?? 0;
 
 		// Draw the image from the video onto the canvas
-		context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+		if (video) context?.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
 
 		// Convert the canvas to a data base64 URL and console log it
 		const dataURL = canvas.toDataURL('image/png');
@@ -359,9 +358,9 @@
 		detectSound();
 	};
 
-	let finishedMessages = {};
-	let currentMessageId = null;
-	let currentUtterance = null;
+	let finishedMessages: any = {};
+	let currentMessageId: any = null;
+	let currentUtterance: any = null;
 
 	// Get voice: model-specific > user settings > config default
 	const getVoiceId = () => {
@@ -370,7 +369,7 @@
 			return model.info.meta.tts.voice;
 		}
 		// Fall back to user settings or config default
-		if ($settings?.audio?.tts?.defaultVoice === $config.audio.tts.voice) {
+		if ($settings?.audio?.tts?.defaultVoice === $config?.audio?.tts?.voice) {
 			return $settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice;
 		}
 		return $config?.audio?.tts?.voice;
@@ -379,7 +378,7 @@
 	const speakSpeechSynthesisHandler = (content) => {
 		if ($showCallOverlay) {
 			return new Promise((resolve) => {
-				let voices = [];
+				let voices: any[] = [];
 				const getVoicesLoop = setInterval(async () => {
 					voices = await speechSynthesis.getVoices();
 					if (voices.length > 0) {
@@ -451,7 +450,7 @@
 			currentUtterance = null;
 		}
 
-		const audioElement = document.getElementById('audioElement');
+		const audioElement = document.getElementById('audioElement') as HTMLAudioElement | null;
 		if (audioElement) {
 			audioElement.muted = true;
 			audioElement.pause();
@@ -490,7 +489,7 @@
 					if (url) {
 						audioCache.set(content, new Audio(url));
 					}
-				} else if ($config.audio.tts.engine !== '') {
+				} else if ($config?.audio?.tts?.engine !== '') {
 					const res = await synthesizeOpenAISpeech(localStorage.token, getVoiceId(), content).catch(
 						(error) => {
 							console.error(error);
@@ -514,7 +513,7 @@
 		return audioCache.get(content);
 	};
 
-	let messages = {};
+	let messages: any = {};
 
 	const monitorAndPlayAudio = async (id, signal) => {
 		while (!signal.aborted) {
@@ -532,7 +531,7 @@
 						emoji = null;
 					}
 
-					if ($config.audio.tts.engine !== '') {
+					if ($config?.audio?.tts?.engine !== '') {
 						try {
 							console.log(
 								'%c%s',
@@ -622,7 +621,7 @@
 		chatStreaming = false;
 	};
 
-	onMount(async () => {
+	(onMount as any)(async () => {
 		const setWakeLock = async () => {
 			try {
 				wakeLock = await navigator.wakeLock.request('screen');

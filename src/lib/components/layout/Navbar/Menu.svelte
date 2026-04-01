@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext, tick } from 'svelte';
+	import { tick } from 'svelte';
 
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
@@ -35,7 +36,7 @@
 	import Messages from '$lib/components/chat/Messages.svelte';
 	import Download from '$lib/components/icons/Download.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let shareEnabled: boolean = false;
 
@@ -88,7 +89,7 @@
 					const virtualWidth = 800; // px, fixed width for cloned element
 
 					// Clone and style
-					const clonedElement = containerElement.cloneNode(true);
+					const clonedElement = containerElement.cloneNode(true) as HTMLElement;
 					clonedElement.classList.add('text-black');
 					clonedElement.classList.add('dark:text-white');
 					clonedElement.style.width = `${virtualWidth}px`;
@@ -141,7 +142,7 @@
 						const ctx = pageCanvas.getContext('2d');
 
 						// Draw the slice of original canvas onto pageCanvas
-						ctx.drawImage(
+						ctx!.drawImage(
 							canvas,
 							0,
 							offsetY,
@@ -229,7 +230,7 @@
 
 	const downloadJSONExport = async () => {
 		if (chat.id) {
-			let chatObj = null;
+			let chatObj: any = null;
 
 			if ((chat?.id ?? '').startsWith('local') || $temporaryChatEnabled) {
 				chatObj = chat;
@@ -252,13 +253,17 @@
 				className="h-full flex pt-4 pb-8 w-full"
 				chatId={`chat-preview-${chat?.id ?? ''}`}
 				user={$user}
+				prompt={''}
+				selectedModels={[]}
+				atSelectedModel={null}
 				readOnly={true}
 				history={chat.chat.history}
-				messages={chat.chat.messages}
 				autoScroll={true}
 				sendMessage={() => {}}
 				continueResponse={() => {}}
 				regenerateResponse={() => {}}
+				mergeResponses={() => {}}
+				chatActionHandler={() => {}}
 				messagesCount={null}
 				editCodeBlock={false}
 			/>
@@ -327,7 +332,7 @@
 				<hr class="border-gray-50/30 dark:border-gray-800/30 my-1" />
 			{/if}
 
-			{#if !$temporaryChatEnabled && ($user?.role === 'admin' || ($user.permissions?.chat?.share ?? true))}
+			{#if !$temporaryChatEnabled && ($user?.role === 'admin' || ($user?.permissions?.chat?.share ?? true))}
 				<button
 					draggable="false"
 					class="flex gap-2 items-center px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl select-none w-full"
@@ -351,7 +356,7 @@
 
 					<div class="flex items-center">{$i18n.t('Download')}</div>
 				</button>
-				{#if $user?.role === 'admin' || ($user.permissions?.chat?.export ?? true)}
+				{#if $user?.role === 'admin' || ($user?.permissions?.chat?.export ?? true)}
 					<button
 						draggable="false"
 						class="flex gap-2 items-center px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl select-none w-full"
@@ -404,7 +409,7 @@
 			{#if !$temporaryChatEnabled && chat?.id}
 				<hr class="border-gray-50/30 dark:border-gray-800/30 my-1" />
 
-				{#if $folders.length > 0}
+				{#if ($folders as any[]).length > 0}
 					<DropdownSub maxWidth={200}>
 						<button
 							slot="trigger"
@@ -415,7 +420,7 @@
 
 							<div class="flex items-center">{$i18n.t('Move')}</div>
 						</button>
-						{#each $folders.sort((a, b) => b.updated_at - a.updated_at) as folder}
+						{#each ($folders as any[]).sort((a, b) => b.updated_at - a.updated_at) as folder}
 							{#if folder?.id}
 								<button
 									draggable="false"

@@ -1,22 +1,23 @@
-<script>
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { deleteGroupById, updateGroupById } from '$lib/apis/groups';
 
 	import Pencil from '$lib/components/icons/Pencil.svelte';
 	import EditGroupModal from './EditGroupModal.svelte';
 
-	export let group = {
+	export let group: any = {
 		name: 'Admins',
 		user_ids: [1, 2, 3]
 	};
-	export let defaultPermissions = {};
+	export let defaultPermissions: any = {};
 
-	export let setGroups = () => {};
+	export let setGroups: Function = () => {};
 
 	let showEdit = false;
 

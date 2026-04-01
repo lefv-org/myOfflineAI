@@ -1,17 +1,24 @@
 export class AudioQueue {
-	constructor(audioElement) {
+	audio: HTMLAudioElement | null;
+	queue: string[];
+	current: string | null;
+	id: string | null;
+	onStopped: ((event: { event: string; id: string | null }) => void) | null;
+	_onEnded: () => void;
+
+	constructor(audioElement: HTMLAudioElement | null) {
 		this.audio = audioElement;
 		this.queue = [];
 		this.current = null;
 		this.id = null;
 
 		this._onEnded = () => this.next();
-		this.audio.addEventListener('ended', this._onEnded);
+		this.audio?.addEventListener('ended', this._onEnded);
 
 		this.onStopped = null; // optional callback
 	}
 
-	setId(newId) {
+	setId(newId: string) {
 		console.log('Setting audio queue ID to:', newId);
 		if (this.id !== newId) {
 			this.stop();
@@ -20,17 +27,17 @@ export class AudioQueue {
 		}
 	}
 
-	setPlaybackRate(rate) {
+	setPlaybackRate(rate: number) {
 		console.log('Setting audio playback rate to:', rate);
-		this.audio.playbackRate = rate;
+		if (this.audio) this.audio.playbackRate = rate;
 	}
 
-	enqueue(url) {
+	enqueue(url: string) {
 		console.log('Enqueuing audio URL:', url);
 		this.queue.push(url);
 
 		// Auto-play if nothing is currently playing or loaded
-		if (this.audio.paused && !this.current) {
+		if (this.audio?.paused && !this.current) {
 			this.next();
 		}
 	}
@@ -39,13 +46,13 @@ export class AudioQueue {
 		if (!this.current && this.queue.length > 0) {
 			this.next();
 		} else {
-			this.audio.play();
+			this.audio?.play();
 		}
 	}
 
 	next() {
-		this.current = this.queue.shift();
-		if (this.current) {
+		this.current = this.queue.shift() ?? null;
+		if (this.current && this.audio) {
 			this.audio.src = this.current;
 			this.audio.play();
 			console.log('Playing audio URL:', this.current);
@@ -56,16 +63,18 @@ export class AudioQueue {
 	}
 
 	stop() {
-		this.audio.pause();
-		this.audio.currentTime = 0;
-		this.audio.src = '';
+		if (this.audio) {
+			this.audio.pause();
+			this.audio.currentTime = 0;
+			this.audio.src = '';
+		}
 		this.queue = [];
 		this.current = null;
 		if (this.onStopped) this.onStopped({ event: 'stop', id: this.id });
 	}
 
 	destroy() {
-		this.audio.removeEventListener('ended', this._onEnded);
+		this.audio?.removeEventListener('ended', this._onEnded);
 		this.stop();
 		this.onStopped = null;
 		this.audio = null;

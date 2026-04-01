@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, tick, onDestroy } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { tick, onDestroy } from 'svelte';
 	import { formatFileSize } from '$lib/utils';
 	type FileEntry = {
 		name: string;
@@ -7,6 +8,7 @@
 		is_dir: boolean;
 		size: number;
 		modified: number;
+		type?: string;
 	};
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
@@ -15,7 +17,7 @@
 	import GarbageBin from '../../icons/GarbageBin.svelte';
 	import Pencil from '../../icons/Pencil.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let entry: FileEntry;
 	export let currentPath: string;

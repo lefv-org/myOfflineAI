@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 
 	import { goto } from '$app/navigation';
-	import { onMount, tick, getContext } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
 	import { WEBUI_NAME, config, user, models, settings, showSidebar } from '$lib/stores';
@@ -12,7 +13,7 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import Selector from '$lib/components/chat/ModelSelector/Selector.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loaded = false;
 	let text = '';
@@ -39,6 +40,7 @@
 
 	const textCompletionHandler = async () => {
 		const model = $models.find((model) => model.id === selectedModelId);
+		if (!model) return;
 
 		const [res, controller] = await chatCompletion(
 			localStorage.token,
@@ -56,7 +58,7 @@
 		);
 
 		if (res && res.ok) {
-			const reader = res.body
+			const reader = res.body!
 				.pipeThrough(new TextDecoderStream())
 				.pipeThrough(splitStream('\n'))
 				.getReader();

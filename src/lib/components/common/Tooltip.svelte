@@ -23,7 +23,7 @@
 	export let tippyOptions: Partial<TippyProps> = {};
 	export let interactive = false;
 
-	export let onClick = () => {};
+	export let onClick: Function = () => {};
 
 	let tooltipElement: HTMLElement | null = null;
 	let tooltipInstance: TippyInstance | null = null;
@@ -76,7 +76,7 @@
 </script>
 
 <!-- svelte-ignore a11y-no-static-element-interactions -->
-<svelte:element this={as} bind:this={tooltipElement} class={className} on:click={onClick}>
+<svelte:element this={as} bind:this={tooltipElement} class={className} on:click={(e) => onClick(e)}>
 	<slot />
 </svelte:element>
 

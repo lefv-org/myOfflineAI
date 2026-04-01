@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { user as _user } from '$lib/stores';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
@@ -9,7 +10,7 @@
 	import Emoji from '$lib/components/common/Emoji.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-	export let user = null;
+	export let user: any = null;
 </script>
 
 {#if user}

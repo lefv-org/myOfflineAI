@@ -1,21 +1,22 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import type { Token } from 'marked';
 	import { LinkPreview } from 'bits-ui';
 
-	import { getContext } from 'svelte';
+	;
 
 	import { goto } from '$app/navigation';
 	import { models } from '$lib/stores';
 	import UserStatusLinkPreview from '$lib/components/common/UserStatusLinkPreview.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
-	export let token: Token;
+	export let token: any;
 
 	let triggerChar = '';
 	let label = '';
 
-	let idType = null;
+	let idType: any = null;
 	let id = '';
 
 	$: if (token) {

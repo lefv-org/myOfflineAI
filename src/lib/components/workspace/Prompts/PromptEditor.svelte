@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, tick, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 
 	import Textarea from '$lib/components/common/Textarea.svelte';
 	import { toast } from 'svelte-sonner';
@@ -31,11 +32,11 @@
 
 	export let onSubmit: Function;
 	export let edit = false;
-	export let prompt = null;
+	export let prompt: any = null;
 	export let clone = false;
 	export let disabled = false;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loading = false;
 	let showEditModal = false;
@@ -43,11 +44,11 @@
 	let name = '';
 	let command = '';
 	let content = '';
-	let tags = [];
+	let tags: any[] = [];
 	let commitMessage = '';
 	let isProduction = true;
 
-	let accessGrants = [];
+	let accessGrants: any[] = [];
 	let showAccessControlModal = false;
 	let hasManualEdit = false;
 
@@ -61,10 +62,10 @@
 	// For debounced auto-save of name/command
 	let originalName = '';
 	let originalCommand = '';
-	let originalTags = [];
+	let originalTags: any[] = [];
 	let debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
-	let suggestionTags = [];
+	let suggestionTags: any[] = [];
 
 	$: if (!edit && !hasManualEdit) {
 		command = name !== '' ? slugify(name) : '';
@@ -321,7 +322,7 @@
 						className="text-sm w-full bg-transparent outline-hidden overflow-y-hidden resize-none"
 						placeholder={$i18n.t('Write a summary in 50 words that summarizes {{topic}}.')}
 						bind:value={content}
-						aria-label={$i18n.t('Prompt Content')}
+						ariaLabel={$i18n.t('Prompt Content')}
 						rows={6}
 						required
 					/>
@@ -655,7 +656,7 @@
 										src={`/api/v1/users/${entry.user.id}/profile/image`}
 										alt={entry.user.name}
 										class="size-3 rounded-full mr-0.5"
-										on:error={(e) => (e.target.src = '/user.png')}
+										on:error={(e) => ((e.target as HTMLImageElement).src = '/user.png')}
 									/>
 									<span class="truncate">{entry.user.name}</span>
 									<span>•</span>

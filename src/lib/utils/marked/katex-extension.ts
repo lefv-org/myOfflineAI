@@ -27,8 +27,8 @@ const ALLOWED_SURROUNDING_CHARS_REGEX = new RegExp(`[${ALLOWED_SURROUNDING_CHARS
 // const inlineRule = /^(\${1,2})(?!\$)((?:\\.|[^\\\n])*?(?:\\.|[^\\\n\$]))\1(?=[\s?!\.,:？！。，：]|$)/;
 // const blockRule = /^(\${1,2})\n((?:\\[^]|[^\\])+?)\n\1(?:\n|$)/;
 
-const inlinePatterns = [];
-const blockPatterns = [];
+const inlinePatterns: string[] = [];
+const blockPatterns: string[] = [];
 
 function escapeRegex(string) {
 	return string.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');

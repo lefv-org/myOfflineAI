@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import AdvancedParams from '../Settings/Advanced/AdvancedParams.svelte';
@@ -10,9 +11,9 @@
 	import Collapsible from '$lib/components/common/Collapsible.svelte';
 
 	import { user, settings } from '$lib/stores';
-	export let models = [];
-	export let chatFiles = [];
-	export let params = {};
+	export let models: any[] = [];
+	export let chatFiles: any[] = [];
+	export let params: any = {};
 	export let embed = false;
 
 	// Persist collapsible section open/close state

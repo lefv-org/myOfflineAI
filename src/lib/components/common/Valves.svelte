@@ -1,14 +1,15 @@
-<script>
-	import { onMount, getContext, createEventDispatcher } from 'svelte';
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import Switch from './Switch.svelte';
 	import SensitiveInput from './SensitiveInput.svelte';
 	import MapSelector from './Valves/MapSelector.svelte';
 
-	export let valvesSpec = null;
-	export let valves = {};
+	export let valvesSpec: any = null;
+	export let valves: any = {};
 </script>
 
 {#if valvesSpec && Object.keys(valvesSpec?.properties ?? {}).length}
@@ -151,7 +152,7 @@
 											value={valves[property] ?? '#000000'}
 											on:input={(e) => {
 												// Convert the color value to uppercase immediately
-												valves[property] = e.target.value.toUpperCase();
+												valves[property] = (e.target as HTMLInputElement).value.toUpperCase();
 												dispatch('change');
 											}}
 										/>

@@ -1,13 +1,14 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import type { Banner } from '$lib/types';
-	import { onMount, createEventDispatcher, getContext } from 'svelte';
+	import { onMount, createEventDispatcher } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import DOMPurify from 'dompurify';
 	import { marked } from 'marked';
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let banner: Banner = {
 		id: '',

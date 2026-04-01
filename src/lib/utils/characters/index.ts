@@ -57,7 +57,7 @@ const parsePngText = (arrayBuffer) => {
 	try {
 		return new TextDecoder().decode(Uint8Array.from(atob(textChunk.text), (c) => c.charCodeAt(0)));
 	} catch (e) {
-		throw new Error('Unable to parse "chara" field as base64', e);
+		throw new Error('Unable to parse "chara" field as base64', { cause: e });
 	}
 };
 
@@ -74,7 +74,7 @@ const readPngChunks = (data) => {
 
 	if (!isValidPng) throw new Error('Invalid PNG file');
 
-	const chunks = [];
+	const chunks: { type: string; data: Uint8Array; crc: number }[] = [];
 	let offset = 8; // Skip PNG signature
 
 	while (offset < data.length) {
@@ -101,8 +101,8 @@ const readPngChunks = (data) => {
 
 const decodeTextChunk = (data) => {
 	let i = 0;
-	const keyword = [];
-	const text = [];
+	const keyword: string[] = [];
+	const text: string[] = [];
 
 	for (; i < data.length && data[i] !== 0; i++) {
 		keyword.push(String.fromCharCode(data[i]));
@@ -155,7 +155,7 @@ const extractCharacter = (json) => {
 };
 
 const detectFormats = (json) => {
-	const formats = [];
+	const formats: string[] = [];
 
 	if (
 		json.char_name &&

@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import DOMPurify from 'dompurify';
 	import { marked } from 'marked';
 
 	import { toast } from 'svelte-sonner';
 
-	import { onMount, getContext, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
@@ -26,13 +27,13 @@
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 	import { redirect } from '@sveltejs/kit';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loaded = false;
 
 	let mode = $config?.features.enable_ldap ? 'ldap' : 'signin';
 
-	let form = null;
+	let form: any = null;
 
 	let name = '';
 	let email = '';
@@ -48,7 +49,7 @@
 			if (sessionUser.token) {
 				localStorage.token = sessionUser.token;
 			}
-			$socket.emit('user-join', { auth: { token: sessionUser.token } });
+			$socket?.emit('user-join', { auth: { token: sessionUser.token } });
 			await user.set(sessionUser);
 			await config.set(await getBackendConfig());
 
@@ -116,7 +117,7 @@
 
 	async function setLogoImage() {
 		await tick();
-		const logo = document.getElementById('logo');
+		const logo = document.getElementById('logo') as HTMLImageElement | null;
 
 		if (logo) {
 			const isDarkMode = document.documentElement.classList.contains('dark');
@@ -315,7 +316,6 @@
 												name="password"
 												screenReader={true}
 												required
-												aria-required="true"
 											/>
 										</div>
 

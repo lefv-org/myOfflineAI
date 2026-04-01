@@ -1,9 +1,10 @@
 <script>
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 
 	export let title = '';
 	export let content = '';
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 </script>
 
 <div class="px-3">

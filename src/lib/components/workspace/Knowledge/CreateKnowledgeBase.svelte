@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 
 	import { goto } from '$app/navigation';
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	;
+	const i18n = getI18nContext();
 
 	import { user } from '$lib/stores';
 	import { createNewKnowledge } from '$lib/apis/knowledge';
@@ -15,7 +16,7 @@
 
 	let name = '';
 	let description = '';
-	let accessGrants = [];
+	let accessGrants: any[] = [];
 
 	const submitHandler = async () => {
 		loading = true;

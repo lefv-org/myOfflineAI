@@ -1,12 +1,13 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Pencil from '$lib/components/icons/Pencil.svelte';
 	import Link from '$lib/components/icons/Link.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let createHandler: Function;
 	export let importFromLinkHandler: Function;

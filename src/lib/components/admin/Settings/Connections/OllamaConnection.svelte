@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { getContext, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/i18n';
+	import { tick } from 'svelte';
+	const i18n = getI18nContext();
 
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
@@ -13,12 +14,12 @@
 	import ManageOllamaModal from './ManageOllamaModal.svelte';
 	import Download from '$lib/components/icons/Download.svelte';
 
-	export let onDelete = () => {};
-	export let onSubmit = () => {};
+	export let onDelete: Function = () => {};
+	export let onSubmit: Function = () => {};
 
 	export let url = '';
 	export let idx = 0;
-	export let config = {};
+	export let config: any = {};
 
 	let showManageModal = false;
 	let showConfigModal = false;

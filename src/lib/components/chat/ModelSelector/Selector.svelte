@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { DropdownMenu } from 'bits-ui';
 	import { marked } from 'marked';
 	import Fuse from 'fuse.js';
@@ -10,7 +11,7 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import { flyAndScale } from '$lib/utils/transitions';
 
-	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 
 	import { deleteModel, getOllamaVersion, pullModel, unloadModel } from '$lib/apis/ollama';
@@ -37,7 +38,7 @@
 
 	import ModelItem from './ModelItem.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	export let id = '';
@@ -49,7 +50,7 @@
 	export let items: {
 		label: string;
 		value: string;
-		model: Model;
+		model: any;
 		// eslint-disable-next-line @typescript-eslint/no-explicit-any
 		[key: string]: any;
 	}[] = [];
@@ -62,9 +63,9 @@
 	let tagsContainerElement;
 
 	let show = false;
-	let tags = [];
+	let tags: any[] = [];
 
-	let selectedModel = '';
+	let selectedModel: any = '';
 	$: selectedModel = items.find((item) => item.value === value) ?? '';
 
 	let searchValue = '';
@@ -72,7 +73,7 @@
 	let selectedTag = '';
 	let selectedConnectionType = '';
 
-	let ollamaVersion = null;
+	let ollamaVersion: any = null;
 	let selectedModelIdx = 0;
 
 	const fuse = new Fuse(
@@ -215,15 +216,18 @@
 			return;
 		}
 
-		const [res, controller] = await pullModel(localStorage.token, sanitizedModelTag, '0').catch(
-			(error) => {
+		const result = await pullModel(localStorage.token, sanitizedModelTag, 0).catch(
+			(error: any) => {
 				toast.error(`${error}`);
 				return null;
 			}
 		);
 
+		if (!result) return;
+		const [res, controller] = result as [Response, AbortController];
+
 		if (res) {
-			const reader = res.body
+			const reader = res.body!
 				.pipeThrough(new TextDecoderStream())
 				.pipeThrough(splitStream('\n'))
 				.getReader();
@@ -287,7 +291,7 @@
 							}
 						}
 					}
-				} catch (error) {
+				} catch (error: any) {
 					console.log(error);
 					if (typeof error !== 'string') {
 						error = error.message;

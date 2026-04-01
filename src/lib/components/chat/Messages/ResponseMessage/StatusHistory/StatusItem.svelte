@@ -1,9 +1,10 @@
-<script>
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	;
+	const i18n = getI18nContext();
 	import Search from '$lib/components/icons/Search.svelte';
 
-	export let status = null;
+	export let status: any = null;
 	export let done = false;
 </script>
 

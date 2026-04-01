@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { settings } from '$lib/stores';
 	import { verifyOllamaConnection } from '$lib/apis/ollama';
@@ -26,7 +27,7 @@
 	export let ollama = false;
 	export let direct = false;
 
-	export let connection = null;
+	export let connection: any = null;
 
 	let url = '';
 	let key = '';
@@ -39,10 +40,10 @@
 
 	let headers = '';
 
-	let tags = [];
+	let tags: any[] = [];
 
 	let modelId = '';
-	let modelIds = [];
+	let modelIds: any[] = [];
 
 	let loading = false;
 	let showDeleteConfirmDialog = false;
@@ -309,7 +310,6 @@
 							</div>
 						</div>
 
-
 						<div class="flex gap-2 mt-2">
 							<div class="flex flex-col w-full">
 								<label
@@ -337,7 +337,6 @@
 								</div>
 							</div>
 						</div>
-
 
 						<div class="flex flex-col w-full mt-2">
 							<div class="mb-1 flex justify-between">

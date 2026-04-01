@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import hljs from 'highlight.js';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount, tick, onDestroy } from 'svelte';
+	import { onMount, tick, onDestroy } from 'svelte';
 	import { config, pyodideWorker as pyodideWorkerStore } from '$lib/stores';
 
 	import PyodideWorker from '$lib/workers/pyodide.worker?worker';
@@ -24,7 +25,7 @@
 	import Cube from '$lib/components/icons/Cube.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let id = '';
 	export let edit = true;
@@ -41,13 +42,13 @@
 	export let token;
 	export let lang = '';
 	export let code = '';
-	export let attributes = {};
+	export let attributes: Record<string, any> = {};
 
 	export let className = '';
 	export let editorClassName = '';
 	export let stickyButtonsClassName = 'top-0';
 
-	let localPyodideWorker = null;
+	let localPyodideWorker: any = null;
 
 	let _code = '';
 	$: if (code) {
@@ -58,18 +59,18 @@
 		_code = code;
 	};
 
-	let _token = null;
+	let _token: any = null;
 
-	let renderHTML = null;
-	let renderError = null;
+	let renderHTML: any = null;
+	let renderError: any = null;
 
-	let highlightedCode = null;
+	let highlightedCode: any = null;
 	let executing = false;
 
-	let stdout = null;
-	let stderr = null;
-	let result = null;
-	let files = null;
+	let stdout: any = null;
+	let stderr: any = null;
+	let result: any = null;
+	let files: any = null;
 
 	let copied = false;
 	let saved = false;
@@ -353,7 +354,7 @@
 		};
 	};
 
-	let mermaid = null;
+	let mermaid: any = null;
 	const renderMermaid = async (code) => {
 		if (!mermaid) {
 			mermaid = await initMermaid();

@@ -1,6 +1,7 @@
-<script>
-	import { onDestroy, onMount, tick, getContext } from 'svelte';
-	const i18n = getContext('i18n');
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	import { onDestroy, onMount, tick } from 'svelte';
+	const i18n = getI18nContext();
 
 	import Markdown from './Markdown.svelte';
 	import {
@@ -21,11 +22,11 @@
 	export let history;
 	export let messageId;
 
-	export let selectedModels = [];
+	export let selectedModels: any[] = [];
 
 	export let done = true;
-	export let model = null;
-	export let sources = null;
+	export let model: any = null;
+	export let sources: any = null;
 
 	export let save = false;
 	export let preview = false;
@@ -42,11 +43,11 @@
 	let contentContainerElement;
 	let floatingButtonsElement;
 
-	let sourceIds = [];
+	let sourceIds: any[] = [];
 	$: getSourceIds(sources);
 
-	const getSourceIds = (sources) => {
-		const result = [];
+	const getSourceIds = (sources: any) => {
+		const result: string[] = [];
 		for (const source of sources ?? []) {
 			for (let index = 0; index < (source.document ?? []).length; index++) {
 				if (model?.info?.meta?.capabilities?.citations == false) {
@@ -84,7 +85,7 @@
 
 			let selection = window.getSelection();
 
-			if (selection.toString().trim().length > 0) {
+			if (selection && selection.toString().trim().length > 0) {
 				const range = selection.getRangeAt(0);
 				const rect = range.getBoundingClientRect();
 

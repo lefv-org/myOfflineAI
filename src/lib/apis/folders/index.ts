@@ -8,7 +8,7 @@ type FolderForm = {
 };
 
 export const createNewFolder = async (token: string, folderForm: FolderForm) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/folders/`, {
 		method: 'POST',
@@ -36,7 +36,7 @@ export const createNewFolder = async (token: string, folderForm: FolderForm) => 
 };
 
 export const getFolders = async (token: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/folders/`, {
 		method: 'GET',
@@ -67,7 +67,7 @@ export const getFolders = async (token: string = '') => {
 };
 
 export const getFolderById = async (token: string, id: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/folders/${id}`, {
 		method: 'GET',
@@ -98,7 +98,7 @@ export const getFolderById = async (token: string, id: string) => {
 };
 
 export const updateFolderById = async (token: string, id: string, folderForm: FolderForm) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/folders/${id}/update`, {
 		method: 'POST',
@@ -134,7 +134,7 @@ export const updateFolderIsExpandedById = async (
 	id: string,
 	isExpanded: boolean
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/folders/${id}/update/expanded`, {
 		method: 'POST',
@@ -168,7 +168,7 @@ export const updateFolderIsExpandedById = async (
 };
 
 export const updateFolderParentIdById = async (token: string, id: string, parentId?: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/folders/${id}/update/parent`, {
 		method: 'POST',
@@ -207,7 +207,7 @@ type FolderItems = {
 };
 
 export const updateFolderItemsById = async (token: string, id: string, items: FolderItems) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/folders/${id}/update/items`, {
 		method: 'POST',
@@ -241,7 +241,7 @@ export const updateFolderItemsById = async (token: string, id: string, items: Fo
 };
 
 export const deleteFolderById = async (token: string, id: string, deleteContents: boolean) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	searchParams.append('delete_contents', deleteContents ? 'true' : 'false');

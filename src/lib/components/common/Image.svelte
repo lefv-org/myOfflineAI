@@ -1,11 +1,13 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	import { settings } from '$lib/stores';
 	import ImagePreview from './ImagePreview.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
-	import { getContext } from 'svelte';
+	;
 
+	export let id = '';
 	export let src = '';
 	export let alt = '';
 
@@ -14,9 +16,9 @@
 	export let imageClassName = 'rounded-lg';
 
 	export let dismissible = false;
-	export let onDismiss = () => {};
+	export let onDismiss: Function = () => {};
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let _src = '';
 	$: _src = src.startsWith('/') ? `${WEBUI_BASE_URL}${src}` : src;

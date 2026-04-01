@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import Checkbox from '$lib/components/common/Checkbox.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import { marked } from 'marked';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	const toolLabels = {
 		time: {

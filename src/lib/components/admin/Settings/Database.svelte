@@ -1,16 +1,17 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
 	import { downloadDatabase } from '$lib/apis/utils';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { config, user } from '$lib/stores';
 	import { toast } from 'svelte-sonner';
 	import { getAllUserChats } from '$lib/apis/chats';
 	import { getAllUsers } from '$lib/apis/users';
 	import { exportConfig, importConfig } from '$lib/apis/configs';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let saveHandler: Function;
 
@@ -57,11 +58,11 @@
 			type="file"
 			accept=".json"
 			on:change={(e) => {
-				const file = e.target.files[0];
+				const file = (e.target as HTMLInputElement).files![0];
 				const reader = new FileReader();
 
-				reader.onload = async (e) => {
-					const res = await importConfig(localStorage.token, JSON.parse(e.target.result)).catch(
+				reader.onload = async (readerEvent) => {
+					const res = await importConfig(localStorage.token, JSON.parse(readerEvent.target!.result as string)).catch(
 						(error) => {
 							toast.error(`${error}`);
 						}
@@ -70,7 +71,7 @@
 					if (res) {
 						toast.success($i18n.t('Config imported successfully'));
 					}
-					e.target.value = null;
+					(e.target as HTMLInputElement).value = '';
 				};
 
 				reader.readAsText(file);
@@ -86,7 +87,7 @@
 					<button
 						class="p-1 px-3 text-xs flex rounded-sm transition"
 						on:click={() => {
-							document.getElementById('config-json-input').click();
+							document.getElementById('config-json-input')?.click();
 						}}
 						type="button"
 					>

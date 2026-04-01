@@ -66,15 +66,20 @@
 		id: string;
 		model: string;
 		content: string;
-		files?: { type: string; url: string }[];
+		files?: { type: string; url: string; name?: string; size?: number; content_type?: string; [key: string]: any }[];
 		timestamp: number;
 		role: string;
+		selectedModelId?: string;
+		parentId?: string | null;
+		arena?: any;
 		statusHistory?: {
 			done: boolean;
 			action: string;
 			description: string;
 			urls?: string[];
 			query?: string;
+			hidden?: boolean;
+			[key: string]: any;
 		}[];
 		status?: {
 			done: boolean;
@@ -82,6 +87,8 @@
 			description: string;
 			urls?: string[];
 			query?: string;
+			hidden?: boolean;
+			[key: string]: any;
 		};
 		done: boolean;
 		error?: boolean | { content: string };
@@ -109,14 +116,16 @@
 			total_duration?: number;
 			load_duration?: number;
 			usage?: unknown;
+			[key: string]: any;
 		};
 		annotation?: { type: string; rating: number };
+		[key: string]: any;
 	}
 
 	export let chatId = '';
 	export let history;
 	export let messageId;
-	export let selectedModels = [];
+	export let selectedModels: any[] = [];
 
 	let message: MessageType = structuredClone(history.messages[messageId]);
 	$: if (history.messages) {
@@ -158,13 +167,13 @@
 	export let editCodeBlock = true;
 	export let topPadding = false;
 
-	let citationsElement: HTMLDivElement;
+	let citationsElement: any;
 
 	let contentContainerElement: HTMLDivElement;
 	let buttonsContainerElement: HTMLDivElement;
 	let showDeleteConfirm = false;
 
-	let model = null;
+	let model: any = null;
 	$: model = $models.find((m) => m.id === message.model);
 
 	$: statusEntries = message?.statusHistory ?? [...(message?.status ? [message?.status] : [])];
@@ -227,14 +236,14 @@
 				return model.info.meta.tts.voice;
 			}
 			// Fall back to user settings or config default
-			if ($settings?.audio?.tts?.defaultVoice === $config.audio.tts.voice) {
+			if ($settings?.audio?.tts?.defaultVoice === $config?.audio?.tts?.voice) {
 				return $settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice;
 			}
 			return $config?.audio?.tts?.voice;
 		};
 
-		if ($config.audio.tts.engine === '') {
-			let voices = [];
+		if ($config?.audio?.tts?.engine === '') {
+			let voices: any[] = [];
 			const getVoicesLoop = setInterval(() => {
 				voices = speechSynthesis.getVoices();
 				if (voices.length > 0) {
@@ -265,9 +274,9 @@
 				}
 			}, 100);
 		} else {
-			$audioQueue.setId(`${message.id}`);
-			$audioQueue.setPlaybackRate($settings.audio?.tts?.playbackRate ?? 1);
-			$audioQueue.onStopped = () => {
+			$audioQueue?.setId(`${message.id}`);
+			$audioQueue?.setPlaybackRate($settings.audio?.tts?.playbackRate ?? 1);
+			if ($audioQueue) $audioQueue.onStopped = () => {
 				speaking = false;
 				speakingIdx = undefined;
 			};
@@ -293,9 +302,9 @@
 			if ($settings.audio?.tts?.engine === 'browser-kokoro') {
 				if (!$TTSWorker) {
 					await TTSWorker.set(
-						new KokoroWorker({
-							dtype: $settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
-						})
+						new KokoroWorker(
+							$settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
+						)
 					);
 
 					await $TTSWorker.init();
@@ -316,7 +325,7 @@
 						});
 
 					if (url && speaking) {
-						$audioQueue.enqueue(url);
+						$audioQueue?.enqueue(url);
 						loadingSpeech = false;
 					}
 				}
@@ -336,7 +345,7 @@
 						const blob = await res.blob();
 						const url = URL.createObjectURL(blob);
 
-						$audioQueue.enqueue(url);
+						$audioQueue?.enqueue(url);
 						loadingSpeech = false;
 					}
 				}
@@ -344,11 +353,11 @@
 		}
 	};
 
-	let preprocessedDetailsCache = [];
+	let preprocessedDetailsCache: string[] = [];
 
 	function preprocessForEditing(content: string): string {
 		// Replace <details>...</details> with unique ID placeholder
-		const detailsBlocks = [];
+			const detailsBlocks: string[] = [];
 		let i = 0;
 
 		content = content.replace(/<details[\s\S]*?<\/details>/gi, (match) => {
@@ -379,7 +388,7 @@
 		await tick();
 
 		const messagesContainer = document.getElementById('messages-container');
-		const savedScrollTop = messagesContainer?.scrollTop;
+		const savedScrollTop = messagesContainer?.scrollTop ?? 0;
 
 		editTextAreaElement.style.height = '';
 		editTextAreaElement.style.height = `${editTextAreaElement.scrollHeight}px`;
@@ -438,14 +447,14 @@
 
 		const messages = createMessagesList(history, message.id);
 
-		let feedbackItem = {
+		let feedbackItem: any = {
 			type: 'rating',
 			data: {
 				...(updatedMessage?.annotation ? updatedMessage.annotation : {}),
 				model_id: message?.selectedModelId ?? message.model,
-				...(history.messages[message.parentId].childrenIds.length > 1
+				...(history.messages[message.parentId!].childrenIds.length > 1
 					? {
-							sibling_model_ids: history.messages[message.parentId].childrenIds
+							sibling_model_ids: history.messages[message.parentId!].childrenIds
 								.filter((id) => id !== message.id)
 								.map((id) => history.messages[id]?.selectedModelId ?? history.messages[id].model)
 						}
@@ -478,11 +487,11 @@
 		}, {});
 		feedbackItem.meta.base_models = baseModels;
 
-		let feedback = null;
-		if (message?.feedbackId) {
+		let feedback: any = null;
+		if ((message as any)?.feedbackId) {
 			feedback = await updateFeedbackById(
 				localStorage.token,
-				message.feedbackId,
+				(message as any).feedbackId,
 				feedbackItem
 			).catch((error) => {
 				toast.error(`${error}`);
@@ -493,7 +502,7 @@
 			});
 
 			if (feedback) {
-				updatedMessage.feedbackId = feedback.id;
+				(updatedMessage as any).feedbackId = feedback.id;
 			}
 		}
 
@@ -505,9 +514,9 @@
 		if (!details) {
 			showRateComment = true;
 
-			if (!updatedMessage.annotation?.tags && (message?.content ?? '') !== '') {
+			if (!(updatedMessage.annotation as any)?.tags && (message?.content ?? '') !== '') {
 				// attempt to generate tags
-				const tags = await generateTags(localStorage.token, message.model, messages, chatId).catch(
+				const tags = await generateTags(localStorage.token, message.model, messages as any, chatId).catch(
 					(error) => {
 						console.error(error);
 						return [];
@@ -516,13 +525,13 @@
 				console.log(tags);
 
 				if (tags) {
-					updatedMessage.annotation.tags = tags;
+					(updatedMessage.annotation as any).tags = tags;
 					feedbackItem.data.tags = tags;
 
 					saveMessage(message.id, updatedMessage);
 					await updateFeedbackById(
 						localStorage.token,
-						updatedMessage.feedbackId,
+						(updatedMessage as any).feedbackId,
 						feedbackItem
 					).catch((error) => {
 						toast.error(`${error}`);
@@ -565,6 +574,7 @@
 			e.preventDefault();
 			// Get the selected HTML
 			const selection = window.getSelection();
+			if (!selection) return;
 			const range = selection.getRangeAt(0);
 			const tempDiv = document.createElement('div');
 
@@ -624,7 +634,7 @@
 	<div
 		class=" flex w-full message-{message.id}"
 		id="message-{message.id}"
-		dir={$settings.chatDirection}
+		dir={$settings.chatDirection?.toLowerCase() as any}
 		style="scroll-margin-top: 3rem;"
 	>
 		<div class={`shrink-0 ltr:mr-3 rtl:ml-3 hidden @lg:flex mt-1 `}>
@@ -671,7 +681,7 @@
 						{#if message?.files && message.files?.filter((f) => f.type === 'image').length > 0}
 							<div
 								class="my-1 w-full flex overflow-x-auto gap-2 flex-wrap"
-								dir={$settings?.chatDirection ?? 'auto'}
+								dir={($settings?.chatDirection ?? 'auto').toLowerCase() as any}
 							>
 								{#each message.files as file}
 									<div>
@@ -681,9 +691,9 @@
 											<FileItem
 												item={file}
 												url={file.url}
-												name={file.name}
+												name={file.name ?? ''}
 												type={file.type}
-												size={file?.size}
+												size={file?.size ?? 0}
 												small={true}
 											/>
 										{/if}
@@ -721,11 +731,12 @@
 									on:input={(e) => {
 										const messagesContainer = document.getElementById('messages-container');
 										const savedScrollTop = messagesContainer?.scrollTop;
+										const target = e.target as HTMLTextAreaElement;
 
-										e.target.style.height = '';
-										e.target.style.height = `${e.target.scrollHeight}px`;
+										target.style.height = '';
+										target.style.height = `${target.scrollHeight}px`;
 
-										if (messagesContainer) messagesContainer.scrollTop = savedScrollTop;
+										if (messagesContainer) messagesContainer.scrollTop = savedScrollTop ?? 0;
 									}}
 									on:keydown={(e) => {
 										if (e.key === 'Escape') {
@@ -831,7 +842,7 @@
 							{/if}
 
 							{#if message?.error}
-								<Error content={message?.error?.content ?? message.content} />
+								<Error content={(message?.error as any)?.content ?? message.content} />
 							{/if}
 
 							{#if (message?.sources || message?.citations) && (model?.info?.meta?.capabilities?.citations ?? true)}
@@ -894,15 +905,15 @@
 												min="1"
 												max={siblings.length}
 												on:focus={(e) => {
-													e.target.select();
+													(e.target as HTMLInputElement).select();
 												}}
 												on:blur={(e) => {
-													gotoMessage(message, e.target.value - 1);
+													gotoMessage(message, Number((e.target as HTMLInputElement).value) - 1);
 													messageIndexEdit = false;
 												}}
 												on:keydown={(e) => {
 													if (e.key === 'Enter') {
-														gotoMessage(message, e.target.value - 1);
+														gotoMessage(message, Number((e.target as HTMLInputElement).value) - 1);
 														messageIndexEdit = false;
 													}
 												}}
@@ -917,7 +928,7 @@
 												messageIndexEdit = true;
 
 												await tick();
-												const input = document.getElementById(`message-index-input-${message.id}`);
+												const input = document.getElementById(`message-index-input-${message.id}`) as HTMLInputElement | null;
 												if (input) {
 													input.focus();
 													input.select();

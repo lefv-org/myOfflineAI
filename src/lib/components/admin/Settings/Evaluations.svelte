@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import { models, settings, user, config } from '$lib/stores';
-	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 	import { getModels } from '$lib/apis';
@@ -14,9 +15,9 @@
 	import Model from './Evaluations/Model.svelte';
 	import ArenaModelModal from './Evaluations/ArenaModelModal.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
-	let evaluationConfig = null;
+	let evaluationConfig: any = null;
 	let showAddModel = false;
 
 	const submitHandler = async () => {

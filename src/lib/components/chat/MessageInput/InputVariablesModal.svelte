@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount, tick } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 	import { models, config } from '$lib/stores';
 
 	import { toast } from 'svelte-sonner';
@@ -10,15 +11,15 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import MapSelector from '$lib/components/common/Valves/MapSelector.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
-	export let variables = {};
+	export let variables: any = {};
 
 	export let onSave = (e) => {};
 
 	let loading = true;
-	let variableValues = {};
+	let variableValues: any = {};
 
 	const submitHandler = async () => {
 		// Normalize Windows CRLF (\r\n) to LF (\n) for all string values
@@ -156,7 +157,7 @@
 																id="input-variable-{idx}"
 																on:input={(e) => {
 																	// Convert the color value to uppercase immediately
-																	variableValues[variable] = e.target.value.toUpperCase();
+																	variableValues[variable] = (e.target as HTMLInputElement).value.toUpperCase();
 																}}
 																{...variableAttributes}
 															/>

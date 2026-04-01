@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import DOMPurify from 'dompurify';
 	import { toast } from 'svelte-sonner';
 
 	import type { Token } from 'marked';
-	import { getContext } from 'svelte';
+	;
 	import { goto } from '$app/navigation';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
 	import { copyToClipboard, unescapeHtml } from '$lib/utils';
@@ -24,7 +25,7 @@
 	export let id: string;
 	export let done = true;
 	export let tokens: Token[];
-	export let sourceIds = [];
+	export let sourceIds: any[] = [];
 	export let onSourceClick: Function = () => {};
 
 	/**
@@ -71,7 +72,7 @@
 	{#if token.type === 'escape'}
 		{unescapeHtml(token.text)}
 	{:else if token.type === 'html'}
-		<HtmlToken {id} {token} {onSourceClick} />
+		<HtmlToken {id} {token} />
 	{:else if token.type === 'link'}
 		{@const noteId = getNoteIdFromHref(token.href)}
 		{#if noteId}
@@ -119,8 +120,9 @@
 			frameborder="0"
 			on:load={(e) => {
 				try {
-					e.currentTarget.style.height =
-						e.currentTarget.contentWindow.document.body.scrollHeight + 20 + 'px';
+					const iframe = e.currentTarget as HTMLIFrameElement;
+					iframe.style.height =
+						iframe.contentWindow!.document.body.scrollHeight + 20 + 'px';
 				} catch {}
 			}}
 		></iframe>

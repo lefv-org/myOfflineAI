@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 
-	import { onMount, getContext, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { models, tools, functions, user } from '$lib/stores';
 	import { WEBUI_BASE_URL, DEFAULT_CAPABILITIES } from '$lib/constants';
 
@@ -29,12 +30,12 @@
 	import LockClosed from '$lib/components/icons/LockClosed.svelte';
 	import { updateModelAccessGrants } from '$lib/apis/models';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let onSubmit: Function;
 	export let onBack: null | Function = null;
 
-	export let model = null;
+	export let model: any = null;
 	export let edit = false;
 
 	export let preset = true;
@@ -70,7 +71,7 @@
 	}
 
 	let system = '';
-	let info = {
+	let info: Record<string, any> = {
 		id: '',
 		base_model_id: null,
 		name: '',
@@ -85,23 +86,23 @@
 		}
 	};
 
-	let params = {
+	let params: Record<string, any> = {
 		system: ''
 	};
 
-	let knowledge = [];
-	let toolIds = [];
-	let skillIds = [];
+	let knowledge: any[] = [];
+	let toolIds: any[] = [];
+	let skillIds: any[] = [];
 
-	let filterIds = [];
-	let defaultFilterIds = [];
+	let filterIds: any[] = [];
+	let defaultFilterIds: any[] = [];
 
-	let capabilities = { ...DEFAULT_CAPABILITIES };
-	let defaultFeatureIds = [];
-	let builtinTools = {};
+	let capabilities: Record<string, any> = { ...DEFAULT_CAPABILITIES };
+	let defaultFeatureIds: any[] = [];
+	let builtinTools: Record<string, any> = {};
 
-	let actionIds = [];
-	let accessGrants = [];
+	let actionIds: any[] = [];
+	let accessGrants: any[] = [];
 	let tts = { voice: '' };
 
 	const submitHandler = async () => {
@@ -220,7 +221,7 @@
 
 		info.params.system = system.trim() === '' ? null : system;
 		info.params.stop = params.stop
-			? (typeof params.stop === 'string' ? params.stop.split(',') : params.stop).filter((s) =>
+			? (typeof params.stop === 'string' ? params.stop.split(',') : params.stop).filter((s: any) =>
 					s.trim()
 				)
 			: null;
@@ -360,7 +361,7 @@
 					);
 					toast.success($i18n.t('Saved'));
 				} catch (error) {
-					toast.error(error?.detail ?? `${error}`);
+					toast.error((error as any)?.detail ?? `${error}`);
 				}
 			}
 		}}
@@ -441,7 +442,7 @@
 						const offsetY = (250 - newHeight) / 2;
 
 						// Draw the image on the canvas
-						ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+						ctx!.drawImage(img, offsetX, offsetY, newWidth, newHeight);
 
 						// Get the base64 representation of the compressed image
 						const compressedSrc = canvas.toDataURL('image/webp', 0.8);
@@ -603,7 +604,7 @@
 											<option value={null} class=" text-gray-900"
 												>{$i18n.t('Select a base model')}</option
 											>
-											{#each $models.filter((m) => (model ? m.id !== model.id : true) && !m?.preset && m?.owned_by !== 'arena' && !(m?.direct ?? false)) as model}
+											{#each $models.filter((m) => (model ? m.id !== model.id : true) && !m?.preset && (m as any)?.owned_by !== 'arena' && !(m?.direct ?? false)) as model}
 												<option value={model.id} class=" text-gray-900">{model.name}</option>
 											{/each}
 										</select>
@@ -763,19 +764,19 @@
 						<SkillsSelector bind:selectedSkillIds={skillIds} />
 					</div>
 
-					{#if ($functions ?? []).filter((func) => func.type === 'filter').length > 0 || ($functions ?? []).filter((func) => func.type === 'action').length > 0}
+					{#if ($functions ?? []).filter((func) => (func as any).type === 'filter').length > 0 || ($functions ?? []).filter((func) => (func as any).type === 'action').length > 0}
 						<hr class=" border-gray-100/30 dark:border-gray-850/30 my-4" />
 
-						{#if ($functions ?? []).filter((func) => func.type === 'filter').length > 0}
+						{#if ($functions ?? []).filter((func) => (func as any).type === 'filter').length > 0}
 							<div class="my-4">
 								<FiltersSelector
 									bind:selectedFilterIds={filterIds}
-									filters={($functions ?? []).filter((func) => func.type === 'filter')}
+									filters={($functions ?? []).filter((func) => (func as any).type === 'filter')}
 								/>
 							</div>
 
-							{@const toggleableFilters = $functions.filter(
-								(func) =>
+							{@const toggleableFilters = ($functions ?? []).filter(
+								(func: any) =>
 									func.type === 'filter' &&
 									(filterIds.includes(func.id) || func?.is_global) &&
 									func?.meta?.toggle
@@ -791,11 +792,11 @@
 							{/if}
 						{/if}
 
-						{#if ($functions ?? []).filter((func) => func.type === 'action').length > 0}
+						{#if ($functions ?? []).filter((func) => (func as any).type === 'action').length > 0}
 							<div class="my-4">
 								<ActionsSelector
 									bind:selectedActionIds={actionIds}
-									actions={($functions ?? []).filter((func) => func.type === 'action')}
+									actions={($functions ?? []).filter((func) => (func as any).type === 'action')}
 								/>
 							</div>
 						{/if}

@@ -1,23 +1,24 @@
 <script lang="ts">
-	import { onMount, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import { settings } from '$lib/stores';
 
 	import Drawer from './Drawer.svelte';
 	import RichTextInput from './RichTextInput.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let id = 'input-modal';
 
 	export let show = false;
-	export let value = null;
-	export let inputContent = null;
+	export let value: any = null;
+	export let inputContent: any = null;
 
 	export let autocomplete = false;
-	export let generateAutoCompletion = null;
+	export let generateAutoCompletion: any = null;
 
-	export let onChange = () => {};
-	export let onClose = () => {};
+	export let onChange: (content?: any) => void = () => {};
+	export let onClose: Function = () => {};
 
 	let inputElement;
 </script>

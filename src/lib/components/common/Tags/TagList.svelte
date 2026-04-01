@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { createEventDispatcher } from 'svelte';
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	;
+	const i18n = getI18nContext();
 
 	import TagItem from './TagItem.svelte';
 	const dispatch = createEventDispatcher();
 
-	export let tags = [];
+	export let tags: any[] = [];
 	export let disabled = false;
 </script>
 

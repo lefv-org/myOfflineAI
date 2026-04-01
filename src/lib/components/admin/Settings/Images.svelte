@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 
-	import { createEventDispatcher, onMount, getContext } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { config as backendConfig, user } from '$lib/stores';
 
 	import { getBackendConfig } from '$lib/apis';
@@ -21,12 +22,12 @@
 	import CodeEditorModal from '$lib/components/common/CodeEditorModal.svelte';
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loading = false;
 
-	let models = null;
-	let config = null;
+	let models: any = null;
+	let config: any = null;
 
 	let showComfyUIWorkflowEditor = false;
 	let REQUIRED_WORKFLOW_NODES = [
@@ -584,12 +585,14 @@
 								type="file"
 								accept=".json"
 								on:change={(e) => {
-									const file = e.target.files[0];
+									const inputEl = e.target as HTMLInputElement;
+									const file = inputEl.files?.[0];
+									if (!file) return;
 									const reader = new FileReader();
 
-									reader.onload = (e) => {
-										config.COMFYUI_WORKFLOW = e.target.result;
-										e.target.value = null;
+									reader.onload = (readerEvent) => {
+										config.COMFYUI_WORKFLOW = readerEvent.target?.result as string;
+										inputEl.value = '';
 									};
 
 									reader.readAsText(file);
@@ -874,12 +877,14 @@
 								type="file"
 								accept=".json"
 								on:change={(e) => {
-									const file = e.target.files[0];
+									const inputEl = e.target as HTMLInputElement;
+									const file = inputEl.files?.[0];
+									if (!file) return;
 									const reader = new FileReader();
 
-									reader.onload = (e) => {
-										config.IMAGES_EDIT_COMFYUI_WORKFLOW = e.target.result;
-										e.target.value = null;
+									reader.onload = (readerEvent) => {
+										config.IMAGES_EDIT_COMFYUI_WORKFLOW = readerEvent.target?.result as string;
+										inputEl.value = '';
 									};
 
 									reader.readAsText(file);

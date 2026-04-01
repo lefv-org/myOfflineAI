@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Image from '$lib/components/common/Image.svelte';
 	import GarbageBin from '$lib/components/icons/GarbageBin.svelte';
@@ -7,7 +8,7 @@
 	import ArrowForward from '$lib/components/icons/ArrowForward.svelte';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let id: string;
 	export let content: string;

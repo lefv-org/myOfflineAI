@@ -1,6 +1,7 @@
-<script>
-	import { createEventDispatcher, getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher, onMount } from 'svelte';
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
@@ -18,7 +19,7 @@
 	export let show = false;
 	export let edit = false;
 
-	export let model = null;
+	export let model: any = null;
 
 	let name = '';
 	let id = '';
@@ -41,10 +42,10 @@
 	let description = '';
 
 	let selectedModelId = '';
-	let modelIds = [];
+	let modelIds: any[] = [];
 	let filterMode = 'include';
 
-	let accessGrants = [];
+	let accessGrants: any[] = [];
 
 	let imageInputElement;
 	let loading = false;
@@ -164,10 +165,10 @@
 								hidden
 								accept="image/*"
 								on:change={(e) => {
-									const files = e.target.files ?? [];
+									const files = (e.target as HTMLInputElement).files ?? [];
 									let reader = new FileReader();
 									reader.onload = (event) => {
-										let originalImageUrl = `${event.target.result}`;
+										let originalImageUrl = `${event.target!.result as string}`;
 
 										const img = new Image();
 										img.src = originalImageUrl;
@@ -198,7 +199,7 @@
 											const offsetY = (250 - newHeight) / 2;
 
 											// Draw the image on the canvas
-											ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+											ctx!.drawImage(img, offsetX, offsetY, newWidth, newHeight);
 
 											// Get the base64 representation of the compressed image
 											const compressedSrc = canvas.toDataURL('image/webp', 0.8);
@@ -206,7 +207,7 @@
 											// Display the compressed image
 											profileImageUrl = compressedSrc;
 
-											e.target.files = null;
+											(e.target as HTMLInputElement).files = null;
 										};
 									};
 
@@ -356,7 +357,7 @@
 								bind:value={selectedModelId}
 							>
 								<option value="">{$i18n.t('Select a model')}</option>
-								{#each $models.filter((m) => m?.owned_by !== 'arena') as model}
+								{#each $models.filter((m) => (m?.owned_by as string) !== 'arena') as model}
 									<option value={model.id} class="bg-gray-50 dark:bg-gray-700">{model.name}</option>
 								{/each}
 							</select>

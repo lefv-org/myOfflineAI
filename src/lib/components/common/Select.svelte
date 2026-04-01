@@ -6,7 +6,7 @@
 	export let value = '';
 
 	/** Items array: { value: string, label: string }[] */
-	export let items = [];
+	export let items: any[] = [];
 
 	/** Placeholder text when no value is selected */
 	export let placeholder = '';

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import { slide } from 'svelte/transition';
 	import { quintOut } from 'svelte/easing';
 
@@ -10,7 +11,7 @@
 	import Sparkles from '$lib/components/icons/Sparkles.svelte';
 	import CheckCircle from '$lib/components/icons/CheckCircle.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let id = '';
 	export let tokens: Array<{
@@ -36,11 +37,11 @@
 	$: codeInterpreterCount = tokens.filter((t) => t?.attributes?.type === 'code_interpreter').length;
 
 	$: summaryText = (() => {
-		const parts = [];
+		const parts: string[] = [];
 
 		if (toolCallCount > 0) {
 			// Group by tool name and show counts
-			const nameCounts = {};
+			const nameCounts: Record<string, number> = {};
 			tokens
 				.filter((t) => t?.attributes?.type === 'tool_calls')
 				.forEach((t) => {
@@ -48,7 +49,7 @@
 					nameCounts[name] = (nameCounts[name] || 0) + 1;
 				});
 
-			const toolParts = Object.entries(nameCounts).map(([name, count]) =>
+			const toolParts = Object.entries(nameCounts).map(([name, count]: [string, number]) =>
 				count > 1 ? `${count} ${name}` : name
 			);
 			parts.push(...toolParts);

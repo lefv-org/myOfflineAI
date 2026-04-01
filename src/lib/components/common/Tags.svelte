@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import TagList from './Tags/TagList.svelte';
-	import { getContext, createEventDispatcher } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
-	export let tags = [];
-	export let suggestionTags = [];
+	export let tags: any[] = [];
+	export let suggestionTags: any[] = [];
 	export let disabled = false;
 
 	let inputValue = '';

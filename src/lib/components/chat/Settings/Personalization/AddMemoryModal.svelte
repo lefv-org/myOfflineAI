@@ -1,5 +1,6 @@
 <script>
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher } from 'svelte';
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import { addNewMemory, updateMemoryById } from '$lib/apis/memories';
@@ -10,7 +11,7 @@
 	const dispatch = createEventDispatcher();
 
 	export let show;
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loading = false;
 	let content = '';

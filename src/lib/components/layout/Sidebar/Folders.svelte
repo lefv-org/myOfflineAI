@@ -5,14 +5,14 @@
 	import RecursiveFolder from './RecursiveFolder.svelte';
 	import { chatId, selectedFolder } from '$lib/stores';
 
-	export let folderRegistry = {};
+	export let folderRegistry: any = {};
 
-	export let folders = {};
+	export let folders: any = {};
 	export let shiftKey = false;
 
 	export let onDelete = (folderId) => {};
 
-	let folderList = [];
+	let folderList: any[] = [];
 	// Get the list of folders that have no parent, sorted by name alphabetically
 	$: folderList = Object.keys(folders)
 		.filter((key) => folders[key].parent_id === null)

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { createEventDispatcher, getContext, onMount, tick } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
 
 	import { goto } from '$app/navigation';
 	import { fade, slide } from 'svelte/transition';
@@ -29,7 +30,7 @@
 	import { updateUserStatus } from '$lib/apis/users';
 	import { toast } from 'svelte-sonner';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
 	export let role = '';
@@ -46,7 +47,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	let usage = null;
+	let usage: any = null;
 	const getUsageInfo = async () => {
 		const res = await getUsage(localStorage.token).catch((error) => {
 			console.error('Error fetching usage info:', error);
@@ -97,7 +98,7 @@
 
 					<div class=" flex flex-col w-full flex-1">
 						<div class="font-medium line-clamp-1 pr-2">
-							{$user.name}
+							{$user!.name}
 						</div>
 
 						<div class=" flex items-center gap-2">
@@ -350,7 +351,7 @@
 				type="button"
 				on:click={async () => {
 					const res = await userSignOut();
-					user.set(null);
+					user.set(undefined);
 					localStorage.removeItem('token');
 
 					location.href = res?.redirect_url ?? '/auth';

@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext } from 'svelte';
+	;
 
 	import dayjs from 'dayjs';
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
@@ -14,19 +15,19 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import ChatsModal from '$lib/components/layout/ChatsModal.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
 	export let user;
 
-	let chatList = null;
+	let chatList: any = null;
 	let page = 1;
 
 	let query = '';
 	let orderBy = 'updated_at';
 	let direction = 'desc';
 
-	let filter = {};
+	let filter: any = {};
 	$: filter = {
 		...(query ? { query } : {}),
 		...(orderBy ? { order_by: orderBy } : {}),
@@ -73,7 +74,7 @@
 		chatListLoading = true;
 		page += 1;
 
-		let newChatList = [];
+		let newChatList: any[] = [];
 
 		newChatList = await getChatListByUserId(localStorage.token, user.id, page, filter);
 

@@ -1,18 +1,19 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import Check from '$lib/components/icons/Check.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import Select from '$lib/components/common/Select.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let value = '';
 	export let placeholder = $i18n.t('Tag');
 	export let onChange: (value: string) => void = () => {};
 
-	export let items = [];
+	export let items: any[] = [];
 </script>
 
 <Select

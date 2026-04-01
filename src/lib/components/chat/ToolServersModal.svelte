@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import { models, config, toolServers, tools } from '$lib/stores';
 
 	import { toast } from 'svelte-sonner';
@@ -12,13 +13,13 @@
 	import XMark from '$lib/components/icons/XMark.svelte';
 
 	export let show = false;
-	export let selectedToolIds = [];
+	export let selectedToolIds: any[] = [];
 
-	let selectedTools = [];
+	let selectedTools: any[] = [];
 
 	$: selectedTools = ($tools ?? []).filter((tool) => selectedToolIds.includes(tool.id));
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 </script>
 
 <Modal bind:show size="md">

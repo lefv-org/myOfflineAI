@@ -1,8 +1,9 @@
-<script>
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	;
+	const i18n = getI18nContext();
 
-	export let editor = null;
+	export let editor: any = null;
 
 	import Bold from '$lib/components/icons/Bold.svelte';
 	import CodeBracket from '$lib/components/icons/CodeBracket.svelte';

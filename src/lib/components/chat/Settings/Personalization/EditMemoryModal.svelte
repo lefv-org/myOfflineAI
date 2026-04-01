@@ -1,5 +1,6 @@
-<script>
-	import { createEventDispatcher, getContext } from 'svelte';
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	import { updateMemoryById } from '$lib/apis/memories';
@@ -11,9 +12,9 @@
 	const dispatch = createEventDispatcher();
 
 	export let show;
-	export let memory = {};
+	export let memory: any = {};
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loading = false;
 	let content = '';

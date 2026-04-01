@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { Switch } from 'bits-ui';
 
-	import { createEventDispatcher, tick, getContext } from 'svelte';
+	import { createEventDispatcher, tick } from 'svelte';
 	import { settings } from '$lib/stores';
 
 	import Tooltip from './Tooltip.svelte';
@@ -10,7 +11,7 @@
 	export let ariaLabelledbyId = '';
 	export let tooltip = false;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 </script>
 

@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import Textarea from '$lib/components/common/Textarea.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let name = '';
 	export let color = '';
 	export let description = '';
-	export let data = {};
+	export let data: any = {};
 
 	export let edit = false;
 	export let onDelete: Function = () => {};
@@ -80,7 +81,7 @@
 					class="text-sm bg-transparent outline-hidden rounded-lg px-2"
 					value={data?.config?.share ?? 'members'}
 					on:change={(e) => {
-						const value = e.target.value;
+						const value = (e.target as HTMLSelectElement).value;
 						let shareValue;
 						if (value === 'false') {
 							shareValue = false;

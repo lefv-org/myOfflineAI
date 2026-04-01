@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import DOMPurify from 'dompurify';
 	import { toast } from 'svelte-sonner';
 
@@ -11,7 +12,7 @@
 	dayjs.extend(duration);
 	dayjs.extend(relativeTime);
 
-	import { onMount, tick, getContext, createEventDispatcher } from 'svelte';
+	import { onMount, tick, createEventDispatcher } from 'svelte';
 
 	import { KokoroWorker } from '$lib/workers/KokoroWorker';
 
@@ -58,7 +59,6 @@
 	import { WEBUI_BASE_URL, WEBUI_API_BASE_URL, PASTED_TEXT_CHARACTER_LIMIT } from '$lib/constants';
 	import { getOAuthClientAuthorizationUrl } from '$lib/apis/configs';
 
-
 	import { getSuggestionRenderer } from '../common/RichTextInput/suggestions';
 
 	import InputMenu from './MessageInput/InputMenu.svelte';
@@ -95,7 +95,7 @@
 	import Expand from '../icons/Expand.svelte';
 	import QueuedMessageItem from './MessageInput/QueuedMessageItem.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let onUpload: Function = (e) => {};
 	export let onChange: Function = () => {};
@@ -108,41 +108,41 @@
 	export let uploadPending = false;
 
 	export let atSelectedModel: Model | undefined = undefined;
-	export let selectedModels: [''];
+	export let selectedModels: string[];
 
-	let selectedModelIds = [];
+	let selectedModelIds: any[] = [];
 	$: selectedModelIds = atSelectedModel !== undefined ? [atSelectedModel.id] : selectedModels;
 
-	export let history;
-	export let taskIds = null;
+	export let history: any;
+	export let taskIds: any = null;
 
 	export let prompt = '';
-	export let files = [];
+	export let files: any[] = [];
 
-	export let selectedToolIds = [];
-	export let selectedFilterIds = [];
+	export let selectedToolIds: any[] = [];
+	export let selectedFilterIds: any[] = [];
 
 	export let imageGenerationEnabled = false;
 	export let webSearchEnabled = false;
 	export let codeInterpreterEnabled = false;
 
-	export let pendingOAuthTools = [];
+	export let pendingOAuthTools: any[] = [];
 
 	export let messageQueue: { id: string; prompt: string; files: any[] }[] = [];
 	export let onQueueSendNow: (id: string) => void = () => {};
 	export let onQueueEdit: (id: string) => void = () => {};
 	export let onQueueDelete: (id: string) => void = () => {};
 
-	let inputContent = null;
+	let inputContent: any = null;
 
 	let showInputVariablesModal = false;
 	let inputVariablesModalCallback = (variableValues) => {};
-	let inputVariables = {};
-	let inputVariableValues = {};
+	let inputVariables: any = {};
+	let inputVariableValues: any = {};
 
 	let showValvesModal = false;
 	let selectedValvesType = 'tool'; // 'tool' or 'function'
-	let selectedValvesItemId = null;
+	let selectedValvesItemId: any = null;
 	let integrationsMenuCloseOnOutsideClick = true;
 
 	$: if (!showValvesModal) {
@@ -398,7 +398,7 @@
 	export let showCommands = false;
 	$: showCommands =
 		['/', '#', '@', '$'].includes(command?.charAt(0)) || '\\#' === command?.slice(0, 2);
-	let suggestions = null;
+	let suggestions: any = null;
 
 	let showTools = false;
 
@@ -444,44 +444,44 @@
 	export let dragged = false;
 	let shiftKey = false;
 
-	let user = null;
+	let user: any = null;
 	export let placeholder = '';
 
-	let visionCapableModels = [];
+	let visionCapableModels: any[] = [];
 	$: visionCapableModels = (atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).filter(
-		(model) => $models.find((m) => m.id === model)?.info?.meta?.capabilities?.vision ?? true
+		(model) => ($models.find((m) => m.id === model) as any)?.info?.meta?.capabilities?.vision ?? true
 	);
 
-	let fileUploadCapableModels = [];
+	let fileUploadCapableModels: any[] = [];
 	$: fileUploadCapableModels = (atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).filter(
-		(model) => $models.find((m) => m.id === model)?.info?.meta?.capabilities?.file_upload ?? true
+		(model) => ($models.find((m) => m.id === model) as any)?.info?.meta?.capabilities?.file_upload ?? true
 	);
 
-	let webSearchCapableModels = [];
+	let webSearchCapableModels: any[] = [];
 	$: webSearchCapableModels = (atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).filter(
-		(model) => $models.find((m) => m.id === model)?.info?.meta?.capabilities?.web_search ?? true
+		(model) => ($models.find((m) => m.id === model) as any)?.info?.meta?.capabilities?.web_search ?? true
 	);
 
-	let imageGenerationCapableModels = [];
+	let imageGenerationCapableModels: any[] = [];
 	$: imageGenerationCapableModels = (
 		atSelectedModel?.id ? [atSelectedModel.id] : selectedModels
 	).filter(
 		(model) =>
-			$models.find((m) => m.id === model)?.info?.meta?.capabilities?.image_generation ?? true
+			($models.find((m) => m.id === model) as any)?.info?.meta?.capabilities?.image_generation ?? true
 	);
 
-	let codeInterpreterCapableModels = [];
+	let codeInterpreterCapableModels: any[] = [];
 	$: codeInterpreterCapableModels = (
 		atSelectedModel?.id ? [atSelectedModel.id] : selectedModels
 	).filter(
 		(model) =>
-			$models.find((m) => m.id === model)?.info?.meta?.capabilities?.code_interpreter ?? true
+			($models.find((m) => m.id === model) as any)?.info?.meta?.capabilities?.code_interpreter ?? true
 	);
 
-	let toggleFilters = [];
+	let toggleFilters: any[] = [];
 	$: toggleFilters = (atSelectedModel?.id ? [atSelectedModel.id] : selectedModels)
-		.map((id) => ($models.find((model) => model.id === id) || {})?.filters ?? [])
-		.reduce((acc, filters) => acc.filter((f1) => filters.some((f2) => f2.id === f1.id)));
+		.map((id) => (($models.find((model) => model.id === id) as any) || {})?.filters ?? [])
+		.reduce((acc, filters) => acc.filter((f1: any) => filters.some((f2: any) => f2.id === f1.id)), []);
 
 	let showToolsButton = false;
 	$: showToolsButton = ($tools ?? []).length > 0 || ($toolServers ?? []).length > 0;
@@ -491,25 +491,25 @@
 		(atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
 			webSearchCapableModels.length &&
 		$config?.features?.enable_web_search &&
-		($_user.role === 'admin' || $_user?.permissions?.features?.web_search);
+		($config?.features?.enable_web_search ? ($_user?.role === 'admin' || $_user?.permissions?.features?.web_search) : false);
 
 	let showImageGenerationButton = false;
 	$: showImageGenerationButton =
 		(atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
 			imageGenerationCapableModels.length &&
 		$config?.features?.enable_image_generation &&
-		($_user.role === 'admin' || $_user?.permissions?.features?.image_generation);
+		($_user?.role === 'admin' || $_user?.permissions?.features?.image_generation);
 
 	let showCodeInterpreterButton = false;
 	$: showCodeInterpreterButton =
 		(atSelectedModel?.id ? [atSelectedModel.id] : selectedModels).length ===
 			codeInterpreterCapableModels.length &&
 		$config?.features?.enable_code_interpreter &&
-		($_user.role === 'admin' || $_user?.permissions?.features?.code_interpreter);
+		($_user?.role === 'admin' || $_user?.permissions?.features?.code_interpreter);
 
 	const scrollToBottom = () => {
 		const element = document.getElementById('messages-container');
-		element.scrollTo({
+		element?.scrollTo({
 			top: element.scrollHeight,
 			behavior: 'smooth'
 		});
@@ -519,7 +519,7 @@
 		try {
 			// Request screen media
 			const mediaStream = await navigator.mediaDevices.getDisplayMedia({
-				video: { cursor: 'never' },
+				video: { displaySurface: 'monitor' } as MediaTrackConstraints,
 				audio: false
 			});
 			// Once the user selects a screen, temporarily create a video element
@@ -533,7 +533,7 @@
 			canvas.height = video.videoHeight;
 			// Grab a single frame from the video stream using the canvas
 			const context = canvas.getContext('2d');
-			context.drawImage(video, 0, 0, canvas.width, canvas.height);
+			context?.drawImage(video, 0, 0, canvas.width, canvas.height);
 			// Stop all video tracks (stop screen sharing) after capturing the image
 			mediaStream.getTracks().forEach((track) => track.stop());
 
@@ -565,7 +565,7 @@
 		}
 
 		const tempItemId = uuidv4();
-		const fileItem = {
+		const fileItem: any = {
 			type: 'file',
 			file: '',
 			id: null,
@@ -589,7 +589,7 @@
 		if (!$temporaryChatEnabled) {
 			try {
 				// If the file is an audio file, provide the language for STT.
-				let metadata = null;
+				let metadata: any = null;
 				if (
 					(file.type.startsWith('audio/') || file.type.startsWith('video/')) &&
 					$settings?.audio?.stt?.language
@@ -666,7 +666,7 @@
 
 		if (
 			($config?.file?.max_count ?? null) !== null &&
-			files.length + inputFiles.length > $config?.file?.max_count
+			files.length + inputFiles.length > ($config?.file?.max_count ?? 0)
 		) {
 			toast.error(
 				$i18n.t(`You can only chat with a maximum of {{maxCount}} file(s) at a time.`, {
@@ -706,7 +706,7 @@
 					return;
 				}
 
-				const compressImageHandler = async (imageUrl, settings = {}, config = {}) => {
+				const compressImageHandler = async (imageUrl: any, settings: any = {}, config: any = {}) => {
 					// Quick shortcut so we don’t do unnecessary work.
 					const settingsCompression = settings?.imageCompression ?? false;
 					const configWidth = config?.file?.image_compression?.width ?? null;
@@ -718,8 +718,8 @@
 					}
 
 					// Default to null (no compression unless set)
-					let width = null;
-					let height = null;
+					let width: any = null;
+					let height: any = null;
 
 					// If user/settings want compression, pick their preferred size.
 					if (settingsCompression) {
@@ -745,7 +745,7 @@
 				let reader = new FileReader();
 
 				reader.onload = async (event) => {
-					let imageUrl = event.target.result;
+					let imageUrl = (event.target as any)?.result;
 
 					// Compress the image if settings or config require it
 					imageUrl = await compressImageHandler(imageUrl, $settings, $config);
@@ -772,7 +772,6 @@
 			}
 		});
 	};
-
 
 	const onDragOver = (e: DragEvent) => {
 		e.preventDefault();
@@ -1074,7 +1073,7 @@
 	bind:show={showInputModal}
 	bind:value={prompt}
 	bind:inputContent
-	onChange={(content) => {
+	onChange={(content: any) => {
 		console.log(content);
 		chatInputElement?.setContent(content?.json ?? null);
 	}}
@@ -1209,7 +1208,7 @@
 							class="flex-1 flex flex-col relative w-full shadow-lg rounded-3xl border {$temporaryChatEnabled
 								? 'border-dashed border-gray-100 dark:border-gray-800 hover:border-gray-200 focus-within:border-gray-200 hover:dark:border-gray-700 focus-within:dark:border-gray-700'
 								: ' border-gray-100/30 dark:border-gray-850/30 hover:border-gray-200 focus-within:border-gray-100 hover:dark:border-gray-800 focus-within:dark:border-gray-800'}  transition px-1 bg-white/5 dark:bg-gray-500/5 backdrop-blur-sm dark:text-gray-100"
-							dir={$settings?.chatDirection ?? 'auto'}
+							dir={($settings?.chatDirection?.toLowerCase() ?? 'auto') as 'ltr' | 'rtl' | 'auto'}
 						>
 							{#if atSelectedModel !== undefined}
 								<div class="px-3 pt-3 text-left w-full flex flex-col z-10">
@@ -1218,7 +1217,7 @@
 											<img
 												alt="model profile"
 												class="size-3.5 max-w-[28px] object-cover rounded-full"
-												src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${$models.find((model) => model.id === atSelectedModel.id).id}&lang=${$i18n.language}`}
+												src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${$models.find((model) => model.id === atSelectedModel?.id)?.id}&lang=${$i18n.language}`}
 											/>
 											<div class="translate-y-[0.5px]">
 												<span class="">{atSelectedModel.name}</span>
@@ -1241,7 +1240,7 @@
 							{#if files.length > 0}
 								<div
 									class="mx-2 mt-2.5 pb-1.5 flex items-center flex-wrap gap-2"
-									dir={$settings?.chatDirection ?? 'auto'}
+									dir={($settings?.chatDirection?.toLowerCase() ?? 'auto') as 'ltr' | 'rtl' | 'auto'}
 								>
 									{#each files as file, fileIdx}
 										{#if file.type === 'image' || (file?.content_type ?? '').startsWith('image/')}
@@ -1383,7 +1382,7 @@
 														!(
 															'ontouchstart' in window ||
 															navigator.maxTouchPoints > 0 ||
-															navigator.msMaxTouchPoints > 0
+															(navigator as any).msMaxTouchPoints > 0
 														)}
 													placeholder={placeholder ? placeholder : $i18n.t('Send a Message')}
 													largeTextAsFile={($settings?.largeTextAsFile ?? false) && !shiftKey}
@@ -1400,7 +1399,7 @@
 															text,
 															history?.currentId
 																? createMessagesList(history, history.currentId)
-																: null
+																: undefined
 														).catch((error) => {
 															console.log(error);
 
@@ -1416,8 +1415,8 @@
 														compositionEndedAt = e.timeStamp;
 														isComposing = false;
 													}}
-													on:keydown={async (e) => {
-														e = e.detail.event;
+													on:keydown={async (_e) => {
+														const e = _e.detail.event as KeyboardEvent;
 
 														const isCtrlPressed = e.ctrlKey || e.metaKey; // metaKey is for Cmd key on Mac
 														const suggestionsContainerElement =
@@ -1440,7 +1439,7 @@
 																	...document.getElementsByClassName('edit-user-message-button')
 																]?.at(-1);
 
-																editButton?.click();
+																(editButton as HTMLElement)?.click();
 															}
 														}
 
@@ -1450,7 +1449,7 @@
 																!(
 																	'ontouchstart' in window ||
 																	navigator.maxTouchPoints > 0 ||
-																	navigator.msMaxTouchPoints > 0
+																	(navigator as any).msMaxTouchPoints > 0
 																)
 															) {
 																if (inOrNearComposition(e)) {
@@ -1486,11 +1485,11 @@
 															codeInterpreterEnabled = false;
 														}
 													}}
-													on:paste={async (e) => {
-														e = e.detail.event;
+													on:paste={async (_e) => {
+														const e = _e.detail.event as ClipboardEvent;
 														console.log(e);
 
-														const clipboardData = e.clipboardData || window.clipboardData;
+														const clipboardData = e.clipboardData || (window as any).clipboardData;
 
 														if (clipboardData && clipboardData.items) {
 															for (const item of clipboardData.items) {
@@ -1817,7 +1816,7 @@
 																	const tracks = stream.getTracks();
 																	tracks.forEach((track) => track.stop());
 																}
-																stream = null;
+																stream = null as any;
 															} catch {
 																toast.error($i18n.t('Permission denied when accessing microphone'));
 															}
@@ -1854,7 +1853,7 @@
 																return;
 															}
 
-															if ($config.audio.stt.engine === 'web') {
+															if ($config?.audio?.stt?.engine === 'web') {
 																toast.error(
 																	$i18n.t('Call feature is not supported when using Web STT engine')
 																);
@@ -1873,15 +1872,15 @@
 																	tracks.forEach((track) => track.stop());
 																}
 
-																stream = null;
+																stream = null as any;
 
 																if ($settings.audio?.tts?.engine === 'browser-kokoro') {
 																	// If the user has not initialized the TTS worker, initialize it
 																	if (!$TTSWorker) {
 																		await TTSWorker.set(
-																			new KokoroWorker({
-																				dtype: $settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
-																			})
+																			new KokoroWorker(
+																				$settings.audio?.tts?.engineConfig?.dtype ?? 'fp32'
+																			)
 																		);
 
 																		await $TTSWorker.init();

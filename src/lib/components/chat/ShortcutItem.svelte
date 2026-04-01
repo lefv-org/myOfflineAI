@@ -1,18 +1,17 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import Tooltip from '../common/Tooltip.svelte';
-	import type { Shortcut } from '$lib/shortcuts';
-
-	export let shortcut: Shortcut;
+	export let shortcut: any;
 	export let isMac: boolean;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	let keyboardLayoutMap: Map<string, string> | undefined;
 
 	onMount(async () => {
-		if (navigator.keyboard && 'getLayoutMap' in navigator.keyboard) {
+		if ((navigator as any).keyboard && 'getLayoutMap' in (navigator as any).keyboard) {
 			try {
-				keyboardLayoutMap = await navigator.keyboard.getLayoutMap();
+				keyboardLayoutMap = await (navigator as any).keyboard.getLayoutMap();
 			} catch (error) {
 				console.error('Failed to get keyboard layout map:', error);
 			}

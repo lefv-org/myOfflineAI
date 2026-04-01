@@ -6,7 +6,7 @@ export const chatCompletion = async (
 	url: string = `${WEBUI_BASE_URL}/api`
 ): Promise<[Response | null, AbortController]> => {
 	const controller = new AbortController();
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${url}/chat/completions`, {
 		signal: controller.signal,
@@ -34,7 +34,7 @@ export const generateOpenAIChatCompletion = async (
 	body: object,
 	url: string = `${WEBUI_BASE_URL}/api`
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${url}/chat/completions`, {
 		method: 'POST',

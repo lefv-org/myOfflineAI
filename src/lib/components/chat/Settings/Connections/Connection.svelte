@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { getContext, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/i18n';
+	import { tick } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { settings } from '$lib/stores';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
@@ -10,14 +11,14 @@
 	import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
 	import ConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 
-	export let onDelete = () => {};
-	export let onSubmit = () => {};
+	export let onDelete: Function = () => {};
+	export let onSubmit: Function = () => {};
 
 	export let pipeline = false;
 
 	export let url = '';
 	export let key = '';
-	export let config = {};
+	export let config: any = {};
 
 	let showConfigModal = false;
 	let showDeleteConfirmDialog = false;

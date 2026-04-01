@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import '$lib/utils/codemirror';
 
 	import { basicSetup, EditorView } from 'codemirror';
@@ -13,7 +14,7 @@
 
 	import { oneDark } from '@codemirror/theme-one-dark';
 
-	import { onMount, createEventDispatcher, getContext, tick, onDestroy } from 'svelte';
+	import { onMount, createEventDispatcher, tick, onDestroy } from 'svelte';
 
 	import PyodideWorker from '$lib/workers/pyodide.worker?worker';
 
@@ -22,13 +23,13 @@
 	import { user } from '$lib/stores';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let boilerplate = '';
 	export let value = '';
 
-	export let onSave = () => {};
-	export let onChange = () => {};
+	export let onSave: Function = () => {};
+	export let onChange: (value?: any) => void = () => {};
 
 	let _value = '';
 
@@ -92,7 +93,7 @@
 		return await language?.load();
 	};
 
-	let pyodideWorkerInstance = null;
+	let pyodideWorkerInstance: any = null;
 
 	const getPyodideWorker = () => {
 		if (!pyodideWorkerInstance) {
@@ -104,10 +105,10 @@
 	// Generate unique IDs for requests
 	let _formatReqId = 0;
 
-	const formatPythonCodePyodide = (code) => {
+	const formatPythonCodePyodide = (code: any) => {
 		return new Promise((resolve, reject) => {
 			const id = `format-${++_formatReqId}`;
-			let timeout;
+			let timeout: any;
 			const worker = getPyodideWorker();
 
 			const startTag = `--||CODE-START-${id}||--`;
@@ -122,7 +123,7 @@ print("${endTag}")
 
 			const packages = ['black'];
 
-			function handleMessage(event) {
+			function handleMessage(event: any) {
 				const { id: eventId, stdout, stderr } = event.data;
 				if (eventId !== id) return; // Only handle our message
 				clearTimeout(timeout);
@@ -132,7 +133,7 @@ print("${endTag}")
 				if (stderr) {
 					reject(stderr);
 				} else {
-					function extractBetweenDelimiters(stdout, start, end) {
+					function extractBetweenDelimiters(stdout: any, start: any, end: any) {
 						console.log('stdout', stdout);
 						const startIdx = stdout.indexOf(start);
 						const endIdx = stdout.indexOf(end, startIdx + start.length);
@@ -150,7 +151,7 @@ print("${endTag}")
 				}
 			}
 
-			function handleError(event) {
+			function handleError(event: any) {
 				clearTimeout(timeout);
 				worker.removeEventListener('message', handleMessage);
 				worker.removeEventListener('error', handleError);
@@ -182,7 +183,7 @@ print("${endTag}")
 				$user?.role === 'admin'
 					? formatPythonCode(localStorage.token, _value)
 					: formatPythonCodePyodide(_value)
-			).catch((error) => {
+			).catch((error: any) => {
 				toast.error(`${error}`);
 				return null;
 			});
@@ -248,7 +249,7 @@ print("${endTag}")
 				doc: _value,
 				extensions: extensions
 			}),
-			parent: document.getElementById(`code-textarea-${id}`)
+			parent: document.getElementById(`code-textarea-${id}`) ?? undefined
 		});
 
 		if (isDarkMode) {
@@ -266,12 +267,12 @@ print("${endTag}")
 					if (_isDarkMode !== isDarkMode) {
 						isDarkMode = _isDarkMode;
 						if (_isDarkMode) {
-							codeEditor.dispatch({
+							codeEditor!.dispatch({
 								effects: editorTheme.reconfigure(oneDark)
 							});
 						} else {
-							codeEditor.dispatch({
-								effects: editorTheme.reconfigure()
+							codeEditor!.dispatch({
+								effects: editorTheme.reconfigure([])
 							});
 						}
 					}
@@ -284,7 +285,7 @@ print("${endTag}")
 			attributeFilter: ['class']
 		});
 
-		const keydownHandler = async (e) => {
+		const keydownHandler = async (e: any) => {
 			if ((e.ctrlKey || e.metaKey) && e.key === 's') {
 				e.preventDefault();
 

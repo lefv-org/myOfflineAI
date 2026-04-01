@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, tick, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 
@@ -17,7 +18,7 @@
 	import { toast } from 'svelte-sonner';
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	dayjs.extend(localizedFormat);
 
 	let loaded = false;
@@ -30,13 +31,13 @@
 	let showModelSelector = false;
 	let selectedModels = [''];
 
-	let chat = null;
-	let user = null;
+	let chat: any = null;
+	let user: any = null;
 
 	let title = '';
-	let files = [];
+	let files: any[] = [];
 
-	let messages = [];
+	let messages: any[] = [];
 	let history = {
 		messages: {},
 		currentId: null
@@ -85,8 +86,8 @@
 				$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
 			)
 		);
-		await chatId.set($page.params.id);
-		chat = await getChatByShareId(localStorage.token, $chatId).catch(async (error) => {
+		await chatId.set($page.params.id ?? '');
+		chat = await getChatByShareId(localStorage.token, $chatId!).catch(async (error) => {
 			await goto('/');
 			return null;
 		});
@@ -183,10 +184,12 @@
 							{user}
 							chatId={$chatId}
 							readOnly={true}
+							prompt=""
 							{selectedModels}
-							{processing}
+							atSelectedModel={null}
+							mergeResponses={() => {}}
+							chatActionHandler={() => {}}
 							bind:history
-							bind:messages
 							bind:autoScroll
 							bottomPadding={files.length > 0}
 							sendMessage={() => {}}

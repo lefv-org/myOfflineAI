@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import dayjs from 'dayjs';
-	import { onMount, tick, getContext } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
 	import { decodeString } from '$lib/utils';
 	import { getChatList } from '$lib/apis/chats';
@@ -10,13 +11,13 @@
 	import Loader from '$lib/components/common/Loader.svelte';
 	import { chatId } from '$lib/stores';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let onSelect = (e) => {};
 
 	let loaded = false;
 
-	let items = [];
+	let items: any[] = [];
 	let selectedIdx = 0;
 
 	let page = 1;

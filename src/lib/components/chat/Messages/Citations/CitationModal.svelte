@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount, tick } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 	import Modal from '$lib/components/common/Modal.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Markdown from '$lib/components/chat/Messages/Markdown.svelte';
@@ -9,7 +10,7 @@
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import Textarea from '$lib/components/common/Textarea.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	const CONTENT_PREVIEW_LIMIT = 10000;
 	let expandedDocs: Set<number> = new Set();
@@ -19,7 +20,7 @@
 	export let showPercentage = false;
 	export let showRelevance = true;
 
-	let mergedDocuments = [];
+	let mergedDocuments: any[] = [];
 
 	function calculatePercentage(distance: number) {
 		if (typeof distance !== 'number') return null;

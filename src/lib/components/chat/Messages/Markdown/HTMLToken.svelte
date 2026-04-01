@@ -27,10 +27,7 @@
 				class="w-full my-2"
 				src={videoSrc.replaceAll('&amp;', '&')}
 				title="Video player"
-				frameborder="0"
-				referrerpolicy="strict-origin-when-cross-origin"
 				controls
-				allowfullscreen
 			></video>
 		{:else}
 			{token.text}
@@ -59,7 +56,7 @@
 				class="w-full aspect-video my-2"
 				src={`https://www.youtube.com/embed/${ytId}`}
 				title="YouTube video player"
-				frameborder="0"
+				data-frameborder="0"
 				allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
 				referrerpolicy="strict-origin-when-cross-origin"
 				allowfullscreen
@@ -74,12 +71,12 @@
 				class="w-full my-2"
 				src={iframeSrc}
 				title="Embedded content"
-				frameborder="0"
-				sandbox
+				data-frameborder="0"
+				sandbox=""
 				on:load={(e) => {
 					try {
-						e.currentTarget.style.height =
-							e.currentTarget.contentWindow.document.body.scrollHeight + 20 + 'px';
+						(e.currentTarget as HTMLIFrameElement).style.height =
+							(e.currentTarget as HTMLIFrameElement).contentWindow!.document.body.scrollHeight + 20 + 'px';
 					} catch {}
 				}}
 			></iframe>
@@ -111,7 +108,7 @@
 				class="w-full my-2"
 				src={`${WEBUI_BASE_URL}/api/v1/files/${fileId}/content/html`}
 				title="Content"
-				frameborder="0"
+				data-frameborder="0"
 				sandbox="allow-scripts allow-downloads{($settings?.iframeSandboxAllowForms ?? false)
 					? ' allow-forms'
 					: ''}{($settings?.iframeSandboxAllowSameOrigin ?? false) ? ' allow-same-origin' : ''}"
@@ -120,8 +117,8 @@
 				width="100%"
 				on:load={(e) => {
 					try {
-						e.currentTarget.style.height =
-							e.currentTarget.contentWindow.document.body.scrollHeight + 20 + 'px';
+						(e.currentTarget as HTMLIFrameElement).style.height =
+							(e.currentTarget as HTMLIFrameElement).contentWindow!.document.body.scrollHeight + 20 + 'px';
 					} catch {}
 				}}
 			></iframe>

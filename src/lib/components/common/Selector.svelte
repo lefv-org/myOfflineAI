@@ -1,8 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import ChevronDown from '../icons/ChevronDown.svelte';
 	import Check from '../icons/Check.svelte';
 	import Search from '../icons/Search.svelte';
 	import Select from './Select.svelte';
+
+	const i18n = getI18nContext();
 
 	export let value = '';
 	export let placeholder = $i18n.t('Select a model');

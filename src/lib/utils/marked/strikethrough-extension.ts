@@ -1,14 +1,14 @@
-export const disableSingleTilde = {
+export const disableSingleTilde: any = {
 	tokenizer: {
-		del(src) {
+		del(src: string) {
 			// 1. First check for the REAL strikethrough: ~~text~~
 			const doubleMatch = /^~~(?=\S)([\s\S]*?\S)~~/.exec(src);
 			if (doubleMatch) {
 				return {
-					type: 'del',
+					type: 'del' as const,
 					raw: doubleMatch[0],
 					text: doubleMatch[1],
-					tokens: this.lexer.inlineTokens(doubleMatch[1])
+					tokens: (this as any).lexer.inlineTokens(doubleMatch[1])
 				};
 			}
 
@@ -17,7 +17,7 @@ export const disableSingleTilde = {
 			if (singleMatch) {
 				// return a plain-text token, NOT del
 				return {
-					type: 'text',
+					type: 'text' as const,
 					raw: singleMatch[0],
 					text: singleMatch[0] // include both tildes as literal text
 				};

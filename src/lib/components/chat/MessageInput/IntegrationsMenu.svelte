@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount, tick } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 	import { fly } from 'svelte/transition';
 
 	import {
@@ -27,14 +28,14 @@
 	import ChevronRight from '$lib/components/icons/ChevronRight.svelte';
 	import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let selectedToolIds: string[] = [];
 
 	export let selectedModels: string[] = [];
 	export let fileUploadCapableModels: string[] = [];
 
-	export let toggleFilters: { id: string; name: string; description?: string; icon?: string }[] =
+	export let toggleFilters: { id: string; name: string; description?: string; icon?: string; has_user_valves?: boolean }[] =
 		[];
 	export let selectedFilterIds: string[] = [];
 
@@ -52,7 +53,7 @@
 	let show = false;
 	let tab = '';
 
-	let tools = null;
+	let tools: any = null;
 
 	$: if (show) {
 		init();

@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { Confetti } from 'svelte-confetti';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount, onDestroy, tick } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 
 	import { exportChatStats, exportSingleChatStats, downloadChatStats } from '$lib/apis/chats';
 	import { getVersion } from '$lib/apis';
@@ -11,10 +12,10 @@
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
-	export let eventData = null;
+	export let eventData: any = null;
 
 	// Listen for verify:chat messages from opener
 	const handleMessage = async (event: MessageEvent) => {
@@ -241,7 +242,7 @@
 			}
 
 			downloadController = controller;
-			const reader = res.body.getReader();
+			const reader = res.body!.getReader();
 			const decoder = new TextDecoder();
 
 			const items: any[] = [];
@@ -413,7 +414,7 @@
 								<input
 									type="checkbox"
 									checked={syncMode === 'incremental'}
-									on:change={(e) => (syncMode = e.target.checked ? 'incremental' : 'full')}
+									on:change={(e) => (syncMode = (e.target as HTMLInputElement).checked ? 'incremental' : 'full')}
 									disabled={syncing}
 									class="w-4 h-4 rounded border-gray-300 dark:border-gray-600"
 								/>

@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/i18n';
+	;
+	const i18n = getI18nContext();
 
 	import Minus from '$lib/components/icons/Minus.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
 	export let title = '';
 	export let tooltip = '';
-	export let models = [];
-	export let modelIds = [];
+	export let models: any[] = [];
+	export let modelIds: any[] = [];
 
 	let selectedModelId = '';
 </script>

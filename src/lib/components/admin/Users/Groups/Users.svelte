@@ -1,6 +1,7 @@
 <script lang="ts">
-	import { getContext, onDestroy } from 'svelte';
-	const i18n = getContext('i18n');
+	import { getI18nContext } from '$lib/i18n';
+	import { onDestroy } from 'svelte';
+	const i18n = getI18nContext();
 
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
@@ -26,8 +27,8 @@
 	export let groupId: string;
 	export let userCount = 0;
 
-	let users = null;
-	let total = null;
+	let users: any = null;
+	let total: any = null;
 
 	let query = '';
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;

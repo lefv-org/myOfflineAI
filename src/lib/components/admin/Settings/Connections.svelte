@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 
@@ -18,7 +19,7 @@
 	import AddConnectionModal from '$lib/components/AddConnectionModal.svelte';
 	import OllamaConnection from './Connections/OllamaConnection.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	const getModels = async () => {
 		const models = await _getModels(
@@ -32,11 +33,11 @@
 
 	// External
 	let OLLAMA_BASE_URLS = [''];
-	let OLLAMA_API_CONFIGS = {};
+	let OLLAMA_API_CONFIGS: any = {};
 
 	let ENABLE_OLLAMA_API: null | boolean = null;
 
-	let connectionsConfig = null;
+	let connectionsConfig: any = null;
 
 	let showAddOllamaConnectionModal = false;
 
@@ -84,7 +85,7 @@
 
 	onMount(async () => {
 		if ($user?.role === 'admin') {
-			let ollamaConfig = {};
+			let ollamaConfig: any = {};
 
 			await Promise.all([
 				(async () => {
@@ -178,7 +179,7 @@
 											onDelete={() => {
 												OLLAMA_BASE_URLS = OLLAMA_BASE_URLS.filter((url, urlIdx) => idx !== urlIdx);
 
-												let newConfig = {};
+												let newConfig: any = {};
 												OLLAMA_BASE_URLS.forEach((url, newIdx) => {
 													newConfig[newIdx] =
 														OLLAMA_API_CONFIGS[newIdx < idx ? newIdx : newIdx + 1];

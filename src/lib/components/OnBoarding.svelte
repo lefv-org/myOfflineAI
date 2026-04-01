@@ -1,6 +1,7 @@
-<script>
-	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
 
@@ -9,10 +10,10 @@
 	import ArrowRightCircle from './icons/ArrowRightCircle.svelte';
 
 	export let show = true;
-	export let getStartedHandler = () => {};
+	export let getStartedHandler: Function = () => {};
 
 	function setLogoImage() {
-		const logo = document.getElementById('logo');
+		const logo = document.getElementById('logo') as HTMLImageElement | null;
 
 		if (logo) {
 			const isDarkMode = document.documentElement.classList.contains('dark');
@@ -93,7 +94,7 @@
 								getStartedHandler();
 							}}
 						>
-							<ArrowRightCircle className="size-6" aria-hidden="true" />
+							<ArrowRightCircle className="size-6" />
 						</button>
 						<div class="mt-1.5 font-primary text-base font-medium" aria-hidden="true">
 							{$i18n.t(`Get started`)}

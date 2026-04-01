@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { v4 as uuidv4 } from 'uuid';
 
 	import { toast } from 'svelte-sonner';
 	import { config, models, settings } from '$lib/stores';
-	import { getContext, onMount, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import type { Writable } from 'svelte/store';
 	import type { i18n as i18nType } from 'i18next';
 	import {
@@ -21,7 +22,7 @@
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import Switch from '$lib/components/common/Switch.svelte';
 
-	const i18n: Writable<i18nType> = getContext('i18n');
+	const i18n: Writable<i18nType> = getI18nContext();
 
 	export let saveHandler: Function;
 
@@ -30,14 +31,14 @@
 
 	let pipelineFiles;
 
-	let PIPELINES_LIST = null;
+	let PIPELINES_LIST: any = null;
 	let selectedPipelinesUrlIdx = '';
 
-	let pipelines = null;
+	let pipelines: any = null;
 
-	let valves = null;
-	let valves_spec = null;
-	let selectedPipelineIdx = null;
+	let valves: any = null;
+	let valves_spec: any = null;
+	let selectedPipelineIdx: any = null;
 
 	let pipelineDownloadUrl = '';
 
@@ -66,7 +67,7 @@
 				models.set(
 					await getModels(
 						localStorage.token,
-						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+						($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null)
 					)
 				);
 				saveHandler();
@@ -133,7 +134,7 @@
 			models.set(
 				await getModels(
 					localStorage.token,
-					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+					($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null)
 				)
 			);
 		}
@@ -163,7 +164,7 @@
 				models.set(
 					await getModels(
 						localStorage.token,
-						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+						($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null)
 					)
 				);
 			}
@@ -175,7 +176,7 @@
 		const pipelineUploadInputElement = document.getElementById('pipelines-upload-input');
 
 		if (pipelineUploadInputElement) {
-			pipelineUploadInputElement.value = null;
+			(pipelineUploadInputElement as HTMLInputElement).value = "";
 		}
 
 		uploading = false;
@@ -197,7 +198,7 @@
 			models.set(
 				await getModels(
 					localStorage.token,
-					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null)
+					($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null)
 				)
 			);
 		}

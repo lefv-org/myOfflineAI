@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import dayjs from 'dayjs';
 	import { createEventDispatcher } from 'svelte';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 
 	import { goto } from '$app/navigation';
 
@@ -14,7 +15,7 @@
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 	import UserProfileImage from '$lib/components/chat/Settings/Account/UserProfileImage.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 	dayjs.extend(localizedFormat);
 
@@ -34,7 +35,7 @@
 		}
 	};
 
-	let _user = {
+	let _user: any = {
 		profile_image_url: '',
 		role: 'pending',
 		name: '',
@@ -206,7 +207,6 @@
 											<SensitiveInput
 												class="w-full text-sm bg-transparent outline-hidden"
 												type="password"
-												aria-label={$i18n.t('New Password')}
 												placeholder={$i18n.t('Enter New Password')}
 												bind:value={_user.password}
 												autocomplete="new-password"

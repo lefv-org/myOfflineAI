@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-	import { onMount, getContext, tick, onDestroy } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount, tick, onDestroy } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { WEBUI_NAME, user, skills as _skills } from '$lib/stores';
 	import { goto } from '$app/navigation';
@@ -44,11 +45,11 @@
 	let query = '';
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;
 
-	let selectedSkill = null;
+	let selectedSkill: any = null;
 	let showDeleteConfirm = false;
 
-	let filteredItems = null;
-	let total = null;
+	let filteredItems: any = null;
+	let total: any = null;
 	let loading = false;
 
 	let tagsContainerElement: HTMLDivElement;
@@ -138,7 +139,7 @@
 		await _skills.set(await getSkills(localStorage.token));
 	};
 
-	onMount(async () => {
+	(onMount as any)(async () => {
 		viewOption = localStorage?.workspaceViewOption || '';
 		loaded = true;
 

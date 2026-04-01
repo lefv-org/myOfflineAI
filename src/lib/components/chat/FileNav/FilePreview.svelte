@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onDestroy, tick } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onDestroy, tick } from 'svelte';
 	import panzoom, { type PanZoom } from 'panzoom';
 	import { marked } from 'marked';
 	import DOMPurify from 'dompurify';
@@ -15,7 +16,7 @@
 	let pdfViewerRef: PDFViewer;
 	let fileCodeEditorRef: FileCodeEditor;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let selectedFile: string | null = null;
 	export let fileLoading = false;

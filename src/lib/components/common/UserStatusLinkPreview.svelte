@@ -1,19 +1,20 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import { LinkPreview } from 'bits-ui';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	import { getUserInfoById } from '$lib/apis/users';
 
 	import UserStatus from './UserStatus.svelte';
 
-	export let id = null;
+	export let id: any = null;
 
-	export let side = 'top';
-	export let align = 'start';
+	export let side: 'left' | 'right' | 'bottom' | 'top' = 'top';
+	export let align: 'start' | 'end' | 'center' = 'start';
 	export let sideOffset = 6;
 
-	let user = null;
+	let user: any = null;
 	onMount(async () => {
 		if (id) {
 			user = await getUserInfoById(localStorage.token, id).catch((error) => {

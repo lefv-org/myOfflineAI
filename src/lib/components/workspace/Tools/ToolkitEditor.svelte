@@ -1,8 +1,9 @@
-<script>
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { goto } from '$app/navigation';
 	import { user } from '$lib/stores';
@@ -16,7 +17,7 @@
 	import LockClosed from '$lib/components/icons/LockClosed.svelte';
 	import AccessControlModal from '../common/AccessControlModal.svelte';
 
-	let formElement = null;
+	let formElement: any = null;
 	let loading = false;
 
 	let showConfirm = false;
@@ -25,7 +26,7 @@
 	export let edit = false;
 	export let clone = false;
 
-	export let onSave = () => {};
+	export let onSave: Function = () => {};
 
 	export let id = '';
 	export let name = '';
@@ -33,7 +34,7 @@
 		description: ''
 	};
 	export let content = '';
-	export let accessGrants = [];
+	export let accessGrants: any[] = [];
 
 	let _content = '';
 

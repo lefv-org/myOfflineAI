@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { onDestroy } from 'svelte';
 	import { marked } from 'marked';
 	import { replaceTokens, processResponseContent } from '$lib/utils';
@@ -17,7 +17,7 @@
 	export let id = '';
 	export let content;
 	export let done = true;
-	export let model = null;
+	export let model: any = null;
 	export let save = false;
 	export let preview = false;
 
@@ -25,18 +25,18 @@
 	export let editCodeBlock = true;
 	export let topPadding = false;
 
-	export let sourceIds = [];
+	export let sourceIds: any[] = [];
 
-	export let onSave = () => {};
-	export let onUpdate = () => {};
+	export let onSave: (e?: any) => void = () => {};
+	export let onUpdate: (e?: any) => void = () => {};
 
-	export let onPreview = () => {};
+	export let onPreview: (e?: any) => void = () => {};
 
-	export let onSourceClick = () => {};
-	export let onTaskClick = () => {};
+	export let onSourceClick: (e?: any) => void = () => {};
+	export let onTaskClick: (e?: any) => void = () => {};
 
-	let tokens = [];
-	let pendingUpdate = null;
+	let tokens: any[] = [];
+	let pendingUpdate: any = null;
 	let lastContent = '';
 	let lastParsedContent = '';
 

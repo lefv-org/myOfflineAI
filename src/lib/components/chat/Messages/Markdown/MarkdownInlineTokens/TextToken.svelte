@@ -4,7 +4,7 @@
 	export let token;
 	export let done = true;
 
-	let texts = [];
+	let texts: any[] = [];
 	$: texts = (token?.raw ?? '').split(' ');
 </script>
 

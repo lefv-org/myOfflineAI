@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
 	import { WEBUI_NAME, config, mobile, showSidebar, user } from '$lib/stores';
@@ -8,7 +9,7 @@
 
 	import Sidebar from '$lib/components/icons/Sidebar.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loaded = false;
 

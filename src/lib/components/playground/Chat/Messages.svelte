@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { onMount, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import Message from './Message.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
-	export let messages = [];
+	export let messages: any[] = [];
 </script>
 
 <div class="py-3 space-y-3">

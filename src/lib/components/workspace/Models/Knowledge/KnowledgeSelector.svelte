@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, onDestroy, getContext, createEventDispatcher } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, onDestroy, createEventDispatcher } from 'svelte';
 	import { searchKnowledgeBases, searchKnowledgeFiles } from '$lib/apis/knowledge';
 
 	import { decodeString } from '$lib/utils';
@@ -12,7 +13,7 @@
 	import ChevronRight from '$lib/components/icons/ChevronRight.svelte';
 	import DocumentPage from '$lib/components/icons/DocumentPage.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	export let onClose: Function = () => {};
@@ -22,10 +23,10 @@
 	let query = '';
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;
 
-	let knowledgeItems = [];
-	let fileItems = [];
+	let knowledgeItems: any[] = [];
+	let fileItems: any[] = [];
 
-	let items = [];
+	let items: any[] = [];
 
 	$: items = [...knowledgeItems, ...fileItems];
 

@@ -1,7 +1,7 @@
 import { WEBUI_API_BASE_URL } from '$lib/constants';
 
 export const executeCode = async (token: string, code: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/utils/code/execute`, {
 		method: 'POST',
@@ -35,7 +35,7 @@ export const executeCode = async (token: string, code: string) => {
 };
 
 export const formatPythonCode = async (token: string, code: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/utils/code/format`, {
 		method: 'POST',
@@ -69,7 +69,7 @@ export const formatPythonCode = async (token: string, code: string) => {
 };
 
 export const downloadChatAsPDF = async (token: string, title: string, messages: object[]) => {
-	let error = null;
+	let error: any = null;
 
 	const blob = await fetch(`${WEBUI_API_BASE_URL}/utils/pdf`, {
 		method: 'POST',
@@ -96,7 +96,7 @@ export const downloadChatAsPDF = async (token: string, title: string, messages: 
 };
 
 export const getHTMLFromMarkdown = async (token: string, md: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/utils/markdown`, {
 		method: 'POST',
@@ -122,7 +122,7 @@ export const getHTMLFromMarkdown = async (token: string, md: string) => {
 };
 
 export const downloadDatabase = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/utils/db/download`, {
 		method: 'GET',

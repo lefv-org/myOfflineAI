@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount, tick } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import { config, models, settings, user } from '$lib/stores';
 	import { updateUserSettings } from '$lib/apis/users';
@@ -29,7 +30,7 @@
 	import AppNotification from '../icons/AppNotification.svelte';
 	import UserBadgeCheck from '../icons/UserBadgeCheck.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
 
@@ -472,8 +473,8 @@
 		}
 	];
 
-	let availableSettings = [];
-	let filteredSettings = [];
+	let availableSettings: any[] = [];
+	let filteredSettings: any[] = [];
 
 	let search = '';
 	let searchDebounceTimeout;

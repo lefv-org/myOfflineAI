@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import { models } from '$lib/stores';
 	import { getModelAnalytics } from '$lib/apis/analytics';
 	import Spinner from '$lib/components/common/Spinner.svelte';
@@ -7,7 +8,7 @@
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let modelStats: Array<{ model_id: string; count: number; name?: string }> = [];
 	let loading = true;
@@ -41,7 +42,9 @@
 
 	$: sortedModels = [...modelStats].sort((a, b) => {
 		if (orderBy === 'name') {
-			return direction === 'asc' ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name);
+			const aName = a.name ?? '';
+			const bName = b.name ?? '';
+			return direction === 'asc' ? aName.localeCompare(bName) : bName.localeCompare(aName);
 		}
 		return direction === 'asc' ? a.count - b.count : b.count - a.count;
 	});
@@ -147,7 +150,7 @@
 									alt={model.name}
 									class="size-5 rounded-full object-cover shrink-0"
 									on:error={(e) => {
-										e.target.src = '/favicon.png';
+										(e.target as HTMLImageElement).src = '/favicon.png';
 									}}
 								/>
 								<span class="font-medium text-gray-800 dark:text-gray-200">{model.name}</span>

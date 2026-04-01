@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 
-	import { onMount, getContext, createEventDispatcher } from 'svelte';
+	import { onMount, createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 
@@ -29,7 +30,7 @@
 	import Textarea from '$lib/components/common/Textarea.svelte';
 	import Spinner from '$lib/components/common/Spinner.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let updateEmbeddingModelLoading = false;
 	let updateRerankingModelLoading = false;
@@ -64,7 +65,7 @@
 		hybrid: false
 	};
 
-	let RAGConfig = null;
+	let RAGConfig: any = null;
 
 	const embeddingModelUpdateHandler = async () => {
 		if (RAG_EMBEDDING_ENGINE === '' && RAG_EMBEDDING_MODEL.split('/').length - 1 > 1) {
@@ -111,15 +112,9 @@
 
 		updateEmbeddingModelLoading = true;
 		const res = await updateEmbeddingConfig(localStorage.token, {
-			RAG_EMBEDDING_ENGINE: RAG_EMBEDDING_ENGINE,
-			RAG_EMBEDDING_MODEL: RAG_EMBEDDING_MODEL,
-			RAG_EMBEDDING_BATCH_SIZE: RAG_EMBEDDING_BATCH_SIZE,
-			ENABLE_ASYNC_EMBEDDING: ENABLE_ASYNC_EMBEDDING,
-			RAG_EMBEDDING_CONCURRENT_REQUESTS: RAG_EMBEDDING_CONCURRENT_REQUESTS,
-			ollama_config: {
-				key: OllamaKey,
-				url: OllamaUrl
-			},
+			embedding_engine: RAG_EMBEDDING_ENGINE,
+			embedding_model: RAG_EMBEDDING_MODEL,
+			embedding_batch_size: RAG_EMBEDDING_BATCH_SIZE,
 			openai_config: {
 				key: OpenAIKey,
 				url: OpenAIUrl
@@ -129,7 +124,7 @@
 				url: AzureOpenAIUrl,
 				version: AzureOpenAIVersion
 			}
-		}).catch(async (error) => {
+		} as any).catch(async (error) => {
 			toast.error(`${error}`);
 			await setEmbeddingConfig();
 			return null;
@@ -299,8 +294,8 @@
 
 <ResetVectorDBConfirmDialog
 	bind:show={showResetConfirm}
-	on:confirm={() => {
-		const res = resetVectorDB(localStorage.token).catch((error) => {
+	on:confirm={async () => {
+		const res = await resetVectorDB(localStorage.token).catch((error) => {
 			toast.error(`${error}`);
 			return null;
 		});
@@ -881,13 +876,14 @@
 										bind:value={RAG_EMBEDDING_ENGINE}
 										placeholder={$i18n.t('Select an embedding model engine')}
 										on:change={(e) => {
-											if (e.target.value === 'ollama') {
+											const value = (e.target as HTMLSelectElement)?.value ?? '';
+											if (value === 'ollama') {
 												RAG_EMBEDDING_MODEL = '';
-											} else if (e.target.value === 'openai') {
+											} else if (value === 'openai') {
 												RAG_EMBEDDING_MODEL = 'text-embedding-3-small';
-											} else if (e.target.value === 'azure_openai') {
+											} else if (value === 'azure_openai') {
 												RAG_EMBEDDING_MODEL = 'text-embedding-3-small';
-											} else if (e.target.value === '') {
+											} else if (value === '') {
 												RAG_EMBEDDING_MODEL = 'sentence-transformers/all-MiniLM-L6-v2';
 											}
 										}}
@@ -1135,9 +1131,10 @@
 												bind:value={RAGConfig.RAG_RERANKING_ENGINE}
 												placeholder={$i18n.t('Select a reranking model engine')}
 												on:change={(e) => {
-													if (e.target.value === 'external') {
+													const value = (e.target as HTMLSelectElement)?.value ?? '';
+													if (value === 'external') {
 														RAGConfig.RAG_RERANKING_MODEL = '';
-													} else if (e.target.value === '') {
+													} else if (value === '') {
 														RAGConfig.RAG_RERANKING_MODEL = 'BAAI/bge-reranker-v2-m3';
 													}
 												}}

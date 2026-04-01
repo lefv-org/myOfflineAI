@@ -1,8 +1,9 @@
-<script>
-	import { getContext, onMount, tick } from 'svelte';
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { nameToId } from '$lib/utils';
 	import CodeEditor from '$lib/components/common/CodeEditor.svelte';
@@ -11,11 +12,11 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import ChevronLeft from '$lib/components/icons/ChevronLeft.svelte';
 
-	let formElement = null;
+	let formElement: any = null;
 	let loading = false;
 	let showConfirm = false;
 
-	export let onSave = () => {};
+	export let onSave: Function = () => {};
 
 	export let edit = false;
 	export let clone = false;
@@ -51,7 +52,6 @@ version: 0.1
 
 from pydantic import BaseModel, Field
 from typing import Optional
-
 
 class Filter:
     class Valves(BaseModel):
@@ -117,7 +117,6 @@ from open_webui.utils.misc import get_last_user_message
 import os
 import requests
 
-
 # Filter Class: This class is designed to serve as a pre-processor and post-processor
 # for request and response modifications. It checks and transforms requests and responses
 # to ensure they meet specific criteria before further processing or returning to the user.
@@ -171,8 +170,6 @@ class Filter:
         ]
 
         return {"messages": messages}
-
-
 
 # Pipe Class: This class functions as a customizable pipeline.
 # It can be adapted to work with any external or internal models,

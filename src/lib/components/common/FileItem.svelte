@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { createEventDispatcher, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher } from 'svelte';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
 	import { formatFileSize } from '$lib/utils';
@@ -11,7 +12,7 @@
 	import Tooltip from './Tooltip.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	export let className = 'w-60';
@@ -23,7 +24,7 @@
 	export let modal = false;
 	export let loading = false;
 
-	export let item = null;
+	export let item: any = null;
 	export let edit = false;
 	export let small = false;
 
@@ -63,12 +64,12 @@
 			if (url) {
 				if (type === 'file') {
 					if (url.startsWith('http')) {
-						window.open(`${url}/content`, '_blank').focus();
+						window.open(`${url}/content`, '_blank')?.focus();
 					} else {
-						window.open(`${WEBUI_API_BASE_URL}/files/${url}/content`, '_blank').focus();
+						window.open(`${WEBUI_API_BASE_URL}/files/${url}/content`, '_blank')?.focus();
 					}
 				} else {
-					window.open(`${url}`, '_blank').focus();
+					window.open(`${url}`, '_blank')?.focus();
 				}
 			}
 		}

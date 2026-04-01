@@ -1,14 +1,15 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import Checkbox from '$lib/components/common/Checkbox.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
-	export let actions = [];
-	export let selectedActionIds = [];
+	export let actions: any[] = [];
+	export let selectedActionIds: any[] = [];
 
-	let _actions = {};
+	let _actions: any = {};
 
 	onMount(() => {
 		_actions = actions.reduce((acc, action) => {

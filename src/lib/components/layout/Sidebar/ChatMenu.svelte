@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, tick } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { tick } from 'svelte';
 
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
@@ -27,7 +28,7 @@
 	import Folder from '$lib/components/icons/Folder.svelte';
 	import Messages from '$lib/components/chat/Messages.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let shareHandler: Function;
 	export let moveChatHandler: Function;
@@ -43,7 +44,7 @@
 	let show = false;
 	let pinned = false;
 
-	let chat = null;
+	let chat: any = null;
 	let showFullMessages = false;
 
 	export let onPinChange: () => void = () => {};
@@ -103,7 +104,7 @@
 					const virtualWidth = 800; // px, fixed width for cloned element
 
 					// Clone and style
-					const clonedElement = containerElement.cloneNode(true);
+					const clonedElement = containerElement.cloneNode(true) as HTMLElement;
 					clonedElement.classList.add('text-black');
 					clonedElement.classList.add('dark:text-white');
 					clonedElement.style.width = `${virtualWidth}px`;
@@ -153,7 +154,7 @@
 						pageCanvas.width = canvas.width;
 						pageCanvas.height = sliceHeight;
 
-						const ctx = pageCanvas.getContext('2d');
+						const ctx = pageCanvas.getContext('2d')!;
 
 						// Draw the slice of original canvas onto pageCanvas
 						ctx.drawImage(
@@ -267,11 +268,15 @@
 				user={$user}
 				readOnly={true}
 				history={chat.chat.history}
-				messages={chat.chat.messages}
+				prompt={''}
+				selectedModels={[]}
+				atSelectedModel={null}
 				autoScroll={true}
 				sendMessage={() => {}}
 				continueResponse={() => {}}
 				regenerateResponse={() => {}}
+				mergeResponses={() => {}}
+				chatActionHandler={() => {}}
 				messagesCount={null}
 				editCodeBlock={false}
 			/>
@@ -295,7 +300,7 @@
 		<div
 			class="select-none min-w-[200px] rounded-2xl px-1 py-1 border border-gray-100 dark:border-gray-800 z-50 bg-white dark:bg-gray-850 dark:text-white shadow-lg transition"
 		>
-			{#if $user?.role === 'admin' || ($user.permissions?.chat?.share ?? true)}
+			{#if $user?.role === 'admin' || ($user?.permissions?.chat?.share ?? true)}
 				<button
 					draggable="false"
 					class="flex gap-2 items-center px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl w-full"
@@ -320,7 +325,7 @@
 					<div class="flex items-center">{$i18n.t('Download')}</div>
 				</button>
 
-				{#if $user?.role === 'admin' || ($user.permissions?.chat?.export ?? true)}
+				{#if $user?.role === 'admin' || ($user?.permissions?.chat?.export ?? true)}
 					<button
 						draggable="false"
 						class="flex gap-2 items-center px-3 py-1.5 text-sm cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl w-full"

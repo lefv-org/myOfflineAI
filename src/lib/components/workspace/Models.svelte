@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { marked } from 'marked';
 
 	import { toast } from 'svelte-sonner';
@@ -7,9 +8,9 @@
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-	import { onMount, getContext, tick } from 'svelte';
+	import { onMount, tick } from 'svelte';
 	import { goto } from '$app/navigation';
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { WEBUI_NAME, config, mobile, models as _models, settings, user } from '$lib/stores';
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
@@ -60,19 +61,19 @@
 
 	let showModelDeleteConfirm = false;
 
-	let selectedModel = null;
+	let selectedModel: any = null;
 
-	let groupIds = [];
+	let groupIds: any[] = [];
 
-	let tags = [];
+	let tags: any[] = [];
 	let selectedTag = '';
 
 	let query = '';
 	let viewOption = '';
 
 	let page = 1;
-	let models = null;
-	let total = null;
+	let models: any = null;
+	let total: any = null;
 
 	let searchDebounceTimer;
 
@@ -152,7 +153,7 @@
 		const messageHandler = (event) => {
 			if (event.origin !== url) return;
 			if (event.data === 'loaded') {
-				tab.postMessage(JSON.stringify(model), '*');
+				tab!.postMessage(JSON.stringify(model), '*');
 				window.removeEventListener('message', messageHandler);
 			}
 		};
@@ -305,12 +306,6 @@
 		window.addEventListener('keydown', onKeyDown);
 		window.addEventListener('keyup', onKeyUp);
 		window.addEventListener('blur-sm', onBlur);
-
-		return () => {
-			window.removeEventListener('keydown', onKeyDown);
-			window.removeEventListener('keyup', onKeyUp);
-			window.removeEventListener('blur-sm', onBlur);
-		};
 	});
 </script>
 
@@ -341,9 +336,9 @@
 
 				let reader = new FileReader();
 				reader.onload = async (event) => {
-					let savedModels = [];
+					let savedModels: any[] = [];
 					try {
-						savedModels = JSON.parse(event.target.result);
+						savedModels = JSON.parse(event.target!.result as string);
 						console.log(savedModels);
 					} catch (e) {
 						toast.error($i18n.t('Invalid JSON file'));
@@ -602,7 +597,7 @@
 												alt="modelfile profile"
 												class=" rounded-2xl size-12 object-cover"
 												on:error={(e) => {
-													e.target.src = '/favicon.png';
+													(e.target as HTMLImageElement).src = '/favicon.png';
 												}}
 											/>
 										</div>

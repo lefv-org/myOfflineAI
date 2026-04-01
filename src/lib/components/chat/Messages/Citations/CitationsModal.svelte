@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { getContext, onMount, tick } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
@@ -9,7 +10,7 @@
 
 	export let id = '';
 	export let show = false;
-	export let citations = [];
+	export let citations: any[] = [];
 	export let showPercentage = false;
 	export let showRelevance = true;
 

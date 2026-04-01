@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import { createEventDispatcher } from 'svelte';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { addUser } from '$lib/apis/auths';
 
 	import Modal from '../../common/Modal.svelte';
@@ -30,20 +31,20 @@
 	import Valves from '$lib/components/common/Valves.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	export let show = false;
 
 	export let type = 'tool';
-	export let id = null;
+	export let id: any = null;
 	export let userValves = false;
 
 	let saving = false;
 	let loading = false;
 
-	let valvesSpec = null;
-	let valves = {};
+	let valvesSpec: any = null;
+	let valves: any = {};
 
 	const submitHandler = async () => {
 		saving = true;
@@ -63,7 +64,7 @@
 				}
 			}
 
-			let res = null;
+			let res: any = null;
 
 			if (userValves) {
 				if (type === 'tool') {

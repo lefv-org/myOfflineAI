@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import dayjs from 'dayjs';
 	import calendar from 'dayjs/plugin/calendar';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
@@ -8,7 +9,7 @@
 
 	dayjs.extend(calendar);
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let chatList: Array<{
 		id: string;

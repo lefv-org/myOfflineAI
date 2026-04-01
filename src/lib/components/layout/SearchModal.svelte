@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onDestroy, onMount, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onDestroy, onMount, tick } from 'svelte';
+	const i18n = getI18nContext();
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import SearchInput from './Sidebar/SearchInput.svelte';
@@ -22,7 +23,7 @@
 	dayjs.extend(localizedFormat);
 
 	export let show = false;
-	export let onClose = () => {};
+	export let onClose: Function = () => {};
 
 	let actions = [
 		{
@@ -39,19 +40,19 @@
 	let query = '';
 	let page = 1;
 
-	let chatList = null;
+	let chatList: any = null;
 
 	let chatListLoading = false;
 	let allChatsLoaded = false;
 
 	let searchDebounceTimeout;
 
-	let selectedIdx = null;
-	let selectedChat = null;
+	let selectedIdx: any = null;
+	let selectedChat: any = null;
 
 	let selectedModels = [''];
-	let history = null;
-	let messages = null;
+	let history: any = null;
+	let messages: any = null;
 
 	$: if (!chatListLoading && chatList) {
 		loadChatPreview(selectedIdx);
@@ -151,7 +152,7 @@
 		chatListLoading = true;
 		page += 1;
 
-		let newChatList = [];
+		let newChatList: any[] = [];
 
 		if (query) {
 			newChatList = await getChatListBySearchText(localStorage.token, query, page);
@@ -187,7 +188,7 @@
 		} else if (e.code === 'Enter') {
 			const item = document.querySelector(`[data-arrow-selected="true"]`);
 			if (item) {
-				item?.click();
+				(item as HTMLElement)?.click();
 				show = false;
 			}
 
@@ -274,7 +275,7 @@
 					if (e.code === 'Enter' && (chatList ?? []).length > 0) {
 						const item = document.querySelector(`[data-arrow-selected="true"]`);
 						if (item) {
-							item?.click();
+							(item as HTMLElement)?.click();
 						}
 
 						show = false;
@@ -310,7 +311,7 @@
 							? 'bg-gray-50 dark:bg-gray-850'
 							: ''}"
 						data-arrow-selected={selectedIdx === idx ? 'true' : undefined}
-						dragabble="false"
+						draggable="false"
 						on:mouseenter={() => {
 							selectedIdx = idx;
 						}}
@@ -442,13 +443,16 @@
 							chatId={`chat-preview-${selectedChat?.id ?? ''}`}
 							user={$user}
 							readOnly={true}
+							prompt=""
+							atSelectedModel={undefined}
 							{selectedModels}
 							bind:history
-							bind:messages
 							autoScroll={true}
 							sendMessage={() => {}}
 							continueResponse={() => {}}
 							regenerateResponse={() => {}}
+							mergeResponses={() => {}}
+							chatActionHandler={() => {}}
 						/>
 					</div>
 				{/if}

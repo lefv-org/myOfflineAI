@@ -1,4 +1,4 @@
-export function citationExtension() {
+export function citationExtension(options: any = {}) {
 	return {
 		name: 'citation',
 		level: 'inline' as const,
@@ -63,7 +63,7 @@ export function citationExtension() {
 	};
 }
 
-export default function () {
+export default function (options: any = {}) {
 	return {
 		extensions: [citationExtension()]
 	};

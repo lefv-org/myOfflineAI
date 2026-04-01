@@ -190,14 +190,14 @@ export const splitStream = (splitOn) => {
 	});
 };
 
-export const convertMessagesToHistory = (messages) => {
-	const history = {
+export const convertMessagesToHistory = (messages: any[]) => {
+	const history: { messages: Record<string, any>; currentId: string | null } = {
 		messages: {},
 		currentId: null
 	};
 
-	let parentMessageId = null;
-	let messageId = null;
+	let parentMessageId: string | null = null;
+	let messageId: string | null = null;
 
 	for (const message of messages) {
 		messageId = uuidv4();
@@ -209,7 +209,7 @@ export const convertMessagesToHistory = (messages) => {
 			];
 		}
 
-		history.messages[messageId] = {
+		history.messages[messageId!] = {
 			...message,
 			id: messageId,
 			parentId: parentMessageId,
@@ -244,8 +244,8 @@ export const canvasPixelTest = () => {
 		}
 	}
 
-	ctx.putImageData(imageData, 0, 0);
-	const p = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+	ctx?.putImageData(imageData, 0, 0);
+	const p = ctx!.getImageData(0, 0, canvas.width, canvas.height).data;
 
 	// Read RGB data and fail if unmatched
 	for (let i = 0; i < p.length; i += 1) {
@@ -372,13 +372,13 @@ export const generateInitialsImage = (name) => {
 		return `${WEBUI_BASE_URL}/user.png`;
 	}
 
-	ctx.fillStyle = '#F39C12';
-	ctx.fillRect(0, 0, canvas.width, canvas.height);
+	ctx!.fillStyle = '#F39C12';
+	ctx!.fillRect(0, 0, canvas.width, canvas.height);
 
-	ctx.fillStyle = '#FFFFFF';
-	ctx.font = '40px Helvetica';
-	ctx.textAlign = 'center';
-	ctx.textBaseline = 'middle';
+	ctx!.fillStyle = '#FFFFFF';
+	ctx!.font = '40px Helvetica';
+	ctx!.textAlign = 'center';
+	ctx!.textBaseline = 'middle';
 
 	const sanitizedName = name.trim();
 	const initials =
@@ -389,7 +389,7 @@ export const generateInitialsImage = (name) => {
 					: '')
 			: '';
 
-	ctx.fillText(initials.toUpperCase(), canvas.width / 2, canvas.height / 2);
+	ctx?.fillText(initials.toUpperCase(), canvas.width / 2, canvas.height / 2);
 
 	return canvas.toDataURL();
 };
@@ -548,9 +548,9 @@ export const compareVersion = (latest, current) => {
 			}) < 0;
 };
 
-export const extractCurlyBraceWords = (text) => {
+export const extractCurlyBraceWords = (text: string) => {
 	const regex = /\{\{([^}]+)\}\}/g;
-	const matches = [];
+	const matches: any[] = [];
 	let match;
 
 	while ((match = regex.exec(text)) !== null) {
@@ -633,8 +633,8 @@ export const calculateSHA256 = async (file) => {
 	const reader = new FileReader();
 
 	// Define a promise to handle the file reading
-	const readFile = new Promise((resolve, reject) => {
-		reader.onload = () => resolve(reader.result);
+	const readFile = new Promise<ArrayBuffer>((resolve, reject) => {
+		reader.onload = () => resolve(reader.result as ArrayBuffer);
 		reader.onerror = reject;
 	});
 
@@ -672,7 +672,7 @@ export const getImportOrigin = (_chats) => {
 
 export const getUserPosition = async (raw = false) => {
 	// Get the user's location using the Geolocation API
-	const position = await new Promise((resolve, reject) => {
+	const position = await new Promise<GeolocationPosition>((resolve, reject) => {
 		navigator.geolocation.getCurrentPosition(resolve, reject);
 	}).catch((error) => {
 		console.error('Error getting user location:', error);
@@ -684,7 +684,7 @@ export const getUserPosition = async (raw = false) => {
 	}
 
 	// Extract the latitude and longitude from the position
-	const { latitude, longitude } = position.coords;
+	const { latitude, longitude } = (position as GeolocationPosition).coords;
 
 	if (raw) {
 		return { latitude, longitude };
@@ -696,9 +696,9 @@ export const getUserPosition = async (raw = false) => {
 const convertOpenAIMessages = (convo) => {
 	// Parse OpenAI chat messages and create chat dictionary for creating new chats
 	const mapping = convo['mapping'];
-	const messages = [];
+	const messages: any[] = [];
 	let currentId = '';
-	let lastId = null;
+	let lastId: any = null;
 
 	for (const message_id in mapping) {
 		const message = mapping[message_id];
@@ -784,7 +784,7 @@ const validateChat = (chat) => {
 
 export const convertOpenAIChats = (_chats) => {
 	// Create a list of dictionaries with each conversation from import
-	const chats = [];
+	const chats: any[] = [];
 	let failed = 0;
 	for (const convo of _chats) {
 		const chat = convertOpenAIMessages(convo);
@@ -904,7 +904,7 @@ export const processDetails = (content) => {
 	if (matches) {
 		for (const match of matches) {
 			const attributesRegex = /(\w+)="([^"]*)"/g;
-			const attributes = {};
+			const attributes: Record<string, any> = {};
 			let attributeMatch;
 			while ((attributeMatch = attributesRegex.exec(match)) !== null) {
 				attributes[attributeMatch[1]] = attributeMatch[2];
@@ -1147,8 +1147,8 @@ export const getTimeRange = (timestamp) => {
  * @param content {string} - The content string with potential frontmatter.
  * @returns {Object} - The extracted frontmatter as a dictionary.
  */
-export const extractFrontmatter = (content) => {
-	const frontmatter = {};
+export const extractFrontmatter = (content: string): Record<string, string> => {
+	const frontmatter: Record<string, string> = {};
 	let frontmatterStarted = false;
 	let frontmatterEnded = false;
 	const frontmatterPattern = /^\s*([a-z_]+):\s*(.*)\s*$/i;
@@ -1228,8 +1228,8 @@ export const getWeekday = () => {
 	return weekdays[date.getDay()];
 };
 
-export const createMessagesList = (history, messageId) => {
-	const list = [];
+export const createMessagesList = (history: any, messageId: any) => {
+	const list: any[] = [];
 	let currentId = messageId;
 
 	while (currentId !== null && currentId !== undefined) {
@@ -1264,7 +1264,7 @@ export const getLineCount = (text) => {
 };
 
 // Helper function to recursively resolve OpenAPI schema into JSON schema format
-function resolveSchema(schemaRef, components, resolvedSchemas = new Set()) {
+function resolveSchema(schemaRef: any, components: any, resolvedSchemas = new Set()): any {
 	if (!schemaRef) return {};
 
 	if (schemaRef['$ref']) {
@@ -1281,7 +1281,7 @@ function resolveSchema(schemaRef, components, resolvedSchemas = new Set()) {
 	}
 
 	if (schemaRef.type) {
-		const schemaObj = { type: schemaRef.type };
+		const schemaObj: Record<string, any> = { type: schemaRef.type };
 
 		if (schemaRef.description) {
 			schemaObj.description = schemaRef.description;
@@ -1312,8 +1312,8 @@ function resolveSchema(schemaRef, components, resolvedSchemas = new Set()) {
 }
 
 // Main conversion function
-export const convertOpenApiToToolPayload = (openApiSpec) => {
-	const toolPayload = [];
+export const convertOpenApiToToolPayload = (openApiSpec: any) => {
+	const toolPayload: any[] = [];
 
 	// Guard against invalid or non-OpenAPI specs (e.g., MCP-style configs)
 	if (!openApiSpec || !openApiSpec.paths) {
@@ -1321,15 +1321,15 @@ export const convertOpenApiToToolPayload = (openApiSpec) => {
 	}
 
 	for (const [path, methods] of Object.entries(openApiSpec.paths)) {
-		for (const [method, operation] of Object.entries(methods)) {
+		for (const [method, operation] of Object.entries(methods as Record<string, any>)) {
 			if (operation?.operationId) {
 				const tool = {
 					name: operation.operationId,
 					description: operation.description || operation.summary || 'No description available.',
 					parameters: {
 						type: 'object',
-						properties: {},
-						required: []
+						properties: {} as Record<string, any>,
+						required: [] as string[]
 					}
 				};
 
@@ -1718,7 +1718,7 @@ export const getCodeBlockContents = (content: string): object => {
 
 	const codeBlockContents = content.match(/```[\s\S]*?```/g);
 
-	let codeBlocks = [];
+	let codeBlocks: any[] = [];
 
 	// Groups of related HTML/CSS/JS blocks. Each HTML block starts a new group;
 	// CSS and JS blocks attach to the current (most recent) group.
@@ -1804,10 +1804,10 @@ export const getCodeBlockContents = (content: string): object => {
 			}))
 	};
 };
-export const parseFrontmatter = (content) => {
+export const parseFrontmatter = (content: string): Record<string, string> => {
 	const match = content.match(/^---\s*\n([\s\S]*?)\n---/);
 	if (match) {
-		const frontmatter = {};
+		const frontmatter: Record<string, string> = {};
 		match[1].split('\n').forEach((line) => {
 			const [key, ...value] = line.split(':');
 			if (key && value) {

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, tick, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 
 	import { decodeString } from '$lib/utils';
 	import { knowledge } from '$lib/stores';
@@ -14,19 +15,19 @@
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import ChevronRight from '$lib/components/icons/ChevronRight.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let onSelect = (e) => {};
 
 	let loaded = false;
 	let selectedIdx = 0;
 
-	let selectedItem = null;
+	let selectedItem: any = null;
 
 	let selectedFileItemsPage = 1;
 
-	let selectedFileItems = null;
-	let selectedFileItemsTotal = null;
+	let selectedFileItems: any = null;
+	let selectedFileItemsTotal: any = null;
 
 	let selectedFileItemsLoading = false;
 	let selectedFileAllItemsLoaded = false;
@@ -91,8 +92,8 @@
 	};
 
 	let page = 1;
-	let items = null;
-	let total = null;
+	let items: any = null;
+	let total: any = null;
 
 	let itemsLoading = false;
 	let allItemsLoaded = false;

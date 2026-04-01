@@ -1,10 +1,11 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import { toast } from 'svelte-sonner';
 	import { updateUserPassword } from '$lib/apis/auths';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let show = false;
 	let currentPassword = '';

@@ -1,7 +1,7 @@
 import { WEBUI_API_BASE_URL } from '$lib/constants';
 
 export const getMemories = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/memories/`, {
 		method: 'GET',
@@ -29,7 +29,7 @@ export const getMemories = async (token: string) => {
 };
 
 export const addNewMemory = async (token: string, content: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/memories/add`, {
 		method: 'POST',
@@ -60,7 +60,7 @@ export const addNewMemory = async (token: string, content: string) => {
 };
 
 export const updateMemoryById = async (token: string, id: string, content: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/memories/${id}/update`, {
 		method: 'POST',
@@ -91,7 +91,7 @@ export const updateMemoryById = async (token: string, id: string, content: strin
 };
 
 export const queryMemory = async (token: string, content: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/memories/query`, {
 		method: 'POST',
@@ -122,7 +122,7 @@ export const queryMemory = async (token: string, content: string) => {
 };
 
 export const deleteMemoryById = async (token: string, id: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/memories/${id}`, {
 		method: 'DELETE',
@@ -154,7 +154,7 @@ export const deleteMemoryById = async (token: string, id: string) => {
 };
 
 export const deleteMemoriesByUserId = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/memories/delete/user`, {
 		method: 'DELETE',

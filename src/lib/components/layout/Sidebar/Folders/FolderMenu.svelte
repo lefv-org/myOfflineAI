@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { getContext, createEventDispatcher } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
@@ -12,10 +13,10 @@
 	import Folder from '$lib/components/icons/Folder.svelte';
 
 	export let align: 'start' | 'end' = 'start';
-	export let onEdit = () => {};
-	export let onExport = () => {};
-	export let onDelete = () => {};
-	export let onCreateSub = () => {};
+	export let onEdit: Function = () => {};
+	export let onExport: Function = () => {};
+	export let onDelete: Function = () => {};
+	export let onCreateSub: Function = () => {};
 
 	let show = false;
 </script>

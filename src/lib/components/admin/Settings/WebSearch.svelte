@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { getRAGConfig, updateRAGConfig } from '$lib/apis/retrieval';
 	import Switch from '$lib/components/common/Switch.svelte';
 
 	import { models } from '$lib/stores';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Textarea from '$lib/components/common/Textarea.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let saveHandler: Function;
 
@@ -42,7 +43,7 @@
 	];
 	let webLoaderEngines = ['playwright', 'firecrawl', 'tavily', 'external'];
 
-	let webConfig = null;
+	let webConfig: any = null;
 
 	const submitHandler = async () => {
 		// Convert domain filter string to array before sending

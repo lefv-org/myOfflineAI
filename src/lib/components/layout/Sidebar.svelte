@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
 
@@ -28,9 +29,9 @@
 		sidebarWidth,
 		activeChatIds
 	} from '$lib/stores';
-	import { onMount, getContext, tick, onDestroy } from 'svelte';
+	import { onMount, tick, onDestroy } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import {
 		getChatList,
@@ -69,22 +70,22 @@
 	let navElement;
 	let shiftKey = false;
 
-	let selectedChatId = null;
+	let selectedChatId: any = null;
 	// Pagination variables
 	let chatListLoading = false;
 	let allChatsLoaded = false;
 
 	let showCreateFolderModal = false;
 
-	let pinnedModels = [];
+	let pinnedModels: any[] = [];
 
 	let showPinnedModels = false;
 	let showFolders = false;
 
-	let folders = {};
-	let folderRegistry = {};
+	let folders: any = {};
+	let folderRegistry: any = {};
 
-	let newFolderId = null;
+	let newFolderId: any = null;
 
 	$: if ($selectedFolder) {
 		initFolders();
@@ -142,12 +143,12 @@
 		}
 
 		// Check for duplicate names in the same parent
-		const siblings = Object.values(folders).filter((folder) => folder.parent_id === parent_id);
-		if (siblings.find((folder) => folder.name.toLowerCase() === name.toLowerCase())) {
+		const siblings = Object.values(folders).filter((folder: any) => folder.parent_id === parent_id);
+		if (siblings.find((folder: any) => folder.name.toLowerCase() === name.toLowerCase())) {
 			// If a folder with the same name already exists, append a number to the name
 			let i = 1;
 			while (
-				siblings.find((folder) => folder.name.toLowerCase() === `${name} ${i}`.toLowerCase())
+				siblings.find((folder: any) => folder.name.toLowerCase() === `${name} ${i}`.toLowerCase())
 			) {
 				i++;
 			}
@@ -219,7 +220,7 @@
 
 		currentChatPage.set($currentChatPage + 1);
 
-		let newChatList = [];
+		let newChatList: any[] = [];
 
 		newChatList = await getChatList(localStorage.token, $currentChatPage);
 
@@ -259,10 +260,10 @@
 		for (const file of files) {
 			const reader = new FileReader();
 			reader.onload = async (e) => {
-				const content = e.target.result;
+				const content = (e.target as FileReader)?.result;
 
 				try {
-					const chatItems = JSON.parse(content);
+					const chatItems = JSON.parse(content as string);
 					importChatHandler(chatItems);
 				} catch {
 					toast.error($i18n.t(`Invalid file format.`));
@@ -457,7 +458,7 @@
 				}
 			}),
 			settings.subscribe((value) => {
-				if (pinnedModels != value?.pinnedModels ?? []) {
+				if (pinnedModels != (value?.pinnedModels ?? [])) {
 					pinnedModels = value?.pinnedModels ?? [];
 					showPinnedModels = pinnedModels.length > 0;
 				}
@@ -856,10 +857,10 @@
 			<div
 				class="relative flex flex-col flex-1 overflow-y-auto scrollbar-hidden pt-3 pb-3"
 				on:scroll={(e) => {
-					if (e.target.scrollTop === 0) {
+					if ((e.target as HTMLElement).scrollTop === 0) {
 						scrollTop = 0;
 					} else {
-						scrollTop = e.target.scrollTop;
+						scrollTop = (e.target as HTMLElement).scrollTop;
 					}
 				}}
 			>
@@ -973,7 +974,7 @@
 									return;
 								}
 
-								const res = await updateFolderParentIdById(localStorage.token, id, null).catch(
+								const res = await updateFolderParentIdById(localStorage.token, id, undefined).catch(
 									(error) => {
 										toast.error(`${error}`);
 										return null;
@@ -1042,7 +1043,7 @@
 							if (chat) {
 								console.log(chat);
 								if (chat.folder_id) {
-									const res = await updateChatFolderIdById(localStorage.token, chat.id, null).catch(
+									const res = await updateChatFolderIdById(localStorage.token, chat.id, undefined).catch(
 										(error) => {
 											toast.error(`${error}`);
 											return null;
@@ -1063,7 +1064,7 @@
 								return;
 							}
 
-							const res = await updateFolderParentIdById(localStorage.token, id, null).catch(
+							const res = await updateFolderParentIdById(localStorage.token, id, undefined).catch(
 								(error) => {
 									toast.error(`${error}`);
 									return null;
@@ -1111,7 +1112,7 @@
 													const res = await updateChatFolderIdById(
 														localStorage.token,
 														chat.id,
-														null
+														undefined
 													).catch((error) => {
 														toast.error(`${error}`);
 														return null;

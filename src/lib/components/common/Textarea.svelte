@@ -4,16 +4,16 @@
 	export let value = '';
 	export let placeholder = '';
 	export let rows = 1;
-	export let minSize = null;
-	export let maxSize = null;
+	export let minSize: any = null;
+	export let maxSize: any = null;
 	export let required = false;
 	export let readonly = false;
 	export let className =
 		'w-full rounded-lg px-3.5 py-2 text-sm bg-gray-50 dark:text-gray-300 dark:bg-gray-850 outline-hidden  h-full';
-	export let ariaLabel = null;
+	export let ariaLabel: any = null;
 
-	export let onInput = () => {};
-	export let onBlur = () => {};
+	export let onInput: Function = () => {};
+	export let onBlur: Function = () => {};
 
 	let textareaElement;
 
@@ -68,5 +68,5 @@
 	on:focus={() => {
 		resize();
 	}}
-	on:blur={onBlur}
+	on:blur={(e) => onBlur(e)}
 />

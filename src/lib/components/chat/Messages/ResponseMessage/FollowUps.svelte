@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
-	import { onMount, tick, getContext } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let followUps: string[] = [];
 	export let onClick: (followUp: string) => void = () => {};

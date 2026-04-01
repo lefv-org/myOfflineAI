@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Checkbox from '$lib/components/common/Checkbox.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
-	import { getContext, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 
 	import { getSkillItems } from '$lib/apis/skills';
 
@@ -9,7 +10,7 @@
 
 	let _skills: Record<string, any> = {};
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	onMount(async () => {
 		const res = await getSkillItems(localStorage.token).catch(() => null);

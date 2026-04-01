@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import Modal from '../common/Modal.svelte';
 	import { shortcuts } from '$lib/shortcuts';
 	import { settings } from '$lib/stores';
@@ -7,13 +8,10 @@
 	import XMark from '$lib/components/icons/XMark.svelte';
 
 	type CategorizedShortcuts = {
-		[category: string]: {
-			left: Shortcut[];
-			right: Shortcut[];
-		};
+		[category: string]: any[];
 	};
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
 

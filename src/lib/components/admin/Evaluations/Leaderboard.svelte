@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import { models } from '$lib/stores';
 	import { getLeaderboard } from '$lib/apis/evaluations';
 	import ModelModal from './LeaderboardModal.svelte';
@@ -10,9 +11,9 @@
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
-	let rankedModels = [];
+	let rankedModels: any[] = [];
 	let query = '';
 	let loading = true;
 	let debounceTimer: ReturnType<typeof setTimeout>;
@@ -20,7 +21,7 @@
 	let direction: 'asc' | 'desc' = 'desc';
 
 	let showModal = false;
-	let selectedModel = null;
+	let selectedModel: any = null;
 
 	const toggleSort = (key: string) => {
 		if (orderBy === key) {
@@ -48,9 +49,9 @@
 			const statsMap = new Map((result?.entries ?? []).map((e) => [e.model_id, e]));
 
 			rankedModels = $models
-				.filter((m) => m?.owned_by !== 'arena' && !m?.info?.meta?.hidden)
+				.filter((m) => (m?.owned_by as string) !== 'arena' && !m?.info?.meta?.hidden)
 				.map((model) => {
-					const s = statsMap.get(model.id);
+					const s: any = statsMap.get(model.id);
 					return {
 						...model,
 						rating: s?.rating ?? '-',
@@ -182,7 +183,7 @@
 									alt={model.name}
 									class="size-5 rounded-full object-cover shrink-0"
 									on:error={(e) => {
-										e.target.src = '/favicon.png';
+										(e.target as HTMLImageElement).src = '/favicon.png';
 									}}
 								/>
 								<Tooltip content={`${model.name} (${model.id})`} placement="top-start">

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onMount, tick, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount, tick } from 'svelte';
 
 	import Textarea from '$lib/components/common/Textarea.svelte';
 	import { toast } from 'svelte-sonner';
@@ -15,11 +16,11 @@
 
 	export let onSubmit: Function;
 	export let edit = false;
-	export let skill = null;
+	export let skill: any = null;
 	export let clone = false;
 	export let disabled = false;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loading = false;
 
@@ -28,7 +29,7 @@
 	let description = '';
 	let content = '';
 
-	let accessGrants = [];
+	let accessGrants: any[] = [];
 	let showAccessControlModal = false;
 	let hasManualEdit = false;
 	let hasManualName = false;

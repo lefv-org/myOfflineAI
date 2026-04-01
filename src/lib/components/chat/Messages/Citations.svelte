@@ -1,22 +1,23 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import { embed, showControls, showEmbeds } from '$lib/stores';
 
 	import CitationModal from './Citations/CitationModal.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let id = '';
 	export let chatId = '';
 
-	export let sources = [];
+	export let sources: any[] = [];
 	export let readOnly = false;
 
-	let citations = [];
+	let citations: any[] = [];
 	let showPercentage = false;
 	let showRelevance = true;
 
-	let citationModal = null;
+	let citationModal: any = null;
 
 	let showCitations = false;
 	let showCitationModal = false;
@@ -25,7 +26,7 @@
 
 	export const showSourceModal = (sourceId) => {
 		let index;
-		let suffix = null;
+		let suffix: any = null;
 
 		if (typeof sourceId === 'string') {
 			const output = sourceId.split('#');

@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import { goto, invalidate, invalidateAll } from '$app/navigation';
-	import { onMount, getContext, createEventDispatcher, tick, onDestroy } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount, createEventDispatcher, tick, onDestroy } from 'svelte';
+	const i18n = getI18nContext();
 
 	const dispatch = createEventDispatcher();
 
@@ -54,7 +55,7 @@
 	export let selected = false;
 	export let shiftKey = false;
 
-	export let onDragEnd = () => {};
+	export let onDragEnd: Function = () => {};
 
 	function formatTimeAgo(timestamp: number): string {
 		const now = Date.now();
@@ -75,7 +76,8 @@
 		return $i18n.t('1m', { context: 'time_ago' });
 	}
 
-	let chat = null;
+	let chat: any = null;
+	let draggable = true;
 
 	let mouseOver = false;
 
@@ -300,7 +302,7 @@
 		await tick();
 
 		setTimeout(() => {
-			const input = document.getElementById(`chat-title-input-${id}`);
+			const input = document.getElementById(`chat-title-input-${id}`) as HTMLInputElement | null;
 			if (input) {
 				input.focus();
 				input.select();

@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import Modal from '$lib/components/common/Modal.svelte';
 	import Plus from '$lib/components/icons/Plus.svelte';
@@ -12,9 +13,9 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
 	export let show = false;
-	export let onSave = () => {};
+	export let onSave: Function = () => {};
 
-	export let floatingActionButtons = null;
+	export let floatingActionButtons: any = null;
 
 	const submitHandler = async () => {
 		onSave(floatingActionButtons);

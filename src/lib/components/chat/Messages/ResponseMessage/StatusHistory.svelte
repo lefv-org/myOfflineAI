@@ -1,9 +1,10 @@
-<script>
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	;
+	const i18n = getI18nContext();
 
 	import StatusItem from './StatusHistory/StatusItem.svelte';
-	export let statusHistory = [];
+	export let statusHistory: any[] = [];
 	export let expand = false;
 
 	let showHistory = true;
@@ -14,8 +15,8 @@
 		showHistory = false;
 	}
 
-	let history = [];
-	let status = null;
+	let history: any[] = [];
+	let status: any = null;
 
 	$: if (history && history.length > 0) {
 		status = history.at(-1);

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import { toast } from 'svelte-sonner';
 
 	import {
@@ -40,7 +41,7 @@
 	import Knobs from '../icons/Knobs.svelte';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let initNewChat: Function;
 	export let shareEnabled: boolean = false;
@@ -55,7 +56,7 @@
 	export let archiveChatHandler: (id: string) => void;
 	export let moveChatHandler: (id: string, folderId: string) => void;
 
-	let closedBannerIds = [];
+	let closedBannerIds: any[] = [];
 
 	let showShareChatModal = false;
 	let showDownloadChatModal = false;
@@ -128,7 +129,7 @@
 									on:click={async () => {
 										if (($settings?.temporaryChatByDefault ?? false) && $temporaryChatEnabled) {
 											// for proper initNewChat handling
-											await temporaryChatEnabled.set(null);
+											await temporaryChatEnabled.set(null as any);
 										} else {
 											await temporaryChatEnabled.set(!$temporaryChatEnabled);
 										}
@@ -266,12 +267,14 @@
 	{/if}
 
 	<div class="absolute top-[100%] left-0 right-0 h-fit">
-		{#if !history.currentId && !$chatId && ($banners.length > 0 || ($config?.license_metadata?.type ?? null) === 'trial' || (($config?.license_metadata?.seats ?? null) !== null && $config?.user_count > $config?.license_metadata?.seats))}
+		{#if !history.currentId && !$chatId && ($banners.length > 0 || ($config?.license_metadata?.type ?? null) === 'trial' || (($config?.license_metadata?.seats ?? null) !== null && ($config as any)?.user_count > ($config as any)?.license_metadata?.seats))}
 			<div class=" w-full z-30">
 				<div class=" flex flex-col gap-1 w-full">
 					{#if ($config?.license_metadata?.type ?? null) === 'trial'}
 						<Banner
 							banner={{
+								id: 'trial-license',
+								timestamp: 0,
 								type: 'info',
 								title: 'Trial License',
 								content: $i18n.t(
@@ -281,9 +284,11 @@
 						/>
 					{/if}
 
-					{#if ($config?.license_metadata?.seats ?? null) !== null && $config?.user_count > $config?.license_metadata?.seats}
+					{#if ($config?.license_metadata?.seats ?? null) !== null && ($config as any)?.user_count > ($config as any)?.license_metadata?.seats}
 						<Banner
 							banner={{
+								id: 'license-error',
+								timestamp: 0,
 								type: 'error',
 								title: 'License Error',
 								content: $i18n.t(

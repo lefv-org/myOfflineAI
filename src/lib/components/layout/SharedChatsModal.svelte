@@ -1,15 +1,16 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import type { Writable } from 'svelte/store';
 	import { toast } from 'svelte-sonner';
-	import { getContext } from 'svelte';
+	;
 	import { deleteSharedChatById, getSharedChatList } from '$lib/apis/chats';
 
 	import ChatsModal from './ChatsModal.svelte';
 
-	const i18n: Writable<any> = getContext('i18n');
+	const i18n: Writable<any> = getI18nContext();
 
 	export let show = false;
-	export let onUpdate = () => {};
+	export let onUpdate: Function = () => {};
 
 	let chatList: any[] | null = null;
 	let page = 1;
@@ -64,7 +65,7 @@
 		chatListLoading = true;
 		page += 1;
 
-		let newChatList = [];
+		let newChatList: any[] = [];
 
 		if (query) {
 			newChatList = await getSharedChatList(localStorage.token, page, filter);

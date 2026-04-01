@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import { marked } from 'marked';
 
-	import { onMount, getContext, tick, createEventDispatcher } from 'svelte';
+	import { onMount, tick, createEventDispatcher } from 'svelte';
 	import { blur, fade } from 'svelte/transition';
 
 	const dispatch = createEventDispatcher();
@@ -21,6 +22,7 @@
 	} from '$lib/stores';
 	import { sanitizeResponseContent, extractCurlyBraceWords } from '$lib/utils';
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
+	import type { Model } from '$lib/stores';
 
 	import Suggestions from './Suggestions.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
@@ -29,7 +31,7 @@
 	import FolderPlaceholder from './Placeholder/FolderPlaceholder.svelte';
 	import FolderTitle from './Placeholder/FolderTitle.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let createMessagePair: Function;
 	export let stopResponse: Function;
@@ -37,17 +39,17 @@
 	export let autoScroll = false;
 
 	export let atSelectedModel: Model | undefined;
-	export let selectedModels: [''];
+	export let selectedModels: string[];
 
 	export let history;
 
 	export let prompt = '';
-	export let files = [];
-	export let messageInput = null;
+	export let files: any[] = [];
+	export let messageInput: any = null;
 
-	export let selectedToolIds = [];
-	export let selectedFilterIds = [];
-	export let pendingOAuthTools = [];
+	export let selectedToolIds: any[] = [];
+	export let selectedFilterIds: any[] = [];
+	export let pendingOAuthTools: any[] = [];
 
 	export let showCommands = false;
 
@@ -59,11 +61,11 @@
 	export let onSelect = (e) => {};
 	export let onChange = (e) => {};
 
-	export let toolServers = [];
+	export let toolServers: any[] = [];
 
 	export let dragged = false;
 
-	let models = [];
+	let models: any[] = [];
 	let selectedModelIdx = 0;
 
 	$: if (selectedModels.length > 0) {
@@ -130,7 +132,7 @@
 											aria-hidden="true"
 											draggable="false"
 											on:error={(e) => {
-												e.currentTarget.src = '/favicon.png';
+												(e.currentTarget as HTMLImageElement).src = '/favicon.png';
 											}}
 										/>
 									</button>
@@ -220,7 +222,6 @@
 					bind:showCommands
 					bind:dragged
 					{pendingOAuthTools}
-					{toolServers}
 					{stopResponse}
 					{createMessagePair}
 					placeholder={$i18n.t('How can I help you today?')}

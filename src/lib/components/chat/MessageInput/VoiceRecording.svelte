@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { tick, getContext, onMount, onDestroy } from 'svelte';
+	import { tick, onMount, onDestroy } from 'svelte';
 	import { config, settings } from '$lib/stores';
 	import { blobToFile, calculateSHA256, extractCurlyBraceWords } from '$lib/utils';
 
@@ -11,7 +12,7 @@
 	import LocalizedFormat from 'dayjs/plugin/localizedFormat';
 	dayjs.extend(LocalizedFormat);
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let recording = false;
 	export let transcribe = true;
@@ -23,14 +24,14 @@
 
 	export let className = ' p-2.5 w-full max-w-full';
 
-	export let onCancel = () => {};
+	export let onCancel: Function = () => {};
 	export let onConfirm = (data) => {};
 
 	let loading = false;
 	let confirmed = false;
 
 	let durationSeconds = 0;
-	let durationCounter = null;
+	let durationCounter: any = null;
 
 	let transcription = '';
 
@@ -62,7 +63,7 @@
 	let speechRecognition;
 
 	let mediaRecorder;
-	let audioChunks = [];
+	let audioChunks: any[] = [];
 
 	const MIN_DECIBELS = -45;
 	let VISUALIZER_BUFFER_LENGTH = 300;
@@ -150,7 +151,7 @@
 		const file = blobToFile(audioBlob, `Recording-${dayjs().format('L LT')}.${ext}`);
 
 		if (transcribe) {
-			if ($config.audio.stt.engine === 'web' || ($settings?.audio?.stt?.engine ?? '') === 'web') {
+			if ($config?.audio?.stt?.engine === 'web' || ($settings?.audio?.stt?.engine ?? '') === 'web') {
 				// with web stt, we don't need to send the file to the server
 				return;
 			}
@@ -262,7 +263,7 @@
 		}
 
 		if (transcribe) {
-			if ($config.audio.stt.engine === 'web' || ($settings?.audio?.stt?.engine ?? '') === 'web') {
+			if ($config?.audio?.stt?.engine === 'web' || ($settings?.audio?.stt?.engine ?? '') === 'web') {
 				if ('SpeechRecognition' in window || 'webkitSpeechRecognition' in window) {
 					// Create a SpeechRecognition object
 					speechRecognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -415,7 +416,6 @@
             {loading
 				? ' bg-gray-200 dark:bg-gray-700/50'
 				: 'bg-indigo-400/20 text-indigo-600 dark:text-indigo-300 '} 
-
 
              rounded-full"
 			on:click={async () => {

@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	dayjs.extend(relativeTime);
 
-	import { tick, getContext, onMount, onDestroy } from 'svelte';
+	import { tick, onMount, onDestroy } from 'svelte';
 
 	import { folders } from '$lib/stores';
 	import { getFolders } from '$lib/apis/folders';
@@ -18,16 +19,16 @@
 	import Youtube from '$lib/components/icons/Youtube.svelte';
 	import Folder from '$lib/components/icons/Folder.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let query = '';
 	export let onSelect = (e) => {};
 
 	let selectedIdx = 0;
-	let items = [];
+	let items: any[] = [];
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;
 
-	export let filteredItems = [];
+	export let filteredItems: any[] = [];
 	$: filteredItems = [
 		...(query.startsWith('http')
 			? isYoutubeUrl(query)
@@ -60,13 +61,13 @@
 		const item = document.querySelector(`[data-selected="true"]`);
 		if (item) {
 			// click the item
-			item.click();
+			(item as HTMLElement).click();
 		}
 	};
 
-	let folderItems = [];
-	let knowledgeItems = [];
-	let fileItems = [];
+	let folderItems: any[] = [];
+	let knowledgeItems: any[] = [];
+	let fileItems: any[] = [];
 
 	$: items = [...folderItems, ...knowledgeItems, ...fileItems];
 

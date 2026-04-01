@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { v4 as uuidv4 } from 'uuid';
 	import {
 		chats,
@@ -9,7 +10,7 @@
 		currentChatPage,
 		temporaryChatEnabled
 	} from '$lib/stores';
-	import { tick, getContext, onMount, onDestroy, createEventDispatcher } from 'svelte';
+	import { tick, onMount, onDestroy, createEventDispatcher } from 'svelte';
 	const dispatch = createEventDispatcher();
 
 	import { toast } from 'svelte-sonner';
@@ -22,7 +23,7 @@
 
 	import ChatPlaceholder from './ChatPlaceholder.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let className = 'h-full flex pt-8';
 
@@ -30,11 +31,11 @@
 	export let user = $_user;
 
 	export let prompt;
-	export let history = {};
-	export let selectedModels;
-	export let atSelectedModel;
+	export let history: any = {};
+	export let selectedModels: any;
+	export let atSelectedModel: any;
 
-	let messages = [];
+	let messages: any[] = [];
 
 	export let setInputText: Function = () => {};
 
@@ -63,10 +64,10 @@
 	const loadMoreMessages = async () => {
 		// scroll slightly down to disable continuous loading
 		const element = document.getElementById('messages-container');
-		element.scrollTop = element.scrollTop + 100;
+		if (element) element.scrollTop = element.scrollTop + 100;
 
 		messagesLoading = true;
-		messagesCount += 20;
+		if (messagesCount !== null) messagesCount += 20;
 		buildMessages();
 
 		await tick();
@@ -74,11 +75,11 @@
 		messagesLoading = false;
 	};
 
-	let pendingRebuild = null;
-	let lastCurrentId = null;
+	let pendingRebuild: any = null;
+	let lastCurrentId: any = null;
 
 	const buildMessages = () => {
-		let _messages = [];
+		let _messages: any[] = [];
 
 		let message = history.messages[history.currentId];
 		const visitedMessageIds = new Set();
@@ -135,7 +136,7 @@
 
 	const scrollToBottom = () => {
 		const element = document.getElementById('messages-container');
-		element.scrollTop = element.scrollHeight;
+		if (element) element.scrollTop = element.scrollHeight;
 	};
 
 	const updateChat = async () => {
@@ -159,8 +160,8 @@
 			siblings = history.messages[message.parentId].childrenIds;
 		} else {
 			siblings = Object.values(history.messages)
-				.filter((msg) => msg.parentId === null)
-				.map((msg) => msg.id);
+				.filter((msg: any) => msg.parentId === null)
+				.map((msg: any) => msg.id);
 		}
 
 		// Clamp index to a valid range
@@ -185,7 +186,7 @@
 		// Optional auto-scroll
 		if ($settings?.scrollOnBranchChange ?? true) {
 			const element = document.getElementById('messages-container');
-			autoScroll = element.scrollHeight - element.scrollTop <= element.clientHeight + 50;
+			autoScroll = (element?.scrollHeight ?? 0) - (element?.scrollTop ?? 0) <= (element?.clientHeight ?? 0) + 50;
 
 			setTimeout(() => {
 				scrollToBottom();
@@ -212,8 +213,8 @@
 			}
 		} else {
 			let childrenIds = Object.values(history.messages)
-				.filter((message) => message.parentId === null)
-				.map((message) => message.id);
+				.filter((message: any) => message.parentId === null)
+				.map((message: any) => message.id);
 			let messageId = childrenIds[Math.max(childrenIds.indexOf(message.id) - 1, 0)];
 
 			if (message.id !== messageId) {
@@ -232,7 +233,7 @@
 
 		if ($settings?.scrollOnBranchChange ?? true) {
 			const element = document.getElementById('messages-container');
-			autoScroll = element.scrollHeight - element.scrollTop <= element.clientHeight + 50;
+			autoScroll = (element?.scrollHeight ?? 0) - (element?.scrollTop ?? 0) <= (element?.clientHeight ?? 0) + 50;
 
 			setTimeout(() => {
 				scrollToBottom();
@@ -262,8 +263,8 @@
 			}
 		} else {
 			let childrenIds = Object.values(history.messages)
-				.filter((message) => message.parentId === null)
-				.map((message) => message.id);
+				.filter((message: any) => message.parentId === null)
+				.map((message: any) => message.id);
 			let messageId =
 				childrenIds[Math.min(childrenIds.indexOf(message.id) + 1, childrenIds.length - 1)];
 
@@ -283,7 +284,7 @@
 
 		if ($settings?.scrollOnBranchChange ?? true) {
 			const element = document.getElementById('messages-container');
-			autoScroll = element.scrollHeight - element.scrollTop <= element.clientHeight + 50;
+			autoScroll = (element?.scrollHeight ?? 0) - (element?.scrollTop ?? 0) <= (element?.clientHeight ?? 0) + 50;
 
 			setTimeout(() => {
 				scrollToBottom();
@@ -433,7 +434,7 @@
 	const triggerScroll = () => {
 		if (autoScroll) {
 			const element = document.getElementById('messages-container');
-			autoScroll = element.scrollHeight - element.scrollTop <= element.clientHeight + 50;
+			autoScroll = (element?.scrollHeight ?? 0) - (element?.scrollTop ?? 0) <= (element?.clientHeight ?? 0) + 50;
 			setTimeout(() => {
 				scrollToBottom();
 			}, 100);

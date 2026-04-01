@@ -1,7 +1,7 @@
 import { WEBUI_API_BASE_URL } from '$lib/constants';
 
 export const getConfig = async (token: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/evaluations/config`, {
 		method: 'GET',
@@ -32,7 +32,7 @@ export const getConfig = async (token: string = '') => {
 };
 
 export const updateConfig = async (token: string, config: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/evaluations/config`, {
 		method: 'POST',
@@ -63,7 +63,7 @@ export const updateConfig = async (token: string, config: object) => {
 };
 
 export const getAllFeedbacks = async (token: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/evaluations/feedbacks/all`, {
 		method: 'GET',
@@ -94,7 +94,7 @@ export const getAllFeedbacks = async (token: string = '') => {
 };
 
 export const getLeaderboard = async (token: string = '', query: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (query) searchParams.append('query', query);
@@ -128,7 +128,7 @@ export const getLeaderboard = async (token: string = '', query: string = '') => 
 };
 
 export const getModelHistory = async (token: string = '', modelId: string, days: number = 30) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	searchParams.append('days', days.toString());
@@ -162,7 +162,7 @@ export const getModelHistory = async (token: string = '', modelId: string, days:
 };
 
 export const getFeedbackItems = async (token: string = '', orderBy, direction, page) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (orderBy) searchParams.append('order_by', orderBy);
@@ -201,7 +201,7 @@ export const getFeedbackItems = async (token: string = '', orderBy, direction, p
 };
 
 export const exportAllFeedbacks = async (token: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/evaluations/feedbacks/all/export`, {
 		method: 'GET',
@@ -232,7 +232,7 @@ export const exportAllFeedbacks = async (token: string = '') => {
 };
 
 export const createNewFeedback = async (token: string, feedback: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/evaluations/feedback`, {
 		method: 'POST',
@@ -263,7 +263,7 @@ export const createNewFeedback = async (token: string, feedback: object) => {
 };
 
 export const getFeedbackById = async (token: string, feedbackId: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/evaluations/feedback/${feedbackId}`, {
 		method: 'GET',
@@ -294,7 +294,7 @@ export const getFeedbackById = async (token: string, feedbackId: string) => {
 };
 
 export const updateFeedbackById = async (token: string, feedbackId: string, feedback: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/evaluations/feedback/${feedbackId}`, {
 		method: 'POST',
@@ -325,7 +325,7 @@ export const updateFeedbackById = async (token: string, feedbackId: string, feed
 };
 
 export const deleteFeedbackById = async (token: string, feedbackId: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/evaluations/feedback/${feedbackId}`, {
 		method: 'DELETE',

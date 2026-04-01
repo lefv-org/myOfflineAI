@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 	import type { Writable } from 'svelte/store';
 
-	const i18n: Writable<any> = getContext('i18n');
+	const i18n: Writable<any> = getI18nContext();
 
 	import { fade } from 'svelte/transition';
 

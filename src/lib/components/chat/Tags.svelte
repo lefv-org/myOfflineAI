@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import {
 		addTagById,
 		deleteTagById,
@@ -24,7 +24,7 @@
 
 	export let chatId = '';
 	export let disabled = false;
-	let tags = [];
+	let tags: any[] = [];
 
 	const getTags = async () => {
 		return await getTagsById(localStorage.token, chatId).catch(async (error) => {

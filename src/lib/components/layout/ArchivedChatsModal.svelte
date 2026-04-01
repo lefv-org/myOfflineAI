@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	// @ts-ignore
 	import fileSaver from 'file-saver';
 	import type { Writable } from 'svelte/store';
 	const { saveAs } = fileSaver;
 
 	import { toast } from 'svelte-sonner';
-	import { getContext } from 'svelte';
+	;
 	import {
 		archiveChatById,
 		getAllArchivedChats,
@@ -17,10 +18,10 @@
 	import UnarchiveAllConfirmDialog from '$lib/components/common/ConfirmDialog.svelte';
 	import Spinner from '../common/Spinner.svelte';
 
-	const i18n: Writable<any> = getContext('i18n');
+	const i18n: Writable<any> = getI18nContext();
 
 	export let show = false;
-	export let onUpdate = () => {};
+	export let onUpdate: Function = () => {};
 	export let onDelete: (id: string) => void = () => {};
 
 	let loading = false;
@@ -79,7 +80,7 @@
 		chatListLoading = true;
 		page += 1;
 
-		let newChatList = [];
+		let newChatList: any[] = [];
 
 		if (query) {
 			newChatList = await getArchivedChatList(localStorage.token, page, filter);

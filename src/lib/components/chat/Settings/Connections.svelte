@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
 	import { getModels as _getModels } from '$lib/apis';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { models, settings, user } from '$lib/stores';
 
@@ -18,7 +19,7 @@
 
 	export let saveSettings: Function;
 
-	let config = null;
+	let config: any = null;
 
 	let showConnectionModal = false;
 
@@ -115,7 +116,7 @@
 											(key, keyIdx) => idx !== keyIdx
 										);
 
-										let newConfig = {};
+										let newConfig: any = {};
 										config.OPENAI_API_BASE_URLS.forEach((url, newIdx) => {
 											newConfig[newIdx] =
 												config.OPENAI_API_CONFIGS[newIdx < idx ? newIdx : newIdx + 1];

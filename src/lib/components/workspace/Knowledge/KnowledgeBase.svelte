@@ -1,11 +1,12 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Fuse from 'fuse.js';
 	import { toast } from 'svelte-sonner';
 	import { v4 as uuidv4 } from 'uuid';
 	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
 
-	import { onMount, getContext, onDestroy, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount, onDestroy, tick } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
@@ -80,26 +81,26 @@
 		write_access?: boolean;
 	};
 
-	let id = null;
-	let knowledge: Knowledge | null = null;
-	let knowledgeId = null;
+	let id: any = null;
+	let knowledge: any = null;
+	let knowledgeId: any = null;
 
-	let selectedFileId = null;
-	let selectedFile = null;
+	let selectedFileId: any = null;
+	let selectedFile: any = null;
 	let selectedFileContent = '';
 
-	let inputFiles = null;
+	let inputFiles: any = null;
 
 	let query = '';
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;
 
-	let viewOption = null;
-	let sortKey = null;
-	let direction = null;
+	let viewOption: any = null;
+	let sortKey: any = null;
+	let direction: any = null;
 
 	let currentPage = 1;
-	let fileItems = null;
-	let fileItemsTotal = null;
+	let fileItems: any = null;
+	let fileItemsTotal: any = null;
 
 	const reset = () => {
 		currentPage = 1;
@@ -435,12 +436,12 @@
 
 	// Firefox fallback implementation using traditional file input
 	const handleFirefoxUpload = async () => {
-		return new Promise((resolve, reject) => {
+		return new Promise<void>((resolve, reject) => {
 			// Create hidden file input
 			const input = document.createElement('input');
 			input.type = 'file';
 			input.webkitdirectory = true;
-			input.directory = true;
+			(input as any).directory = true;
 			input.multiple = true;
 			input.style.display = 'none';
 
@@ -449,7 +450,7 @@
 
 			input.onchange = async () => {
 				try {
-					const files = Array.from(input.files)
+					const files = Array.from(input.files!)
 						// Filter out files from hidden folders
 						.filter((file) => !hasHiddenFolder(file.webkitRelativePath));
 
@@ -563,7 +564,7 @@
 		}
 	};
 
-	let debounceTimeout = null;
+	let debounceTimeout: any = null;
 	let mediaQuery;
 
 	let dragged = false;
@@ -714,7 +715,7 @@
 		const container = document.getElementById('collection-container');
 
 		// initialize the minSize based on the container width
-		minSize = !largeScreen ? 100 : Math.floor((300 / container.clientWidth) * 100);
+		minSize = !largeScreen ? 100 : Math.floor((300 / container!.clientWidth) * 100);
 
 		// Create a new ResizeObserver instance
 		const resizeObserver = new ResizeObserver((entries) => {
@@ -734,7 +735,7 @@
 		});
 
 		// Start observing the container's size changes
-		resizeObserver.observe(container);
+		resizeObserver.observe(container!);
 
 		if (pane) {
 			pane.expand();
@@ -822,7 +823,7 @@
 			const fileInputElement = document.getElementById('files-input');
 
 			if (fileInputElement) {
-				fileInputElement.value = '';
+				(fileInputElement as HTMLInputElement).value = '';
 			}
 		} else {
 			toast.error($i18n.t(`File not found.`));
@@ -947,7 +948,7 @@
 									} else if (data.type === 'text') {
 										showAddTextContentModal = true;
 									} else {
-										document.getElementById('files-input').click();
+										document.getElementById('files-input')!.click();
 									}
 								}}
 								onSync={() => {
@@ -977,7 +978,7 @@
 							className="flex shrink-0 items-center gap-2 px-3 py-1.5 text-sm bg-gray-50 dark:bg-gray-850 rounded-xl placeholder-gray-400 outline-hidden focus:outline-hidden"
 							bind:value={viewOption}
 							items={[
-								{ value: null, label: $i18n.t('All') },
+								{ value: null as any, label: $i18n.t('All') },
 								{ value: 'created', label: $i18n.t('Created by you') },
 								{ value: 'shared', label: $i18n.t('Shared with you') }
 							]}
@@ -1007,7 +1008,7 @@
 								bind:value={direction}
 								items={[
 									{ value: 'asc', label: $i18n.t('Asc') },
-									{ value: null, label: $i18n.t('Desc') }
+									{ value: null as any, label: $i18n.t('Desc') }
 								]}
 							/>
 						{/if}

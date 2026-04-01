@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import { createEventDispatcher } from 'svelte';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { addUser } from '$lib/apis/auths';
 
 	import { WEBUI_BASE_URL } from '$lib/constants';
@@ -12,7 +13,7 @@
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import SensitiveInput from '$lib/components/common/SensitiveInput.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const dispatch = createEventDispatcher();
 
 	export let show = false;
@@ -69,7 +70,7 @@
 				const reader = new FileReader();
 
 				reader.onload = async (e) => {
-					const csv = e.target.result;
+					const csv = (e.target as FileReader).result as string;
 					const rows = csv.split('\n');
 
 					let userCount = 0;
@@ -111,7 +112,7 @@
 					const uploadInputElement = document.getElementById('upload-user-csv-input');
 
 					if (uploadInputElement) {
-						uploadInputElement.value = null;
+						(uploadInputElement as HTMLInputElement).value = '';
 					}
 
 					stopLoading();
@@ -232,12 +233,8 @@
 
 								<div class="flex-1">
 									<SensitiveInput
-										class="w-full text-sm bg-transparent disabled:text-gray-500 dark:disabled:text-gray-500 outline-hidden"
-										type="password"
 										bind:value={_user.password}
-										aria-label={$i18n.t('Password')}
 										placeholder={$i18n.t('Enter Your Password')}
-										autocomplete="off"
 										required
 									/>
 								</div>

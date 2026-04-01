@@ -1,16 +1,17 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Modal from '$lib/components/common/Modal.svelte';
-	import { getContext } from 'svelte';
+	;
 	import { getModelHistory } from '$lib/apis/evaluations';
 	import ModelActivityChart from './ModelActivityChart.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
 	export let show = false;
-	export let model = null;
+	export let model: any = null;
 	export let onClose: () => void = () => {};
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	type TimeRange = '30d' | '1y' | 'all';
 	const TIME_RANGES: { key: TimeRange; label: string; days: number }[] = [

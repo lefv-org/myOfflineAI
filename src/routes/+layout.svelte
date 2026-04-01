@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 	import { io } from 'socket.io-client';
 	import { spring } from 'svelte/motion';
 	import PyodideWorker from '$lib/workers/pyodide.worker?worker';
@@ -27,6 +27,8 @@
 		isLastActiveTab,
 		isApp,
 		appInfo,
+		appData,
+		models,
 		toolServers,
 		playingNotificationSound,
 		showControls,
@@ -89,14 +91,14 @@
 	const bc = new BroadcastChannel('active-tab-channel');
 
 	let loaded = false;
-	let tokenTimer = null;
+	let tokenTimer: any = null;
 
 	let showRefresh = false;
 
 	let showSyncStatsModal = false;
-	let syncStatsEventData = null;
+	let syncStatsEventData: any = null;
 
-	let heartbeatInterval = null;
+	let heartbeatInterval: any = null;
 
 	const BREAKPOINT = 768;
 
@@ -195,10 +197,10 @@
 		return worker;
 	};
 
-	const executePythonAsWorker = async (id, code, cb, files = []) => {
-		let result = null;
-		let stdout = null;
-		let stderr = null;
+	const executePythonAsWorker = async (id: any, code: any, cb: any, files: any[] = []) => {
+		let result: any = null;
+		let stdout: any = null;
+		let stderr: any = null;
 
 		let executing = true;
 		let packages = [
@@ -220,7 +222,7 @@
 		const worker = getOrCreateWorker();
 
 		// Fetch file content from the server and prepare for the worker
-		let filePayloads = [];
+		let filePayloads: any[] = [];
 		if (files && files.length > 0) {
 			for (const file of files) {
 				try {
@@ -339,9 +341,9 @@
 		let toolServer = $settings?.toolServers?.find((server) => server.url === serverUrl);
 
 		let toolServerData =
-			$toolServers?.find((server) => server.url === serverUrl);
+			($toolServers as any[])?.find((server: any) => server.url === serverUrl);
 
-		let token = null;
+		let token: any = null;
 		if (toolServer) {
 			const auth_type = toolServer?.auth_type ?? 'bearer';
 			if (auth_type === 'bearer') token = toolServer?.key;
@@ -357,12 +359,12 @@
 		console.log('executeTool', data, toolServer);
 
 		if (toolServer) {
-			const res = await executeToolServer(
+			const res: any = await executeToolServer(
 				token,
 				toolServer.url,
 				data?.name,
 				data?.params,
-				toolServerData
+				toolServerData as any
 			);
 
 			console.log('executeToolServer', res);
@@ -437,7 +439,7 @@
 						}
 					}
 
-					toast.custom(NotificationToast, {
+					toast.custom(NotificationToast as any, {
 						componentProps: {
 							onClick: () => {
 								goto(`/c/${event.chat_id}`);
@@ -455,7 +457,7 @@
 			} else if (type === 'chat:tags') {
 				tags.set(await getAllTags(localStorage.token));
 			}
-		} else if (data?.session_id === $socket.id) {
+		} else if (data?.session_id === $socket?.id) {
 			if (type === 'execute:python') {
 				console.log('execute:python', data);
 				executePythonAsWorker(data.id, data.code, cb, data.files || []);
@@ -463,11 +465,11 @@
 				console.log('execute:tool', data);
 				executeTool(data, cb);
 			} else if (type === 'request:chat:completion') {
-				console.log(data, $socket.id);
+				console.log(data, $socket?.id);
 				const { session_id, channel, form_data, model } = data;
 
 				try {
-					const directConnections = $settings?.directConnections ?? {};
+					const directConnections: any = $settings?.directConnections ?? {};
 
 					if (directConnections) {
 						const urlIdx = model?.urlIdx;
@@ -501,7 +503,7 @@
 									console.log({ status: true });
 
 									// res will either be SSE or JSON
-									const reader = res.body.getReader();
+									const reader = res.body!.getReader();
 									const decoder = new TextDecoder();
 
 									const processStream = async () => {
@@ -543,7 +545,7 @@
 					console.error('chatCompletion', error);
 					cb(error);
 				} finally {
-					$socket.emit(channel, {
+					$socket?.emit(channel, {
 						done: true
 					});
 				}
@@ -555,7 +557,7 @@
 
 	const TOKEN_EXPIRY_BUFFER = 60; // seconds
 	const checkTokenExpiry = async () => {
-		const exp = $user?.expires_at; // token expiry time in unix timestamp
+		const exp = ($user as any)?.expires_at; // token expiry time in unix timestamp
 		const now = Math.floor(Date.now() / 1000); // current time in unix timestamp
 
 		if (!exp) {
@@ -565,7 +567,7 @@
 
 		if (now >= exp - TOKEN_EXPIRY_BUFFER) {
 			const res = await userSignOut();
-			user.set(null);
+			user.set(undefined);
 			localStorage.removeItem('token');
 
 			location.href = res?.redirect_url ?? '/auth';
@@ -614,6 +616,7 @@
 		}
 	};
 
+	// @ts-ignore - async onMount with cleanup return
 	onMount(async () => {
 		window.addEventListener('message', windowMessageEventHandler);
 
@@ -721,9 +724,9 @@
 		user.subscribe(async (value) => {
 			if (value) {
 				$socket?.off('events', chatEventHandler);
-	
+
 				$socket?.on('events', chatEventHandler);
-	
+
 
 				const userSettings = await getUserSettings(localStorage.token);
 				if (userSettings) {
@@ -743,11 +746,11 @@
 			}
 		});
 
-		let backendConfig = null;
+		let backendConfig: any = null;
 		try {
 			backendConfig = await getBackendConfig();
 			console.log('Backend config:', backendConfig);
-		} catch (error) {
+		} catch (error: any) {
 			if (error?.authRedirect) {
 				// Forward-auth proxy is redirecting to an external login page.
 				// Full-page navigation lets the browser follow the redirect natively.
@@ -764,7 +767,7 @@
 			const languages = await getLanguages();
 			const browserLanguages = navigator.languages
 				? navigator.languages
-				: [navigator.language || navigator.userLanguage];
+				: [navigator.language || (navigator as any).userLanguage];
 			const lang = backendConfig?.default_locale
 				? backendConfig.default_locale
 				: bestMatchingLanguage(languages, browserLanguages, 'en-US');

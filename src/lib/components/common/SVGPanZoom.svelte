@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
@@ -7,8 +8,8 @@
 	import panzoom, { type PanZoom } from 'panzoom';
 	import DOMPurify from 'dompurify';
 
-	import { onMount, getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { copyToClipboard } from '$lib/utils';
 

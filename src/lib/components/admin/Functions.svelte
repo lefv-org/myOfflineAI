@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
 	import { WEBUI_NAME, config, functions as _functions, models, settings, user } from '$lib/stores';
-	import { onMount, getContext, tick, onDestroy } from 'svelte';
+	import { onMount, tick, onDestroy } from 'svelte';
 
 	import { goto } from '$app/navigation';
 	import {
@@ -42,7 +43,7 @@
 	import { capitalizeFirstLetter } from '$lib/utils';
 	import Spinner from '../common/Spinner.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let shiftKey = false;
 
@@ -63,13 +64,13 @@
 
 	let showManifestModal = false;
 	let showValvesModal = false;
-	let selectedFunction = null;
+	let selectedFunction: any = null;
 
 	let showDeleteConfirm = false;
 
 	let loaded = false;
-	let functions = null;
-	let filteredItems = [];
+	let functions: any = null;
+	let filteredItems: any[] = [];
 
 	$: if (query !== undefined) {
 		clearTimeout(searchDebounceTimer);
@@ -115,7 +116,7 @@
 		const messageHandler = (event) => {
 			if (event.origin !== url) return;
 			if (event.data === 'loaded') {
-				tab.postMessage(JSON.stringify(item), '*');
+				tab?.postMessage(JSON.stringify(item), '*');
 
 				// Remove the event listener after handling the message
 				window.removeEventListener('message', messageHandler);
@@ -170,7 +171,7 @@
 			models.set(
 				await getModels(
 					localStorage.token,
-					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null),
+					($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null),
 					false,
 					true
 				)
@@ -198,7 +199,7 @@
 			models.set(
 				await getModels(
 					localStorage.token,
-					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null),
+					($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null),
 					false,
 					true
 				)
@@ -206,7 +207,7 @@
 		}
 	};
 
-	onMount(async () => {
+	(onMount as any)(async () => {
 		viewOption = localStorage?.workspaceViewOption || '';
 		functions = await getFunctionList(localStorage.token).catch((error) => {
 			toast.error(`${error}`);
@@ -652,7 +653,7 @@
 			models.set(
 				await getModels(
 					localStorage.token,
-					$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null),
+					($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null),
 					false,
 					true
 				)
@@ -665,7 +666,7 @@
 		on:confirm={() => {
 			const reader = new FileReader();
 			reader.onload = async (event) => {
-				const _functions = JSON.parse(event.target.result);
+				const _functions = JSON.parse((event.target as FileReader).result as string);
 				console.log(_functions);
 
 				for (let func of _functions) {
@@ -686,7 +687,7 @@
 				models.set(
 					await getModels(
 						localStorage.token,
-						$config?.features?.enable_direct_connections && ($settings?.directConnections ?? null),
+						($config?.features?.enable_direct_connections ? ($settings?.directConnections ?? null) : null),
 						false,
 						true
 					)

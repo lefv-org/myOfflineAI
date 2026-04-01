@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { getModels, getTaskConfig, updateTaskConfig } from '$lib/apis';
 	import { config, settings } from '$lib/stores';
-	import { createEventDispatcher, onMount, getContext } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 	import { toast } from 'svelte-sonner';
 
 	import { getBaseModels } from '$lib/apis/models';
@@ -13,7 +14,7 @@
 
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let taskConfig = {
 		TASK_MODEL: '',
@@ -38,10 +39,10 @@
 		taskConfig = await updateTaskConfig(localStorage.token, taskConfig);
 	};
 
-	let workspaceModels = null;
-	let baseModels = null;
+	let workspaceModels: any = null;
+	let baseModels: any = null;
 
-	let models = null;
+	let models: any = null;
 
 	const init = async () => {
 		try {
@@ -72,7 +73,7 @@
 			console.debug('models', models);
 		} catch (err) {
 			console.error('Failed to initialize Interface settings:', err);
-			toast.error(err?.detail ?? err?.message ?? $i18n.t('Failed to load Interface settings'));
+			toast.error((err as any)?.detail ?? (err as any)?.message ?? $i18n.t('Failed to load Interface settings'));
 			models = [];
 		}
 	};
@@ -245,7 +246,7 @@
 							if (e.detail) {
 								taskConfig.VOICE_MODE_PROMPT_TEMPLATE = '';
 							} else {
-								taskConfig.VOICE_MODE_PROMPT_TEMPLATE = null;
+								taskConfig.VOICE_MODE_PROMPT_TEMPLATE = null as any;
 							}
 						}}
 					/>

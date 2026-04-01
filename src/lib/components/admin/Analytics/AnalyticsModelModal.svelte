@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Modal from '$lib/components/common/Modal.svelte';
-	import { getContext } from 'svelte';
+	;
 	import { getModelChats, getModelOverview } from '$lib/apis/analytics';
 	import ModelActivityChart from '$lib/components/admin/Evaluations/ModelActivityChart.svelte';
 	import ChatList from '$lib/components/common/ChatList.svelte';
@@ -14,7 +15,7 @@
 	export let endDate: number | null = null;
 	export let onClose: () => void = () => {};
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	type Tab = 'overview' | 'chats';
 	let selectedTab: Tab = 'overview';

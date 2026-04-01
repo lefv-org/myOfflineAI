@@ -1,10 +1,11 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { marked } from 'marked';
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
 
-	import { onMount, getContext, tick } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount, tick } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { WEBUI_NAME, config, mobile, models as _models, settings, user } from '$lib/stores';
 	import {
@@ -54,13 +55,13 @@
 	let importFiles;
 	let modelsImportInputElement: HTMLInputElement;
 
-	let models = null;
+	let models: any = null;
 
-	let workspaceModels = null;
-	let baseModels = null;
+	let workspaceModels: any = null;
+	let baseModels: any = null;
 
-	let filteredModels = [];
-	let selectedModelId = null;
+	let filteredModels: any[] = [];
+	let selectedModelId: any = null;
 
 	let showConfigModal = false;
 	let showManageModal = false;
@@ -324,21 +325,23 @@
 		await updateUserSettings(localStorage.token, { ui: $settings });
 	};
 
-	onMount(async () => {
-		await init();
-		const id = $page.url.searchParams.get('id');
+	onMount(() => {
+		(async () => {
+			await init();
+			const id = $page.url.searchParams.get('id');
 
-		if (id) {
-			selectedModelId = id;
-		}
+			if (id) {
+				selectedModelId = id;
+			}
+		})();
 
-		const onKeyDown = (event) => {
+		const onKeyDown = (event: KeyboardEvent) => {
 			if (event.key === 'Shift') {
 				shiftKey = true;
 			}
 		};
 
-		const onKeyUp = (event) => {
+		const onKeyUp = (event: KeyboardEvent) => {
 			if (event.key === 'Shift') {
 				shiftKey = false;
 			}
@@ -393,7 +396,7 @@
 										modelsImportInProgress = true;
 
 										try {
-											const models = JSON.parse(String(event.target.result));
+											const models = JSON.parse(String(event.target!.result as string));
 											const res = await importModels(localStorage.token, models);
 
 											if (res) {
@@ -402,7 +405,7 @@
 											} else {
 												toast.error($i18n.t('Failed to import models'));
 											}
-										} catch (e) {
+										} catch (e: any) {
 											toast.error(e?.detail ?? $i18n.t('Invalid JSON file'));
 											console.error(e);
 										}
@@ -597,7 +600,7 @@
 											alt="modelfile profile"
 											class=" rounded-full w-full h-auto object-cover"
 											on:error={(e) => {
-												e.target.src = '/favicon.png';
+												(e.target as HTMLImageElement).src = '/favicon.png';
 											}}
 										/>
 									</div>

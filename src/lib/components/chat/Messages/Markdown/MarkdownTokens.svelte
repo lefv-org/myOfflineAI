@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { decode } from 'html-entities';
-	import { onMount, getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import fileSaver from 'file-saver';
 	const { saveAs } = fileSaver;
@@ -29,8 +30,8 @@
 	export let id: string;
 	export let tokens: Token[];
 	export let top = true;
-	export let attributes = {};
-	export let sourceIds = [];
+	export let attributes: Record<string, any> = {};
+	export let sourceIds: any[] = [];
 
 	export let done = true;
 
@@ -42,12 +43,12 @@
 	export let editCodeBlock = true;
 	export let topPadding = false;
 
-	export let onSave: Function = () => {};
-	export let onUpdate: Function = () => {};
-	export let onPreview: Function = () => {};
+	export let onSave: (e?: any) => void = () => {};
+	export let onUpdate: (e?: any) => void = () => {};
+	export let onPreview: (e?: any) => void = () => {};
 
-	export let onTaskClick: Function = () => {};
-	export let onSourceClick: Function = () => {};
+	export let onTaskClick: (e?: any) => void = () => {};
+	export let onSourceClick: (e?: any) => void = () => {};
 
 	const headerComponent = (depth: number) => {
 		return 'h' + depth;
@@ -60,8 +61,8 @@
 	};
 
 	const getDisplayTokens = (tokenList: Token[] = []) => {
-		const displayTokens = [];
-		let detailGroup = [];
+		const displayTokens: any[] = [];
+		let detailGroup: any[] = [];
 
 		const flushDetailGroup = () => {
 			if (detailGroup.length > 1) {
@@ -298,7 +299,7 @@
 										tokenIdx: tokenIdx,
 										item: item,
 										itemIdx: itemIdx,
-										checked: e.target.checked
+										checked: (e.target as HTMLInputElement)?.checked
 									});
 								}}
 							/>
@@ -333,7 +334,7 @@
 										tokenIdx: tokenIdx,
 										item: item,
 										itemIdx: itemIdx,
-										checked: e.target.checked
+										checked: (e.target as HTMLInputElement)?.checked
 									});
 								}}
 							/>
@@ -464,7 +465,7 @@
 			/>
 		{/if}
 	{:else if token.type === 'html'}
-		<HtmlToken {id} {token} {onSourceClick} />
+		<HtmlToken {id} {token} />
 	{:else if token.type === 'iframe'}
 		<iframe
 			src="{WEBUI_BASE_URL}/api/v1/files/{token.fileId}/content"
@@ -473,8 +474,9 @@
 			frameborder="0"
 			on:load={(e) => {
 				try {
-					e.currentTarget.style.height =
-						e.currentTarget.contentWindow.document.body.scrollHeight + 20 + 'px';
+					const iframe = e.currentTarget as HTMLIFrameElement;
+					iframe.style.height =
+						iframe.contentWindow!.document.body.scrollHeight + 20 + 'px';
 				} catch {}
 			}}
 		></iframe>

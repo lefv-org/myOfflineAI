@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
-	import { onMount, tick, getContext } from 'svelte';
+	import { onMount, tick } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { createNewPrompt } from '$lib/apis/prompts';
 	import PromptEditor from '$lib/components/workspace/Prompts/PromptEditor.svelte';

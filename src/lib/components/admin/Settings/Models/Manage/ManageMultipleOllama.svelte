@@ -1,10 +1,11 @@
-<script>
-	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import ManageOllama from './ManageOllama.svelte';
 
-	export let ollamaConfig = null;
+	export let ollamaConfig: any = null;
 
 	let selectedUrlIdx = 0;
 </script>

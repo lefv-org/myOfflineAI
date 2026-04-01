@@ -1,9 +1,10 @@
-<script>
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 
-	import { onMount, getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import { page } from '$app/stores';
 	import { config, models, settings } from '$lib/stores';
@@ -13,7 +14,7 @@
 	import { getModels } from '$lib/apis';
 	import ModelEditor from '$lib/components/workspace/Models/ModelEditor.svelte';
 
-	let model = null;
+	let model: any = null;
 
 	onMount(async () => {
 		const _id = $page.url.searchParams.get('id');

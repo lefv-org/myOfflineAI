@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import dayjs from 'dayjs';
-	import { getContext, createEventDispatcher } from 'svelte';
+	import { createEventDispatcher } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 
@@ -22,12 +23,12 @@
 	import ChevronUp from '$lib/components/icons/ChevronUp.svelte';
 	import ChevronDown from '$lib/components/icons/ChevronDown.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	dayjs.extend(localizedFormat);
 
 	export let show = false;
 
-	let memories = [];
+	let memories: any[] = [];
 	let loading = true;
 
 	let query = '';
@@ -46,7 +47,7 @@
 	let showAddMemoryModal = false;
 	let showEditMemoryModal = false;
 
-	let selectedMemory = null;
+	let selectedMemory: any = null;
 
 	let showClearConfirmDialog = false;
 	let showDeleteConfirm = false;

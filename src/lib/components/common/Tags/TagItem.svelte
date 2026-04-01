@@ -1,13 +1,14 @@
-<script>
-	import { getContext } from 'svelte';
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
+	;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import XMark from '$lib/components/icons/XMark.svelte';
 
 	export let tag;
 	export let disabled = false;
-	export let onDelete = () => {};
+	export let onDelete: Function = () => {};
 </script>
 
 {#if tag}

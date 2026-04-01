@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import dayjs from 'dayjs';
 	import { toast } from 'svelte-sonner';
-	import { tick, getContext, onMount } from 'svelte';
+	import { tick, onMount } from 'svelte';
 
 	import { models, settings } from '$lib/stores';
 	import { user as _user } from '$lib/stores';
@@ -18,7 +19,7 @@
 
 	import localizedFormat from 'dayjs/plugin/localizedFormat';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	dayjs.extend(localizedFormat);
 
 	export let user;
@@ -47,7 +48,7 @@
 
 	let edit = false;
 	let editedContent = '';
-	let editedFiles = [];
+	let editedFiles: any[] = [];
 
 	let messageEditTextAreaElement: HTMLTextAreaElement;
 	let editScrollContainer: HTMLDivElement;
@@ -85,7 +86,7 @@
 			messageEditTextAreaElement.style.height = '';
 			messageEditTextAreaElement.style.height = `${messageEditTextAreaElement.scrollHeight}px`;
 
-			if (messagesContainer) messagesContainer.scrollTop = savedScrollTop;
+			if (messagesContainer) messagesContainer.scrollTop = savedScrollTop!;
 			messageEditTextAreaElement?.focus({ preventScroll: true });
 		}
 	};
@@ -128,7 +129,7 @@
 
 <div
 	class=" flex w-full user-message group"
-	dir={$settings.chatDirection}
+	dir={$settings.chatDirection as any}
 	id="message-{message.id}"
 	style="scroll-margin-top: 3rem;"
 >
@@ -203,7 +204,7 @@
 				{#if message.files}
 					<div
 						class="mb-1 w-full flex flex-col justify-end overflow-x-auto gap-1 flex-wrap"
-						dir={$settings?.chatDirection ?? 'auto'}
+						dir={($settings?.chatDirection ?? 'auto') as any}
 					>
 						{#each message.files as file}
 							{@const fileUrl =
@@ -306,11 +307,12 @@
 								const messagesContainer = document.getElementById('messages-container');
 								const savedScrollTop = messagesContainer?.scrollTop;
 								const savedInnerScroll = editScrollContainer?.scrollTop;
+								const target = e.target as HTMLTextAreaElement;
 
-								e.target.style.height = '';
-								e.target.style.height = `${e.target.scrollHeight}px`;
+								target.style.height = '';
+								target.style.height = `${target.scrollHeight}px`;
 
-								if (messagesContainer) messagesContainer.scrollTop = savedScrollTop;
+								if (messagesContainer) messagesContainer.scrollTop = savedScrollTop!;
 								if (editScrollContainer) editScrollContainer.scrollTop = savedInnerScroll;
 							}}
 							on:keydown={(e) => {
@@ -429,15 +431,15 @@
 											min="1"
 											max={siblings.length}
 											on:focus={(e) => {
-												e.target.select();
+												(e.target as HTMLInputElement).select();
 											}}
 											on:blur={(e) => {
-												gotoMessage(message, e.target.value - 1);
+												gotoMessage(message, Number((e.target as HTMLInputElement).value) - 1);
 												messageIndexEdit = false;
 											}}
 											on:keydown={(e) => {
 												if (e.key === 'Enter') {
-													gotoMessage(message, e.target.value - 1);
+													gotoMessage(message, Number((e.target as HTMLInputElement).value) - 1);
 													messageIndexEdit = false;
 												}
 											}}
@@ -452,7 +454,7 @@
 											messageIndexEdit = true;
 
 											await tick();
-											const input = document.getElementById(`message-index-input-${message.id}`);
+											const input = document.getElementById(`message-index-input-${message.id}`) as HTMLInputElement | null;
 											if (input) {
 												input.focus();
 												input.select();
@@ -609,15 +611,15 @@
 											min="1"
 											max={siblings.length}
 											on:focus={(e) => {
-												e.target.select();
+												(e.target as HTMLInputElement).select();
 											}}
 											on:blur={(e) => {
-												gotoMessage(message, e.target.value - 1);
+												gotoMessage(message, Number((e.target as HTMLInputElement).value) - 1);
 												messageIndexEdit = false;
 											}}
 											on:keydown={(e) => {
 												if (e.key === 'Enter') {
-													gotoMessage(message, e.target.value - 1);
+													gotoMessage(message, Number((e.target as HTMLInputElement).value) - 1);
 													messageIndexEdit = false;
 												}
 											}}
@@ -632,7 +634,7 @@
 											messageIndexEdit = true;
 
 											await tick();
-											const input = document.getElementById(`message-index-input-${message.id}`);
+											const input = document.getElementById(`message-index-input-${message.id}`) as HTMLInputElement | null;
 											if (input) {
 												input.focus();
 												input.select();

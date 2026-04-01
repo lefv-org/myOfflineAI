@@ -12,8 +12,8 @@
 	export let onUpload = (e) => {};
 	export let insertTextHandler = (text) => {};
 
-	let suggestionElement = null;
-	let filteredItems = [];
+	let suggestionElement: any = null;
+	let filteredItems: any[] = [];
 
 	const onKeyDown = (event: KeyboardEvent) => {
 		if (!['ArrowUp', 'ArrowDown', 'Enter', 'Tab', 'Escape'].includes(event.key)) return false;

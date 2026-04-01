@@ -1,9 +1,10 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import GarbageBin from '../../icons/GarbageBin.svelte';
 	import Tooltip from '../../common/Tooltip.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let count: number = 0;
 	export let hasFiles: boolean = false;

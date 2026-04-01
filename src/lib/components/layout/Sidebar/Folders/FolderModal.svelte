@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext, createEventDispatcher, onMount, tick } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import Modal from '$lib/components/common/Modal.svelte';
@@ -13,21 +14,21 @@
 	import Textarea from '$lib/components/common/Textarea.svelte';
 	import Knowledge from '$lib/components/workspace/Models/Knowledge.svelte';
 	import { getFolderById } from '$lib/apis/folders';
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
 	export let onSubmit: Function = (e) => {};
 
-	export let folderId = null;
-	export let parentId = null;
+	export let folderId: any = null;
+	export let parentId: any = null;
 	export let edit = false;
 
-	let folder = null;
+	let folder: any = null;
 	let name = '';
-	let meta = {
+	let meta: any = {
 		background_image_url: null
 	};
-	let data = {
+	let data: any = {
 		system_prompt: '',
 		files: []
 	};
@@ -157,11 +158,11 @@
 						hidden
 						accept="image/*"
 						on:change={(e) => {
-							const inputFiles = e.target.files;
+							const inputFiles = (e.target as HTMLInputElement).files;
 
 							let reader = new FileReader();
 							reader.onload = (event) => {
-								let originalImageUrl = `${event.target.result}`;
+								let originalImageUrl = `${event.target!.result as string}`;
 								meta.background_image_url = originalImageUrl;
 							};
 
@@ -174,10 +175,10 @@
 							) {
 								reader.readAsDataURL(inputFiles[0]);
 							} else {
-								console.log(`Unsupported File Type '${inputFiles[0]['type']}'.`);
+								console.log(`Unsupported File Type '${inputFiles?.[0]?.['type']}'.`);
 
 								// clear the input
-								e.target.value = '';
+								(e.target as HTMLInputElement).value = '';
 							}
 						}}
 					/>

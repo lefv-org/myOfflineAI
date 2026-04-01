@@ -1,10 +1,11 @@
-<script>
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
 	import dayjs from 'dayjs';
 	import relativeTime from 'dayjs/plugin/relativeTime';
 	dayjs.extend(relativeTime);
 
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
 	import { WEBUI_NAME, config, user, showSidebar, knowledge } from '$lib/stores';
@@ -28,11 +29,11 @@
 		updateUserDefaultPermissions
 	} from '$lib/apis/users';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let loaded = false;
 
-	let groups = [];
+	let groups: any[] = [];
 
 	let query = '';
 	let sortBy = 'members';
@@ -61,7 +62,7 @@
 			return 0;
 		});
 
-	let defaultPermissions = {};
+	let defaultPermissions: any = {};
 
 	let showAddGroupModal = false;
 	let showDefaultPermissionsModal = false;

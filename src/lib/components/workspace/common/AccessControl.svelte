@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { getGroups, getGroupById, getGroupInfoById } from '$lib/apis/groups';
 	import { getUserInfoById } from '$lib/apis/users';
@@ -371,12 +372,16 @@
 	$: if (readGroupIds.length > 0 || writeGroupIds.length > 0) {
 		void ensureGroupsByIds([...readGroupIds, ...writeGroupIds]);
 	}
-	$: readGroupIds = (accessGrants, getPrincipalIdsByPermission('group', 'read'));
-	$: writeGroupIds = (accessGrants, getPrincipalIdsByPermission('group', 'write'));
+	// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+	$: readGroupIds = (void accessGrants, getPrincipalIdsByPermission('group', 'read'));
+	// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+	$: writeGroupIds = (void accessGrants, getPrincipalIdsByPermission('group', 'write'));
+	// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 	$: readUserIds =
-		(accessGrants, getPrincipalIdsByPermission('user', 'read').filter((id) => id !== '*'));
+		(void accessGrants, getPrincipalIdsByPermission('user', 'read').filter((id: string) => id !== '*'));
+	// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 	$: writeUserIds =
-		(accessGrants, getPrincipalIdsByPermission('user', 'write').filter((id) => id !== '*'));
+		(void accessGrants, getPrincipalIdsByPermission('user', 'write').filter((id: string) => id !== '*'));
 
 	$: selectedUserIds = Array.from(new Set([...readUserIds, ...writeUserIds]));
 

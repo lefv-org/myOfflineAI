@@ -8,7 +8,7 @@ function escapeHtml(s: string) {
 	);
 }
 
-export function footnoteExtension() {
+export function footnoteExtension(options: any = {}) {
 	return {
 		name: 'footnote',
 		level: 'inline' as const,
@@ -31,7 +31,7 @@ export function footnoteExtension() {
 	};
 }
 
-export default function () {
+export default function (options: any = {}) {
 	return {
 		extensions: [footnoteExtension()]
 	};

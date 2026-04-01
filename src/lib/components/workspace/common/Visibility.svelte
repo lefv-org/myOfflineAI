@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { getContext, onMount } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onMount } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let onChange: Function = () => {};
 	export let state = 'private';
@@ -54,7 +55,7 @@
 					class="outline-hidden bg-transparent text-sm font-medium block w-fit pr-10 max-w-full placeholder-gray-400"
 					value={state === 'private' ? 'private' : 'public'}
 					on:change={(e) => {
-						if (e.target.value === 'public') {
+						if ((e.target as HTMLSelectElement).value === 'public') {
 							state = 'public';
 						} else {
 							state = 'private';

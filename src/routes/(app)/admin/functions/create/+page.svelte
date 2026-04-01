@@ -1,6 +1,7 @@
-<script>
+<script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 
 	import { config, functions, models, settings } from '$lib/stores';
@@ -10,11 +11,11 @@
 	import { compareVersion, extractFrontmatter } from '$lib/utils';
 	import { WEBUI_VERSION } from '$lib/constants';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let mounted = false;
 	let clone = false;
-	let func = null;
+	let func: any = null;
 
 	const saveHandler = async (data) => {
 		console.log(data);

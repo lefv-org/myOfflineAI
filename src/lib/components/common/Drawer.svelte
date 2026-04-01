@@ -5,9 +5,9 @@
 
 	export let show = false;
 	export let className = '';
-	export let onClose = () => {};
+	export let onClose: Function = () => {};
 
-	let modalElement = null;
+	let modalElement: any = null;
 	let mounted = false;
 
 	const handleKeyDown = (event: KeyboardEvent) => {

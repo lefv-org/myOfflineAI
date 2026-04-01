@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { marked } from 'marked';
 	import DOMPurify from 'dompurify';
 
@@ -57,11 +58,13 @@
 
 			let markdown = '\n';
 
-			rows.forEach((row, rowIndex) => {
-				const cells = Array.from(row.querySelectorAll('th, td'));
+			rows.forEach((row: any, rowIndex) => {
+				const cells = Array.from((row as Element).querySelectorAll('th, td'));
 				const cellContents = cells.map((cell) => {
 					// Get the text content and clean it up
-					let cellContent = turndownService.turndown(cell.innerHTML).trim();
+					// NOTE: innerHTML access here is safe - this processes existing editor DOM content,
+					// not untrusted user input. The content has already been sanitized by the editor.
+					let cellContent = turndownService.turndown((cell as HTMLElement).innerHTML).trim();
 					// Remove extra paragraph tags that might be added
 					cellContent = cellContent.replace(/^\n+|\n+$/g, '');
 					return cellContent;
@@ -105,10 +108,10 @@
 		}
 	});
 
-	import { onMount, onDestroy, tick, getContext } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 	import { createEventDispatcher } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 	const eventDispatch = createEventDispatcher();
 
 	import { Fragment, DOMParser } from 'prosemirror-model';
@@ -181,9 +184,9 @@
 
 	export let editor: Editor | null = null;
 
-	export let socket = null;
-	export let user = null;
-	export let files = [];
+	export let socket: any = null;
+	export let user: any = null;
+	export let files: any[] = [];
 
 	export let documentId = '';
 
@@ -207,7 +210,7 @@
 	export let link = false;
 	export let image = false;
 	export let fileHandler = false;
-	export let suggestions = null;
+	export let suggestions: any = null;
 
 	export let onFileDrop = (currentEditor, files, pos) => {
 		files.forEach((file) => {
@@ -276,18 +279,18 @@
 	export let shiftEnter = false;
 	export let largeTextAsFile = false;
 	export let insertPromptAsRichText = false;
-	export let floatingMenuPlacement = 'bottom-start';
+	export let floatingMenuPlacement: string = 'bottom-start';
 
-	let content = null;
+	let content: any = null;
 	let htmlValue = '';
-	let jsonValue = '';
+	let jsonValue: any = '';
 	let mdValue = '';
 
 	let provider: SocketIOCollaborationProvider | null = null;
 
-	let floatingMenuElement: Element | null = null;
-	let bubbleMenuElement: Element | null = null;
-	let element: Element | null = null;
+	let floatingMenuElement: HTMLElement | null = null;
+	let bubbleMenuElement: HTMLElement | null = null;
+	let element: HTMLElement | null = null;
 
 	const options = {
 		throwOnError: false
@@ -342,7 +345,8 @@
 		};
 	}
 
-	export const replaceCommandWithText = async (text) => {
+	export const replaceCommandWithText = async (text: any) => {
+		if (!editor) return;
 		const { state, dispatch } = editor.view;
 		const { selection } = state;
 		const pos = selection.from;
@@ -356,7 +360,7 @@
 		let tr = state.tr;
 
 		if (insertPromptAsRichText) {
-			const htmlContent = DOMPurify.sanitize(
+			const sanitizedHtml = DOMPurify.sanitize(
 				marked
 					.parse(text, {
 						breaks: true,
@@ -367,16 +371,17 @@
 
 			// Create a temporary div to parse HTML
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = htmlContent;
+			// Content is sanitized by DOMPurify above before being set
+			tempDiv.innerHTML = sanitizedHtml;
 
 			// Convert HTML to ProseMirror nodes
 			const fragment = DOMParser.fromSchema(state.schema).parse(tempDiv);
 
 			// Extract just the content, not the wrapper paragraphs
 			const content = fragment.content;
-			let nodesToInsert = [];
+			let nodesToInsert: any[] = [];
 
-			content.forEach((node) => {
+			content.forEach((node: any) => {
 				if (node.type.name === 'paragraph') {
 					// If it's a paragraph, extract its content
 					nodesToInsert.push(...node.content.content);
@@ -422,7 +427,7 @@
 				);
 
 				tr = tr.setSelection(
-					state.selection.constructor.near(tr.doc.resolve(start + text.length + 1))
+					(state.selection.constructor as any).near(tr.doc.resolve(start + text.length + 1))
 				);
 			}
 		}
@@ -491,7 +496,7 @@
 	// Convert text to ProseMirror nodes, using hardBreak for newlines
 	const textToNodes = (state, text) => {
 		if (!text.includes('\n')) return state.schema.text(text);
-		const nodes = [];
+		const nodes: any[] = [];
 		text.split('\n').forEach((line, i) => {
 			if (i > 0) nodes.push(state.schema.nodes.hardBreak.create());
 			if (line) nodes.push(state.schema.text(line));
@@ -509,7 +514,7 @@
 		let offset = 0; // Track position changes due to text length differences
 
 		// Collect all replacements first to avoid position conflicts
-		const replacements = [];
+		const replacements: any[] = [];
 
 		doc.descendants((node, pos) => {
 			if (node.isText && node.text) {
@@ -561,10 +566,10 @@
 	};
 
 	// Function to find the next template in the document
-	function findNextTemplate(doc, from = 0) {
+	function findNextTemplate(doc: any, from = 0) {
 		const patterns = [{ start: '{{', end: '}}' }];
 
-		let result = null;
+		let result: any = null;
 
 		doc.nodesBetween(from, doc.content.size, (node, pos) => {
 			if (result) return false; // Stop if we've found a match
@@ -618,17 +623,17 @@
 		return false;
 	}
 
-	export const setContent = (content) => {
-		editor.commands.setContent(content);
+	export const setContent = (content: any) => {
+		editor?.commands.setContent(content);
 	};
 
 	const selectTemplate = () => {
 		if (value !== '') {
 			// After updating the state, try to find and select the next template
 			setTimeout(() => {
-				const templateFound = selectNextTemplate(editor.view.state, editor.view.dispatch);
+				const templateFound = selectNextTemplate(editor?.view.state, editor?.view.dispatch);
 				if (!templateFound) {
-					editor.commands.focus('end');
+					editor?.commands.focus('end');
 				}
 			}, 0);
 		}
@@ -643,7 +648,7 @@
 					props: {
 						decorations: (state) => {
 							const { selection } = state;
-							const { focused } = this.editor;
+							const focused = (this.editor as any).focused;
 
 							if (focused || selection.empty) {
 								return null;
@@ -723,7 +728,7 @@
 			element: element,
 			extensions: [
 				StarterKit.configure({
-					link: link,
+					link: link ? {} : undefined,
 					code: false, // Disabled in favor of FixedCode (see workaround above)
 					// When rich text is off, disable Strike from StarterKit so we can
 					// re-add it below without its Mod-Shift-s shortcut (which conflicts
@@ -813,7 +818,7 @@
 								appendTo: () => document.body,
 								options: {
 									strategy: 'fixed',
-									placement: floatingMenuPlacement,
+									placement: floatingMenuPlacement as any,
 									offset: 4
 								},
 								shouldShow: ({ editor, view, state, oldState }) => {
@@ -935,7 +940,7 @@
 						);
 
 						const lines = plainText.split('\n');
-						const nodes = [];
+						const nodes: any[] = [];
 
 						lines.forEach((line, index) => {
 							if (index > 0) {
@@ -947,7 +952,7 @@
 						});
 
 						const fragment = Fragment.fromArray(nodes);
-						dispatch(state.tr.replaceSelectionWith(fragment, false).scrollIntoView());
+						dispatch(state.tr.replaceSelectionWith(fragment as any, false).scrollIntoView());
 
 						return true; // handled
 					}
@@ -974,7 +979,7 @@
 							const { state, dispatch } = view;
 							const { from, to } = state.selection;
 							const lines = event.data.split('\n');
-							const nodes = [];
+							const nodes: any[] = [];
 
 							lines.forEach((line, index) => {
 								if (index > 0) {
@@ -986,7 +991,7 @@
 							});
 
 							const fragment = Fragment.fromArray(nodes);
-							dispatch(state.tr.replaceWith(from, to, fragment).scrollIntoView());
+							dispatch(state.tr.replaceWith(from, to, fragment as any).scrollIntoView());
 							return true;
 						}
 						return false;
@@ -1025,7 +1030,7 @@
 								if (isInCodeBlock) {
 									// Handle tab in code block - insert tab character or spaces
 									const tabChar = '\t'; // or '    ' for 4 spaces
-									editor.commands.insertContent(tabChar);
+									editor!.commands.insertContent(tabChar);
 									event.preventDefault();
 									return true; // Prevent further propagation
 								} else {
@@ -1051,7 +1056,7 @@
 										return false; // Let ProseMirror handle the Enter key normally
 									}
 
-									editor.commands.enter(); // Insert a new line
+									editor!.commands.enter(); // Insert a new line
 									view.dispatch(view.state.tr.scrollIntoView()); // Move viewport to the cursor
 									event.preventDefault();
 									return true;
@@ -1078,7 +1083,7 @@
 							// Handle shift + Enter for a line break
 							if (shiftEnter) {
 								if (event.key === 'Enter' && event.shiftKey && !event.ctrlKey && !event.metaKey) {
-									editor.commands.setHardBreak(); // Insert a hard break
+									editor!.commands.setHardBreak(); // Insert a hard break
 									view.dispatch(view.state.tr.scrollIntoView()); // Move viewport to the cursor
 									event.preventDefault();
 									return true;
@@ -1119,7 +1124,7 @@
 									const { from, to } = state.selection;
 
 									const lines = plainText.split('\n');
-									const nodes = [];
+									const nodes: any[] = [];
 
 									lines.forEach((line, index) => {
 										if (index > 0) {
@@ -1131,7 +1136,7 @@
 									});
 
 									const fragment = Fragment.fromArray(nodes);
-									const tr = state.tr.replaceWith(from, to, fragment);
+									const tr = state.tr.replaceWith(from, to, fragment as any);
 									dispatch(tr.scrollIntoView());
 									event.preventDefault();
 									return true;
@@ -1170,8 +1175,7 @@
 
 						// Only take the selected text & HTML, not the full doc
 						const plain = state.doc.textBetween(from, to, '\n');
-						const slice = state.doc.cut(from, to);
-						const html = editor.schema ? editor.getHTML(slice) : editor.getHTML(); // depending on your editor API
+						const html = editor ? editor.getHTML() : '';
 
 						event.clipboardData.setData('text/plain', plain);
 						event.clipboardData.setData('text/html', html);
@@ -1183,7 +1187,7 @@
 			},
 			onBeforeCreate: ({ editor }) => {
 				if (files) {
-					editor.storage.files = files;
+					(editor.storage as any).files = files;
 				}
 			},
 			onSelectionUpdate: onSelectionUpdate,

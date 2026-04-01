@@ -1,9 +1,10 @@
 <script context="module">
+	import { getI18nContext } from '$lib/i18n';
 	let savedPyodidePath = '/mnt/uploads';
 </script>
 
 <script lang="ts">
-	import { getContext, onMount, onDestroy, tick } from 'svelte';
+	import { onMount, onDestroy, tick } from 'svelte';
 	import { pyodideWorker } from '$lib/stores';
 	import PyodideWorkerConstructor from '$lib/workers/pyodide.worker?worker';
 	type FileEntry = {
@@ -12,6 +13,7 @@
 		is_dir: boolean;
 		size: number;
 		modified: number;
+		type?: string;
 	};
 
 	import FileNavToolbar from './FileNav/FileNavToolbar.svelte';
@@ -22,7 +24,7 @@
 	import Folder from '../icons/Folder.svelte';
 	import Document from '../icons/Document.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let overlay = false;
 
@@ -78,7 +80,7 @@
 		await loadDir(entry.path);
 		if (entry.file) {
 			const fileName = entry.file.split('/').pop() ?? '';
-			await openEntry({ name: fileName, type: 'file', size: 0 });
+			await openEntry({ name: fileName, type: 'file', size: 0 } as FileEntry);
 		}
 		navigatingHistory = false;
 	};
@@ -91,7 +93,7 @@
 		await loadDir(entry.path);
 		if (entry.file) {
 			const fileName = entry.file.split('/').pop() ?? '';
-			await openEntry({ name: fileName, type: 'file', size: 0 });
+			await openEntry({ name: fileName, type: 'file', size: 0 } as FileEntry);
 		}
 		navigatingHistory = false;
 	};
@@ -411,7 +413,7 @@
 			} catch {}
 			if (selectedFile) {
 				const name = selectedFile.split('/').pop() ?? '';
-				openEntry({ name, type: 'file', size: 0 });
+				openEntry({ name, type: 'file', size: 0 } as FileEntry);
 			} else {
 				loadDir(currentPath);
 			}

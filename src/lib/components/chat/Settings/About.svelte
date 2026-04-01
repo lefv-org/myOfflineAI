@@ -1,12 +1,13 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { getOllamaVersion } from '$lib/apis/ollama';
 	import { WEBUI_BUILD_HASH, WEBUI_VERSION } from '$lib/constants';
 	import { WEBUI_NAME, showChangelog } from '$lib/stores';
-	import { onMount, getContext } from 'svelte';
+	import { onMount } from 'svelte';
 
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let ollamaVersion = '';
 

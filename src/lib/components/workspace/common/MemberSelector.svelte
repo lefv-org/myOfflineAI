@@ -1,8 +1,9 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount, onDestroy } from 'svelte';
+	import { onMount, onDestroy } from 'svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { user as _user } from '$lib/stores';
 	import { getUserInfoById, searchUsers } from '$lib/apis/users';
@@ -23,22 +24,22 @@
 	export let pagination = false;
 	export let includeSessionUser = false;
 
-	export let groupIds = [];
-	export let userIds = [];
+	export let groupIds: any[] = [];
+	export let userIds: any[] = [];
 
-	let groups = null;
-	let filteredGroups = [];
+	let groups: any = null;
+	let filteredGroups: any[] = [];
 
 	$: filteredGroups = groups
 		? groups.filter((group) => group.name.toLowerCase().includes(query.toLowerCase()))
 		: [];
 
-	let selectedGroup = {};
-	let selectedUsers = {};
+	let selectedGroup: any = {};
+	let selectedUsers: any = {};
 
 	let page = 1;
-	let users = null;
-	let total = null;
+	let users: any = null;
+	let total: any = null;
 
 	let query = '';
 	let searchDebounceTimer: ReturnType<typeof setTimeout>;

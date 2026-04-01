@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { onDestroy, onMount, getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	import { onDestroy, onMount } from 'svelte';
 	import panzoom, { type PanZoom } from 'panzoom';
 
 	import fileSaver from 'file-saver';
@@ -11,11 +12,11 @@
 	export let src = '';
 	export let alt = '';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	let mounted = false;
 
-	let previewElement = null;
+	let previewElement: any = null;
 
 	let instance: PanZoom;
 

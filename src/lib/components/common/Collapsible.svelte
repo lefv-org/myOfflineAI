@@ -1,9 +1,10 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { decode } from 'html-entities';
 	import { v4 as uuidv4 } from 'uuid';
 
-	import { getContext } from 'svelte';
-	const i18n = getContext('i18n');
+	;
+	const i18n = getI18nContext();
 
 	import dayjs from '$lib/dayjs';
 	import duration from 'dayjs/plugin/duration';
@@ -43,12 +44,13 @@
 		'w-fit text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition';
 
 	export let id = '';
-	export let title = null;
-	export let attributes = null;
+	export let title: any = null;
+	export let attributes: any = null;
 
 	export let chevron = false;
 	export let grow = false;
 
+	export let dir: string = '';
 	export let disabled = false;
 	export let messageDone = false;
 	export let hide = false;

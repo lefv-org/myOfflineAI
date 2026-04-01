@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import { decodeString } from '$lib/utils';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let id;
 

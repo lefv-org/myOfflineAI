@@ -1,17 +1,18 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
 
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import PinSlash from '$lib/components/icons/PinSlash.svelte';
 
-	export let model = null;
+	export let model: any = null;
 	export let shiftKey = false;
-	export let onClick = () => {};
-	export let onUnpin = () => {};
+	export let onClick: Function = () => {};
+	export let onUnpin: Function = () => {};
 
 	let mouseOver = false;
 </script>
@@ -31,7 +32,7 @@
 		<a
 			class="grow flex items-center space-x-2.5 rounded-xl px-2.5 py-[7px] group-hover:bg-gray-100 dark:group-hover:bg-gray-900 transition"
 			href="/?model={model?.id}"
-			on:click={onClick}
+			on:click={(e) => onClick(e)}
 			draggable="false"
 		>
 			<div class="self-center shrink-0">
@@ -40,7 +41,7 @@
 					class=" size-5 rounded-full -translate-x-[0.5px]"
 					alt="logo"
 					on:error={(e) => {
-						e.currentTarget.src = '/favicon.png';
+						(e.currentTarget as HTMLImageElement).src = '/favicon.png';
 					}}
 				/>
 			</div>

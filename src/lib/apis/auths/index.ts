@@ -1,7 +1,7 @@
 import { WEBUI_API_BASE_URL } from '$lib/constants';
 
 export const getAdminDetails = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/admin/details`, {
 		method: 'GET',
@@ -28,7 +28,7 @@ export const getAdminDetails = async (token: string) => {
 };
 
 export const getAdminConfig = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/admin/config`, {
 		method: 'GET',
@@ -55,7 +55,7 @@ export const getAdminConfig = async (token: string) => {
 };
 
 export const updateAdminConfig = async (token: string, body: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/admin/config`, {
 		method: 'POST',
@@ -83,7 +83,7 @@ export const updateAdminConfig = async (token: string, body: object) => {
 };
 
 export const getSessionUser = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/`, {
 		method: 'GET',
@@ -111,7 +111,7 @@ export const getSessionUser = async (token: string) => {
 };
 
 export const ldapUserSignIn = async (user: string, password: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/ldap`, {
 		method: 'POST',
@@ -143,7 +143,7 @@ export const ldapUserSignIn = async (user: string, password: string) => {
 };
 
 export const getLdapConfig = async (token: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/admin/config/ldap`, {
 		method: 'GET',
@@ -170,7 +170,7 @@ export const getLdapConfig = async (token: string = '') => {
 };
 
 export const updateLdapConfig = async (token: string = '', enable_ldap: boolean) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/admin/config/ldap`, {
 		method: 'POST',
@@ -200,7 +200,7 @@ export const updateLdapConfig = async (token: string = '', enable_ldap: boolean)
 };
 
 export const getLdapServer = async (token: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/admin/config/ldap/server`, {
 		method: 'GET',
@@ -227,7 +227,7 @@ export const getLdapServer = async (token: string = '') => {
 };
 
 export const updateLdapServer = async (token: string = '', body: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/admin/config/ldap/server`, {
 		method: 'POST',
@@ -255,7 +255,7 @@ export const updateLdapServer = async (token: string = '', body: object) => {
 };
 
 export const userSignIn = async (email: string, password: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/signin`, {
 		method: 'POST',
@@ -292,7 +292,7 @@ export const userSignUp = async (
 	password: string,
 	profile_image_url: string
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/signup`, {
 		method: 'POST',
@@ -325,7 +325,7 @@ export const userSignUp = async (
 };
 
 export const userSignOut = async () => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/signout`, {
 		method: 'GET',
@@ -360,7 +360,7 @@ export const addUser = async (
 	role: string = 'pending',
 	profile_image_url: null | string = null
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/add`, {
 		method: 'POST',
@@ -394,7 +394,7 @@ export const addUser = async (
 };
 
 export const updateUserProfile = async (token: string, profile: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/update/profile`, {
 		method: 'POST',
@@ -437,7 +437,7 @@ export const updateUserTimezone = async (token: string, timezone: string) => {
 };
 
 export const updateUserPassword = async (token: string, password: string, newPassword: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/update/password`, {
 		method: 'POST',
@@ -468,7 +468,7 @@ export const updateUserPassword = async (token: string, password: string, newPas
 };
 
 export const getSignUpEnabledStatus = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/signup/enabled`, {
 		method: 'GET',
@@ -495,7 +495,7 @@ export const getSignUpEnabledStatus = async (token: string) => {
 };
 
 export const getDefaultUserRole = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/signup/user/role`, {
 		method: 'GET',
@@ -522,7 +522,7 @@ export const getDefaultUserRole = async (token: string) => {
 };
 
 export const updateDefaultUserRole = async (token: string, role: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/signup/user/role`, {
 		method: 'POST',
@@ -552,7 +552,7 @@ export const updateDefaultUserRole = async (token: string, role: string) => {
 };
 
 export const toggleSignUpEnabledStatus = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/signup/enabled/toggle`, {
 		method: 'GET',
@@ -579,7 +579,7 @@ export const toggleSignUpEnabledStatus = async (token: string) => {
 };
 
 export const getJWTExpiresDuration = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/token/expires`, {
 		method: 'GET',
@@ -606,7 +606,7 @@ export const getJWTExpiresDuration = async (token: string) => {
 };
 
 export const updateJWTExpiresDuration = async (token: string, duration: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/token/expires/update`, {
 		method: 'POST',
@@ -636,7 +636,7 @@ export const updateJWTExpiresDuration = async (token: string, duration: string) 
 };
 
 export const createAPIKey = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/api_key`, {
 		method: 'POST',
@@ -661,7 +661,7 @@ export const createAPIKey = async (token: string) => {
 };
 
 export const getAPIKey = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/api_key`, {
 		method: 'GET',
@@ -686,7 +686,7 @@ export const getAPIKey = async (token: string) => {
 };
 
 export const deleteAPIKey = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/auths/api_key`, {
 		method: 'DELETE',

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, onMount, getContext } from 'svelte';
-	import { getLanguages, changeLanguage } from '$lib/i18n';
+	import { createEventDispatcher, onMount } from 'svelte';
+	import { getLanguages, changeLanguage, getI18nContext } from '$lib/i18n';
 	const dispatch = createEventDispatcher();
 
 	import { config, models, settings, theme, user } from '$lib/stores';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	import AdvancedParams from './Advanced/AdvancedParams.svelte';
 	import Textarea from '$lib/components/common/Textarea.svelte';
@@ -39,7 +39,7 @@
 		}
 	};
 
-	let params = {
+	let params: Record<string, any> = {
 		// Advanced
 		stream_response: null,
 		stream_delta_chunk_size: null,
@@ -76,7 +76,7 @@
 					params.stream_delta_chunk_size !== null ? params.stream_delta_chunk_size : undefined,
 				function_calling: params.function_calling !== null ? params.function_calling : undefined,
 				seed: (params.seed !== null ? params.seed : undefined) ?? undefined,
-				stop: params.stop ? params.stop.split(',').filter((e) => e) : undefined,
+				stop: params.stop ? params.stop.split(',').filter((e: string) => e) : undefined,
 				temperature: params.temperature !== null ? params.temperature : undefined,
 				reasoning_effort: params.reasoning_effort !== null ? params.reasoning_effort : undefined,
 				logit_bias: params.logit_bias !== null ? params.logit_bias : undefined,
@@ -293,7 +293,7 @@
 						($settings.highContrastMode
 							? ' p-2.5 border-2 border-gray-300 dark:border-gray-700 rounded-lg bg-transparent text-gray-900 dark:text-gray-100 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 overflow-y-hidden'
 							: '  dark:text-gray-300 ')}
-					rows="4"
+					rows={4}
 					placeholder={$i18n.t('Enter system prompt here')}
 				/>
 			</div>

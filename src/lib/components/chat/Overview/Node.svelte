@@ -1,16 +1,17 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { WEBUI_API_BASE_URL } from '$lib/constants';
 	import { Handle, Position, type NodeProps } from '@xyflow/svelte';
-	import { getContext } from 'svelte';
+	;
 
 	import ProfileImage from '../Messages/ProfileImage.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	import Heart from '$lib/components/icons/Heart.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	type $$Props = NodeProps;
-	export let data: $$Props['data'];
+	export let data: any;
 </script>
 
 <div
@@ -18,7 +19,7 @@
 >
 	<Tooltip
 		content={data?.message?.error ? data.message.error.content : data.message.content}
-		class="w-full"
+		className="w-full"
 		allowHTML={false}
 	>
 		{#if data.message.role === 'user'}

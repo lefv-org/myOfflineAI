@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { getContext } from 'svelte';
+	import { getI18nContext } from '$lib/i18n';
+	;
 	import { goto } from '$app/navigation';
 
 	import Dropdown from '$lib/components/common/Dropdown.svelte';
@@ -11,7 +12,7 @@
 	import { config, settings, user } from '$lib/stores';
 	import GlobeAlt from '$lib/components/icons/GlobeAlt.svelte';
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let show = false;
 	export let model;

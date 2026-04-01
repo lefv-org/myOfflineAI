@@ -1,13 +1,14 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import Switch from '$lib/components/common/Switch.svelte';
 	import { config, models, settings, user } from '$lib/stores';
-	import { createEventDispatcher, onMount, getContext, tick } from 'svelte';
+	import { createEventDispatcher, onMount, tick } from 'svelte';
 	import { toast } from 'svelte-sonner';
 	import ManageModal from './Personalization/ManageModal.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let saveSettings: Function;
 

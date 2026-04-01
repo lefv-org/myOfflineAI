@@ -1,6 +1,7 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { createEventDispatcher, onMount, getContext } from 'svelte';
+	import { createEventDispatcher, onMount } from 'svelte';
 
 	import { user, settings, config } from '$lib/stores';
 	import { getVoices as _getVoices } from '$lib/apis/audio';
@@ -10,7 +11,7 @@
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
 	const dispatch = createEventDispatcher();
 
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let saveSettings: Function;
 
@@ -24,13 +25,13 @@
 	let STTLanguage = '';
 
 	let TTSEngine = '';
-	let TTSEngineConfig = {};
+	let TTSEngineConfig: any = {};
 
-	let TTSModel = null;
-	let TTSModelProgress = null;
+	let TTSModel: any = null;
+	let TTSModelProgress: any = null;
 	let TTSModelLoading = false;
 
-	let voices = [];
+	let voices: any[] = [];
 	let voice = '';
 
 	// Audio speed control
@@ -42,7 +43,7 @@
 				await loadKokoro();
 			}
 
-			voices = Object.entries(TTSModel.voices).map(([key, value]) => {
+			voices = Object.entries(TTSModel.voices).map(([key, value]: [string, any]) => {
 				return {
 					id: key,
 					name: value.name,
@@ -50,7 +51,7 @@
 				};
 			});
 		} else {
-			if ($config.audio.tts.engine === '') {
+			if ($config?.audio?.tts?.engine === '') {
 				const getVoicesLoop = setInterval(async () => {
 					voices = await speechSynthesis.getVoices();
 
@@ -94,10 +95,10 @@
 		TTSEngine = $settings?.audio?.tts?.engine ?? '';
 		TTSEngineConfig = $settings?.audio?.tts?.engineConfig ?? {};
 
-		if ($settings?.audio?.tts?.defaultVoice === $config.audio.tts.voice) {
-			voice = $settings?.audio?.tts?.voice ?? $config.audio.tts.voice ?? '';
+		if ($settings?.audio?.tts?.defaultVoice === $config?.audio?.tts?.voice) {
+			voice = $settings?.audio?.tts?.voice ?? $config?.audio?.tts?.voice ?? '';
 		} else {
-			voice = $config.audio.tts.voice ?? '';
+			voice = $config?.audio?.tts?.voice ?? '';
 		}
 
 		nonLocalVoices = $settings.audio?.tts?.nonLocalVoices ?? false;
@@ -129,7 +130,7 @@
 				const { KokoroTTS } = await import('kokoro-js');
 				TTSModel = await KokoroTTS.from_pretrained(model_id, {
 					dtype: TTSEngineConfig.dtype, // Options: "fp32", "fp16", "q8", "q4", "q4f16"
-					device: !!navigator?.gpu ? 'webgpu' : 'wasm', // Detect WebGPU
+					device: !!(navigator as any)?.gpu ? 'webgpu' : 'wasm', // Detect WebGPU
 					progress_callback: (e) => {
 						TTSModelProgress = e;
 						console.log(e);
@@ -168,7 +169,7 @@
 					playbackRate: playbackRate,
 					voice: voice !== '' ? voice : undefined,
 					defaultVoice: $config?.audio?.tts?.voice ?? '',
-					nonLocalVoices: $config.audio.tts.engine === '' ? nonLocalVoices : undefined
+					nonLocalVoices: $config?.audio?.tts?.engine === '' ? nonLocalVoices : undefined
 				}
 			}
 		});
@@ -179,7 +180,7 @@
 		<div>
 			<div class=" mb-1 text-sm font-medium">{$i18n.t('STT Settings')}</div>
 
-			{#if $config.audio.stt.engine !== 'web'}
+			{#if $config?.audio?.stt?.engine !== 'web'}
 				<div class=" py-0.5 flex w-full justify-between">
 					<div class=" self-center text-xs font-medium">{$i18n.t('Speech-to-Text Engine')}</div>
 					<div class="flex items-center relative">
@@ -357,7 +358,7 @@
 					</div>
 				</div>
 			{/if}
-		{:else if $config.audio.tts.engine === ''}
+		{:else if $config?.audio?.tts?.engine === ''}
 			<div>
 				<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Voice')}</div>
 				<div class="flex w-full">
@@ -388,7 +389,7 @@
 					</div>
 				</div>
 			</div>
-		{:else if $config.audio.tts.engine !== ''}
+		{:else if $config?.audio?.tts?.engine !== ''}
 			<div>
 				<div class=" mb-2.5 text-sm font-medium">{$i18n.t('Set Voice')}</div>
 				<div class="flex w-full">

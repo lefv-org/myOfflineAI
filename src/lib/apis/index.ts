@@ -7,7 +7,7 @@ const TOOL_SERVER_FETCH_TIMEOUT = 10000;
 // the one for whom it was intended, and return answered.
 export const getModels = async (
 	token: string = '',
-	_connections: object | null = null,
+	_connections: object | boolean | null = null,
 	base: boolean = false,
 	refresh: boolean = false
 ) => {
@@ -16,7 +16,7 @@ export const getModels = async (
 		searchParams.append('refresh', 'true');
 	}
 
-	let error = null;
+	let error: any = null;
 	const res = await fetch(
 		`${WEBUI_BASE_URL}/api/models${base ? '/base' : ''}?${searchParams.toString()}`,
 		{
@@ -49,13 +49,17 @@ export const getModels = async (
 
 type ChatCompletedForm = {
 	model: string;
-	messages: string[];
+	messages: any[];
 	chat_id: string;
 	session_id: string;
+	filter_ids?: string[];
+	model_item?: any;
+	id?: string;
+	[key: string]: any;
 };
 
 export const chatCompleted = async (token: string, body: ChatCompletedForm) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/chat/completed`, {
 		method: 'POST',
@@ -89,12 +93,13 @@ export const chatCompleted = async (token: string, body: ChatCompletedForm) => {
 
 type ChatActionForm = {
 	model: string;
-	messages: string[];
+	messages: any[];
 	chat_id: string;
+	[key: string]: any;
 };
 
 export const chatAction = async (token: string, action_id: string, body: ChatActionForm) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/chat/actions/${action_id}`, {
 		method: 'POST',
@@ -127,7 +132,7 @@ export const chatAction = async (token: string, action_id: string, body: ChatAct
 };
 
 export const stopTask = async (token: string, id: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/tasks/stop/${id}`, {
 		method: 'POST',
@@ -159,7 +164,7 @@ export const stopTask = async (token: string, id: string) => {
 };
 
 export const getTaskIdsByChatId = async (token: string, chat_id: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/tasks/chat/${chat_id}`, {
 		method: 'GET',
@@ -191,7 +196,7 @@ export const getTaskIdsByChatId = async (token: string, chat_id: string) => {
 };
 
 export const getToolServerData = async (token: string, url: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${url}`, {
 		signal: AbortSignal.timeout(TOOL_SERVER_FETCH_TIMEOUT),
@@ -233,15 +238,15 @@ export const getToolServerData = async (token: string, url: string) => {
 	return res;
 };
 
-export const getToolServersData = async (servers: object[]) => {
+export const getToolServersData = async (servers: any[]) => {
 	return (
 		await Promise.all(
 			servers
 				.filter((server) => server?.config?.enable)
 				.map(async (server) => {
-					let error = null;
+					let error: any = null;
 
-					let toolServerToken = null;
+					let toolServerToken: any = null;
 
 					const auth_type = server?.auth_type ?? 'bearer';
 					if (auth_type === 'bearer') {
@@ -252,7 +257,7 @@ export const getToolServersData = async (servers: object[]) => {
 						toolServerToken = localStorage.token;
 					}
 
-					let res = null;
+					let res: any = null;
 					const specType = server?.spec_type ?? 'url';
 
 					if (specType === 'url') {
@@ -344,7 +349,7 @@ export const executeToolServer = async (
 	params: Record<string, any>,
 	serverData: { openapi: any; info: any; specs: any }
 ) => {
-	let error = null;
+	let error: any = null;
 
 	try {
 		// Find the matching operationId in the OpenAPI spec
@@ -461,7 +466,7 @@ export const executeToolServer = async (
 };
 
 export const getTaskConfig = async (token: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/tasks/config`, {
 		method: 'GET',
@@ -489,7 +494,7 @@ export const getTaskConfig = async (token: string = '') => {
 };
 
 export const updateTaskConfig = async (token: string, config: object) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/tasks/config/update`, {
 		method: 'POST',
@@ -527,7 +532,7 @@ export const generateTitle = async (
 	messages: object[],
 	chat_id?: string
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/tasks/title/completions`, {
 		method: 'POST',
@@ -599,7 +604,7 @@ export const generateFollowUps = async (
 	messages: string,
 	chat_id?: string
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/tasks/follow_ups/completions`, {
 		method: 'POST',
@@ -671,7 +676,7 @@ export const generateTags = async (
 	messages: string,
 	chat_id?: string
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/tasks/tags/completions`, {
 		method: 'POST',
@@ -743,7 +748,7 @@ export const generateEmoji = async (
 	prompt: string,
 	chat_id?: string
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/tasks/emoji/completions`, {
 		method: 'POST',
@@ -793,7 +798,7 @@ export const generateQueries = async (
 	type: string = 'web_search',
 	chat_id?: string
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/tasks/queries/completions`, {
 		method: 'POST',
@@ -865,7 +870,7 @@ export const generateAutoCompletion = async (
 	chat_id?: string
 ) => {
 	const controller = new AbortController();
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/tasks/auto/completions`, {
 		signal: controller.signal,
@@ -936,7 +941,7 @@ export const generateMoACompletion = async (
 	responses: string[]
 ) => {
 	const controller = new AbortController();
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/tasks/moa/completions`, {
 		signal: controller.signal,
@@ -966,7 +971,7 @@ export const generateMoACompletion = async (
 };
 
 export const getPipelinesList = async (token: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/pipelines/list`, {
 		method: 'GET',
@@ -995,7 +1000,7 @@ export const getPipelinesList = async (token: string = '') => {
 };
 
 export const uploadPipeline = async (token: string, file: File, urlIdx: string) => {
-	let error = null;
+	let error: any = null;
 
 	// Create a new FormData object to handle the file upload
 	const formData = new FormData();
@@ -1032,7 +1037,7 @@ export const uploadPipeline = async (token: string, file: File, urlIdx: string) 
 };
 
 export const downloadPipeline = async (token: string, url: string, urlIdx: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/pipelines/add`, {
 		method: 'POST',
@@ -1068,7 +1073,7 @@ export const downloadPipeline = async (token: string, url: string, urlIdx: strin
 };
 
 export const deletePipeline = async (token: string, id: string, urlIdx: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/v1/pipelines/delete`, {
 		method: 'DELETE',
@@ -1104,7 +1109,7 @@ export const deletePipeline = async (token: string, id: string, urlIdx: string) 
 };
 
 export const getPipelines = async (token: string, urlIdx?: string) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (urlIdx !== undefined) {
@@ -1138,7 +1143,7 @@ export const getPipelines = async (token: string, urlIdx?: string) => {
 };
 
 export const getPipelineValves = async (token: string, pipeline_id: string, urlIdx: string) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (urlIdx !== undefined) {
@@ -1174,7 +1179,7 @@ export const getPipelineValves = async (token: string, pipeline_id: string, urlI
 };
 
 export const getPipelineValvesSpec = async (token: string, pipeline_id: string, urlIdx: string) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (urlIdx !== undefined) {
@@ -1215,7 +1220,7 @@ export const updatePipelineValves = async (
 	valves: object,
 	urlIdx: string
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const searchParams = new URLSearchParams();
 	if (urlIdx !== undefined) {
@@ -1257,7 +1262,7 @@ export const updatePipelineValves = async (
 };
 
 export const getUsage = async (token: string = '') => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/usage`, {
 		method: 'GET',
@@ -1284,7 +1289,7 @@ export const getUsage = async (token: string = '') => {
 };
 
 export const getBackendConfig = async () => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/config`, {
 		method: 'GET',
@@ -1337,7 +1342,7 @@ export const getBackendConfig = async () => {
 };
 
 export const getChangelog = async () => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/changelog`, {
 		method: 'GET',
@@ -1363,7 +1368,7 @@ export const getChangelog = async () => {
 };
 
 export const getVersion = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/version`, {
 		method: 'GET',
@@ -1390,7 +1395,7 @@ export const getVersion = async (token: string) => {
 };
 
 export const getVersionUpdates = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/version/updates`, {
 		method: 'GET',
@@ -1417,7 +1422,7 @@ export const getVersionUpdates = async (token: string) => {
 };
 
 export const getModelFilterConfig = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/config/model/filter`, {
 		method: 'GET',
@@ -1448,7 +1453,7 @@ export const updateModelFilterConfig = async (
 	enabled: boolean,
 	models: string[]
 ) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/config/model/filter`, {
 		method: 'POST',
@@ -1479,7 +1484,7 @@ export const updateModelFilterConfig = async (
 };
 
 export const getWebhookUrl = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/webhook`, {
 		method: 'GET',
@@ -1506,7 +1511,7 @@ export const getWebhookUrl = async (token: string) => {
 };
 
 export const updateWebhookUrl = async (token: string, url: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/webhook`, {
 		method: 'POST',
@@ -1536,7 +1541,7 @@ export const updateWebhookUrl = async (token: string, url: string) => {
 };
 
 export const getCommunitySharingEnabledStatus = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/community_sharing`, {
 		method: 'GET',
@@ -1563,7 +1568,7 @@ export const getCommunitySharingEnabledStatus = async (token: string) => {
 };
 
 export const toggleCommunitySharingEnabledStatus = async (token: string) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/community_sharing/toggle`, {
 		method: 'GET',
@@ -1590,7 +1595,7 @@ export const toggleCommunitySharingEnabledStatus = async (token: string) => {
 };
 
 export const getModelConfig = async (token: string): Promise<GlobalModelConfig> => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/config/models`, {
 		method: 'GET',
@@ -1625,10 +1630,14 @@ export interface ModelConfig {
 }
 
 export interface ModelMeta {
-	toolIds: never[];
+	toolIds?: any[];
 	description?: string;
 	capabilities?: object;
 	profile_image_url?: string;
+	defaultFilterIds?: any[];
+	defaultFeatureIds?: any[];
+	hidden?: boolean;
+	[key: string]: any;
 }
 
 export interface ModelParams {}
@@ -1636,7 +1645,7 @@ export interface ModelParams {}
 export type GlobalModelConfig = ModelConfig[];
 
 export const updateModelConfig = async (token: string, config: GlobalModelConfig) => {
-	let error = null;
+	let error: any = null;
 
 	const res = await fetch(`${WEBUI_BASE_URL}/api/config/models`, {
 		method: 'POST',

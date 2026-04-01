@@ -1,26 +1,27 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { getAllTags } from '$lib/apis/chats';
 	import { folders, tags } from '$lib/stores';
-	import { getContext, createEventDispatcher, onMount, onDestroy, tick } from 'svelte';
+	import { createEventDispatcher, onMount, onDestroy, tick } from 'svelte';
 	import { fade } from 'svelte/transition';
 	import Search from '$lib/components/icons/Search.svelte';
 	import XMark from '$lib/components/icons/XMark.svelte';
 
 	const dispatch = createEventDispatcher();
-	const i18n = getContext('i18n');
+	const i18n = getI18nContext();
 
 	export let placeholder = '';
 	export let value = '';
 	export let showClearButton = false;
 
-	export let onFocus = () => {};
+	export let onFocus: Function = () => {};
 	export let onKeydown = (e) => {};
 
-	let selectedIdx = 0;
-	let selectedOption = null;
+	let selectedIdx: number | null = 0;
+	let selectedOption: any = null;
 
 	let lastWord = '';
-	$: lastWord = value ? value.split(' ').at(-1) : value;
+	$: lastWord = value ? (value.split(' ').at(-1) ?? '') : value;
 
 	let options = [
 		{
@@ -54,7 +55,7 @@
 		return option.name.startsWith(lastWord);
 	});
 
-	let filteredItems = [];
+	let filteredItems: any[] = [];
 
 	$: if (lastWord && lastWord !== null) {
 		initItems();
@@ -232,20 +233,20 @@
 				if (e.key === 'Enter') {
 					if (filteredItems.length > 0) {
 						const itemElement = document.getElementById(`search-item-${selectedIdx}`);
-						itemElement.click();
+						itemElement?.click();
 						return;
 					}
 
 					if (filteredOptions.length > 0) {
 						const optionElement = document.getElementById(`search-option-${selectedIdx}`);
-						optionElement.click();
+						optionElement?.click();
 						return;
 					}
 				}
 
 				if (e.key === 'ArrowUp') {
 					e.preventDefault();
-					selectedIdx = Math.max(0, selectedIdx - 1);
+					selectedIdx = Math.max(0, (selectedIdx ?? 0) - 1);
 				} else if (e.key === 'ArrowDown') {
 					e.preventDefault();
 
@@ -253,13 +254,13 @@
 						if (selectedIdx === filteredItems.length - 1) {
 							focused = false;
 						} else {
-							selectedIdx = Math.min(selectedIdx + 1, filteredItems.length - 1);
+							selectedIdx = Math.min((selectedIdx ?? 0) + 1, filteredItems.length - 1);
 						}
 					} else {
 						if (selectedIdx === filteredOptions.length - 1) {
 							focused = false;
 						} else {
-							selectedIdx = Math.min(selectedIdx + 1, filteredOptions.length - 1);
+							selectedIdx = Math.min((selectedIdx ?? 0) + 1, filteredOptions.length - 1);
 						}
 					}
 				} else {

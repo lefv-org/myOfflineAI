@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { getI18nContext } from '$lib/i18n';
 	import { toast } from 'svelte-sonner';
-	import { getContext, onMount } from 'svelte';
-	const i18n = getContext('i18n');
+	import { onMount } from 'svelte';
+	const i18n = getI18nContext();
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
 	import Modal from '$lib/components/common/Modal.svelte';
@@ -20,8 +21,8 @@
 	export let show = false;
 	export let edit = false;
 
-	export let group = null;
-	export let defaultPermissions = {};
+	export let group: any = null;
+	export let defaultPermissions: any = {};
 
 	export let custom = true;
 
@@ -35,7 +36,7 @@
 
 	export let name = '';
 	export let description = '';
-	export let data = {};
+	export let data: any = {};
 
 	export let permissions = DEFAULT_PERMISSIONS;
 
