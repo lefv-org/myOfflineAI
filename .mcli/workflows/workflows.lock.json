@@ -1,0 +1,21 @@
+{
+  "version": "2.0",
+  "generated_at": "2026-04-01T10:12:28.633952Z",
+  "commands": {
+    "mlx_serve": {
+      "file": "mlx_serve.py",
+      "language": "python",
+      "content_hash": "sha256:abdb8e27865c3d40a0d0c302991fb4ac26eb63dbb5a4bf5d27d40432da52cad7",
+      "version": "1.0.0",
+      "group": "inference",
+      "description": "Start MLX model server for Open WebUI",
+      "author": "",
+      "requires": [
+        "mlx-lm"
+      ],
+      "tags": [],
+      "shell": null,
+      "last_modified": "2026-04-01T12:12:23.901877Z"
+    }
+  }
+}
