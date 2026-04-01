@@ -6,6 +6,9 @@ else
 endif
 
 dev:
+	@-kill $$(lsof -ti :8081) 2>/dev/null
+	@-kill $$(lsof -ti :5173) 2>/dev/null
+	@sleep 1
 	@echo "Starting backend and frontend..."
 	cd backend && ./dev.sh &
 	@echo "Waiting for backend to be ready..."
