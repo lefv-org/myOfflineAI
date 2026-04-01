@@ -191,13 +191,30 @@ class FilesystemWatcherService:
             log.info("Filesystem observer stopped.")
 
     async def _initial_scan(self, wd: WatchedDirectoryModel):
-        """Discover existing files and sync them."""
+        """Discover existing files and sync them without starving the event loop."""
         extensions = parse_csv_set(wd.extensions)
         exclude = parse_csv_set(wd.exclude_patterns)
         files = discover_files(wd.path, extensions, exclude)
-        log.info("Initial scan of '%s': found %d files.", wd.path, len(files))
+        total = len(files)
+        log.info("Initial scan of '%s': found %d files.", wd.path, total)
+
+        synced = 0
+        errors = 0
         for fpath in files:
-            await self._sync_file(wd, fpath)
+            try:
+                await self._sync_file(wd, fpath)
+                synced += 1
+            except Exception as e:
+                errors += 1
+                log.error("Error syncing %s: %s", fpath, e)
+
+            # Yield to the event loop every file so HTTP requests can be served.
+            await asyncio.sleep(0)
+
+            if synced % 100 == 0 and synced > 0:
+                log.info("Scan progress for '%s': %d/%d synced, %d errors", wd.name, synced, total, errors)
+
+        log.info("Scan complete for '%s': %d/%d synced, %d errors", wd.name, synced, total, errors)
         WatchedDirectories.set_last_scan(wd.id)
 
     async def _handle_batch(
