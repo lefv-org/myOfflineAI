@@ -14,4 +14,4 @@ if [ -f "$SCRIPT_DIR/.venv/bin/activate" ]; then
     source "$SCRIPT_DIR/.venv/bin/activate"
 fi
 
-exec uvicorn open_webui.main:app --port "$PORT" --host 0.0.0.0 --forwarded-allow-ips "${FORWARDED_ALLOW_IPS:-*}" --reload
+exec "$SCRIPT_DIR/.venv/bin/python" -m uvicorn open_webui.main:app --port "$PORT" --host 0.0.0.0 --forwarded-allow-ips "${FORWARDED_ALLOW_IPS:-*}" --reload
