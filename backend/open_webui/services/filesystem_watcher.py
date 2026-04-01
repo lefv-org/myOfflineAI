@@ -138,6 +138,7 @@ class FilesystemWatcherService:
         self._app = app
         self._observer: Optional[Observer] = None
         self._watches: list = []
+        self._kb_cache: dict[str, str] = {}  # wd.id -> knowledge_id
 
     async def start(self):
         """Start watching all enabled directories."""
@@ -251,30 +252,47 @@ class FilesystemWatcherService:
             }
         )
 
+    def _get_knowledge_id(self, wd: WatchedDirectoryModel) -> Optional[str]:
+        """Get or create the single knowledge base for a watched directory."""
+        # Check cache first
+        if wd.id in self._kb_cache:
+            return self._kb_cache[wd.id]
+
+        # Check DB
+        if wd.knowledge_id:
+            self._kb_cache[wd.id] = wd.knowledge_id
+            return wd.knowledge_id
+
+        # Create new KB
+        kb = Knowledges.insert_new_knowledge(
+            wd.user_id,
+            KnowledgeForm(
+                name=wd.name,
+                description=f"Auto-synced from {wd.path}",
+            ),
+        )
+        if kb:
+            WatchedDirectories.set_knowledge_id(wd.id, kb.id)
+            self._kb_cache[wd.id] = kb.id
+            log.info("Created knowledge base '%s' (id=%s)", wd.name, kb.id)
+            return kb.id
+        return None
+
     async def _sync_file(self, wd: WatchedDirectoryModel, fpath: str):
         """Sync a single file into the knowledge base via the RAG pipeline."""
         if not os.path.isfile(fpath):
             return
 
-        # Ensure a knowledge base exists for this watched directory.
-        if not wd.knowledge_id:
-            kb = Knowledges.insert_new_knowledge(
-                wd.user_id,
-                KnowledgeForm(
-                    name=wd.name,
-                    description=f"Auto-synced from {wd.path}",
-                ),
-            )
-            if kb:
-                WatchedDirectories.set_knowledge_id(wd.id, kb.id)
-                wd = WatchedDirectories.get_by_id(wd.id)
-                log.info("Created knowledge base '%s' (id=%s)", wd.name, wd.knowledge_id)
+        knowledge_id = self._get_knowledge_id(wd)
+        if not knowledge_id:
+            log.error("Could not create knowledge base for '%s'", wd.name)
+            return
 
         rel_path = os.path.relpath(fpath, wd.path)
         file_hash = compute_file_hash(fpath)
 
         # Skip unchanged files.
-        existing = self._find_existing_file(wd.knowledge_id, rel_path)
+        existing = self._find_existing_file(knowledge_id, rel_path)
         if existing and existing.hash == file_hash:
             return
 
@@ -304,22 +322,23 @@ class FilesystemWatcherService:
                     },
                 ),
             )
-            Knowledges.add_file_to_knowledge_by_id(wd.knowledge_id, file_id, wd.user_id)
+            Knowledges.add_file_to_knowledge_by_id(knowledge_id, file_id, wd.user_id)
 
         # Process and embed the file via the existing pipeline.
         try:
-            await self._process_and_embed(file_id, wd)
-            log.info("Synced: %s -> KB %s", rel_path, wd.knowledge_id)
+            await self._process_and_embed(file_id, knowledge_id)
+            log.info("Synced: %s -> KB %s", rel_path, knowledge_id)
         except Exception as e:
             log.error("Embedding failed for %s: %s", rel_path, e)
 
     async def _delete_file(self, wd: WatchedDirectoryModel, fpath: str):
         """Remove a file's vectors and records from the knowledge base."""
-        if not wd.knowledge_id:
+        knowledge_id = self._get_knowledge_id(wd)
+        if not knowledge_id:
             return
 
         rel_path = os.path.relpath(fpath, wd.path)
-        existing = self._find_existing_file(wd.knowledge_id, rel_path)
+        existing = self._find_existing_file(knowledge_id, rel_path)
         if not existing:
             return
 
@@ -330,9 +349,9 @@ class FilesystemWatcherService:
         except Exception as e:
             log.warning("Could not delete vector collection for %s: %s", existing.id, e)
 
-        Knowledges.remove_file_from_knowledge_by_id(wd.knowledge_id, existing.id)
+        Knowledges.remove_file_from_knowledge_by_id(knowledge_id, existing.id)
         Files.delete_file_by_id(existing.id)
-        log.info("Deleted: %s from KB %s", rel_path, wd.knowledge_id)
+        log.info("Deleted: %s from KB %s", rel_path, knowledge_id)
 
     def _find_existing_file(self, knowledge_id: str, rel_path: str) -> Optional[FileModel]:
         """Find a file already linked to the KB by its source_path metadata."""
@@ -354,7 +373,7 @@ class FilesystemWatcherService:
                     return FileModel.model_validate(f)
         return None
 
-    async def _process_and_embed(self, file_id: str, wd: WatchedDirectoryModel):
+    async def _process_and_embed(self, file_id: str, knowledge_id: str):
         """Load, chunk, embed, and store a file using the existing RAG pipeline."""
         from open_webui.retrieval.loaders.main import Loader
         from open_webui.retrieval.vector.utils import filter_metadata
@@ -395,7 +414,7 @@ class FilesystemWatcherService:
         Files.update_file_data_by_id(file.id, {"content": text_content})
         content_hash = calculate_sha256_string(text_content)
 
-        collection_name = wd.knowledge_id
+        collection_name = knowledge_id
 
         # Run embedding in thread pool (save_docs_to_vector_db is sync + CPU-bound)
         loop = asyncio.get_running_loop()
