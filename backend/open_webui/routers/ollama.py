@@ -107,6 +107,29 @@ async def send_get_request(url, key=None, user: UserModel = None):
         return None
 
 
+async def send_get_request_with_openai_fallback(base_url, key=None, user: UserModel = None):
+    """Try Ollama /api/tags first; fall back to OpenAI /v1/models for compatible servers (e.g. MLX)."""
+    result = await send_get_request(f'{base_url}/api/tags', key, user)
+    if result is not None and 'models' in result:
+        return result
+
+    # Fallback: OpenAI-compatible /v1/models
+    openai_result = await send_get_request(f'{base_url}/v1/models', key, user)
+    if openai_result and 'data' in openai_result:
+        models = []
+        for m in openai_result['data']:
+            models.append({
+                'model': m.get('id', ''),
+                'name': m.get('id', ''),
+                'size': 0,
+                'digest': '',
+                'details': {'family': 'openai-compatible', 'parameter_size': ''},
+            })
+        return {'models': models}
+
+    return result
+
+
 async def send_post_request(
     url: str,
     payload: Union[str, bytes],
@@ -315,7 +338,7 @@ async def get_all_models(request: Request, user: UserModel = None):
             if (str(idx) not in request.app.state.config.OLLAMA_API_CONFIGS) and (
                 url not in request.app.state.config.OLLAMA_API_CONFIGS  # Legacy support
             ):
-                request_tasks.append(send_get_request(f'{url}/api/tags', user=user))
+                request_tasks.append(send_get_request_with_openai_fallback(url, user=user))
             else:
                 api_config = request.app.state.config.OLLAMA_API_CONFIGS.get(
                     str(idx),
@@ -326,7 +349,7 @@ async def get_all_models(request: Request, user: UserModel = None):
                 key = api_config.get('key', None)
 
                 if enable:
-                    request_tasks.append(send_get_request(f'{url}/api/tags', key, user=user))
+                    request_tasks.append(send_get_request_with_openai_fallback(url, key, user=user))
                 else:
                     request_tasks.append(asyncio.ensure_future(asyncio.sleep(0, None)))
 

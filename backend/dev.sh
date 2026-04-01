@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export CORS_ALLOW_ORIGIN="http://localhost:5173;http://localhost:8081"
-export OLLAMA_BASE_URL="${OLLAMA_BASE_URL:-http://lysk-server:11434}"
+# Supports multiple backends separated by semicolons.
+# MLX server (mcli run mlx_serve) runs on port 8082 by default.
+export OLLAMA_BASE_URLS="${OLLAMA_BASE_URLS:-http://lysk-server:11434;http://127.0.0.1:8082}"
 PORT="${PORT:-8081}"
 
 # Activate venv if present
