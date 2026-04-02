@@ -62,6 +62,7 @@ from open_webui.utils.files import (
 from open_webui.models.users import UserModel
 from open_webui.models.functions import Functions
 from open_webui.models.models import Models
+from open_webui.models.filesystem import WatchedDirectories
 
 from open_webui.retrieval.utils import get_sources_from_items
 
@@ -2037,6 +2038,23 @@ async def process_chat_payload(request, form_data, user, metadata, model):
         files = form_data.get('files', [])
         files.extend(knowledge_files)
         form_data['files'] = files
+
+    # Filesystem auto-context: inject all watched directory knowledge bases
+    if request.app.state.config.ENABLE_FILESYSTEM_AUTO_CONTEXT:
+        fs_knowledge = WatchedDirectories.get_all_enabled_knowledge_ids()
+        if fs_knowledge:
+            fs_files = [
+                {
+                    'name': item['name'],
+                    'type': 'collection',
+                    'collection_names': [item['knowledge_id']],
+                    'legacy': True,
+                }
+                for item in fs_knowledge
+            ]
+            files = form_data.get('files', [])
+            files.extend(fs_files)
+            form_data['files'] = files
 
     variables = form_data.pop('variables', None)
 
