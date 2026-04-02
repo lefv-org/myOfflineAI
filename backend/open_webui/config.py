@@ -2081,6 +2081,12 @@ ENABLE_RAG_HYBRID_SEARCH_ENRICHED_TEXTS = PersistentConfig(
     os.environ.get('ENABLE_RAG_HYBRID_SEARCH_ENRICHED_TEXTS', 'False').lower() == 'true',
 )
 
+ENABLE_FILESYSTEM_AUTO_CONTEXT = PersistentConfig(
+    'ENABLE_FILESYSTEM_AUTO_CONTEXT',
+    'rag.filesystem_auto_context',
+    os.environ.get('ENABLE_FILESYSTEM_AUTO_CONTEXT', 'true').lower() == 'true',
+)
+
 RAG_FULL_CONTEXT = PersistentConfig(
     'RAG_FULL_CONTEXT',
     'rag.full_context',
