@@ -2040,7 +2040,7 @@ async def process_chat_payload(request, form_data, user, metadata, model):
         form_data['files'] = files
 
     # Filesystem auto-context: inject all watched directory knowledge bases
-    if request.app.state.config.ENABLE_FILESYSTEM_AUTO_CONTEXT:
+    if request.app.state.config.ENABLE_FILESYSTEM_AUTO_CONTEXT and metadata.get('params', {}).get('function_calling') != 'native':
         fs_knowledge = WatchedDirectories.get_all_enabled_knowledge_ids()
         if fs_knowledge:
             fs_files = [
