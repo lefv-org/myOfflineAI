@@ -13,7 +13,9 @@
 	} from '$lib/apis/filesystem';
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
+	import Switch from '$lib/components/common/Switch.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
+	import { getRAGConfig, updateRAGConfig } from '$lib/apis/retrieval';
 	import GarbageBin from '$lib/components/icons/GarbageBin.svelte';
 	import Plus from '$lib/components/icons/Plus.svelte';
 
@@ -26,6 +28,8 @@
 	let newName = '';
 	let newExtensions = '.md,.txt,.pdf,.py,.ts,.js';
 	let newExclude = '.git,node_modules,__pycache__,.venv';
+	let autoContextEnabled = true;
+	let autoContextLoading = true;
 
 	// Folder picker state
 	let showBrowser = false;
@@ -132,8 +136,27 @@
 		}
 	};
 
+	const toggleAutoContext = async () => {
+		try {
+			await updateRAGConfig(localStorage.token, {
+				ENABLE_FILESYSTEM_AUTO_CONTEXT: autoContextEnabled
+			});
+			toast.success($i18n.t('Settings saved'));
+		} catch (err) {
+			toast.error(`${err}`);
+			autoContextEnabled = !autoContextEnabled;
+		}
+	};
+
 	onMount(async () => {
 		await loadDirectories();
+		try {
+			const config = await getRAGConfig(localStorage.token);
+			autoContextEnabled = config.ENABLE_FILESYSTEM_AUTO_CONTEXT ?? true;
+		} catch (err) {
+			console.error('Failed to load auto-context config:', err);
+		}
+		autoContextLoading = false;
 	});
 </script>
 
@@ -148,6 +171,26 @@
 					{$i18n.t(
 						'Directories are monitored for changes and automatically synced to a Knowledge Base.'
 					)}
+				</div>
+				<div class="flex w-full justify-between items-center mt-2 mb-1">
+					<div>
+						<div class="self-center text-xs font-medium">
+							{$i18n.t('Auto-inject local files as context')}
+						</div>
+						<div class="text-xs text-gray-400 dark:text-gray-500">
+							{$i18n.t('Automatically use watched files as context in all conversations')}
+						</div>
+					</div>
+					<div class="flex items-center">
+						{#if autoContextLoading}
+							<Spinner className="size-4" />
+						{:else}
+							<Switch
+								bind:state={autoContextEnabled}
+								on:change={toggleAutoContext}
+							/>
+						{/if}
+					</div>
 				</div>
 				<hr class="border-gray-100/30 dark:border-gray-850/30 my-2" />
 
