@@ -95,6 +95,25 @@ class WatchedDirectoriesTable:
             except Exception:
                 return []
 
+    def get_all_enabled_knowledge_ids(self) -> list[dict]:
+        """Return knowledge_id and name for all enabled, indexed watched directories."""
+        with get_db() as db:
+            try:
+                rows = (
+                    db.query(WatchedDirectory)
+                    .filter(
+                        WatchedDirectory.enabled == True,
+                        WatchedDirectory.knowledge_id.isnot(None),
+                    )
+                    .all()
+                )
+                return [
+                    {"knowledge_id": r.knowledge_id, "name": r.name}
+                    for r in rows
+                ]
+            except Exception:
+                return []
+
     def get_by_id(self, id: str) -> Optional[WatchedDirectoryModel]:
         with get_db() as db:
             try:
