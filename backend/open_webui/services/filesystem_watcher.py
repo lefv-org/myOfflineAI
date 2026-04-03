@@ -192,12 +192,25 @@ class FilesystemWatcherService:
             log.info("Filesystem observer stopped.")
 
     async def _initial_scan(self, wd: WatchedDirectoryModel):
-        """Discover existing files and sync them without starving the event loop."""
+        """Discover existing files and sync only those modified since last scan."""
         extensions = parse_csv_set(wd.extensions)
         exclude = parse_csv_set(wd.exclude_patterns)
-        files = discover_files(wd.path, extensions, exclude)
-        total = len(files)
-        log.info("Initial scan of '%s': found %d files.", wd.path, total)
+        all_files = discover_files(wd.path, extensions, exclude)
+
+        # Use mtime as a fast pre-filter: only hash/sync files changed since last scan.
+        last_scan = wd.last_scan_at or 0
+        if last_scan:
+            files = [
+                f for f in all_files
+                if os.path.exists(f) and os.path.getmtime(f) > last_scan
+            ]
+            log.info(
+                "Initial scan of '%s': %d files total, %d modified since last scan.",
+                wd.path, len(all_files), len(files),
+            )
+        else:
+            files = all_files
+            log.info("Initial scan of '%s': %d files (first scan).", wd.path, len(files))
 
         synced = 0
         errors = 0
@@ -213,9 +226,9 @@ class FilesystemWatcherService:
             await asyncio.sleep(0)
 
             if synced % 100 == 0 and synced > 0:
-                log.info("Scan progress for '%s': %d/%d synced, %d errors", wd.name, synced, total, errors)
+                log.info("Scan progress for '%s': %d/%d synced, %d errors", wd.name, synced, len(files), errors)
 
-        log.info("Scan complete for '%s': %d/%d synced, %d errors", wd.name, synced, total, errors)
+        log.info("Scan complete for '%s': %d synced, %d errors", wd.name, synced, errors)
         WatchedDirectories.set_last_scan(wd.id)
 
     async def _handle_batch(
