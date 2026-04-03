@@ -2040,15 +2040,12 @@ async def process_chat_payload(request, form_data, user, metadata, model):
         form_data['files'] = files
 
     # Filesystem auto-context: inject all watched directory knowledge bases
-    _fs_enabled = getattr(request.app.state.config, 'ENABLE_FILESYSTEM_AUTO_CONTEXT', None)
-    _fc_mode = metadata.get('params', {}).get('function_calling')
-    log.warning("FS auto-context check: enabled=%s, function_calling=%s", _fs_enabled, _fc_mode)
-    if _fs_enabled and _fc_mode != 'native':
+    if request.app.state.config.ENABLE_FILESYSTEM_AUTO_CONTEXT and metadata.get('params', {}).get('function_calling') != 'native':
         fs_knowledge = WatchedDirectories.get_all_enabled_knowledge_ids()
-        log.warning("FS auto-context: found %d knowledge bases", len(fs_knowledge))
         if fs_knowledge:
             fs_files = [
                 {
+                    'id': item['knowledge_id'],
                     'name': item['name'],
                     'type': 'collection',
                     'collection_names': [item['knowledge_id']],
@@ -2203,7 +2200,6 @@ async def process_chat_payload(request, form_data, user, metadata, model):
         # Remove duplicate files based on their content
         files = list({json.dumps(f, sort_keys=True): f for f in files}.values())
 
-    log.warning("FS debug: files going into metadata: %s", files)
     metadata = {
         **metadata,
         'tool_ids': tool_ids,
