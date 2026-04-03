@@ -73,6 +73,11 @@ from open_webui.constants import ERROR_MESSAGES
 
 log = logging.getLogger(__name__)
 
+# Protocol cache: remembers whether a backend speaks Ollama or OpenAI-compatible.
+# Populated on first model discovery, avoids repeated 404s on non-Ollama servers.
+# Maps base_url -> 'ollama' | 'openai'. Cleared on backend URL config changes.
+_backend_protocol_cache: dict[str, str] = {}
+
 
 ##########################################
 #
@@ -107,26 +112,49 @@ async def send_get_request(url, key=None, user: UserModel = None):
         return None
 
 
+def _parse_openai_models(openai_result: dict) -> dict:
+    """Convert OpenAI /v1/models response to Ollama-compatible format."""
+    models = []
+    for m in openai_result.get('data', []):
+        models.append({
+            'model': m.get('id', ''),
+            'name': m.get('id', ''),
+            'size': 0,
+            'digest': '',
+            'details': {'family': 'openai-compatible', 'parameter_size': ''},
+            'openai_compatible': True,
+        })
+    return {'models': models}
+
+
 async def send_get_request_with_openai_fallback(base_url, key=None, user: UserModel = None):
     """Try Ollama /api/tags first; fall back to OpenAI /v1/models for compatible servers (e.g. MLX)."""
-    result = await send_get_request(f'{base_url}/api/tags', key, user)
-    if result is not None and 'models' in result:
+    cached_protocol = _backend_protocol_cache.get(base_url)
+
+    if cached_protocol == 'openai':
+        openai_result = await send_get_request(f'{base_url}/v1/models', key, user)
+        if openai_result and 'data' in openai_result:
+            return _parse_openai_models(openai_result)
+        return None
+
+    if cached_protocol == 'ollama':
+        result = await send_get_request(f'{base_url}/api/tags', key, user)
+        if result is not None and 'models' in result:
+            return result
         return result
 
-    # Fallback: OpenAI-compatible /v1/models (e.g. MLX, vLLM, llama.cpp)
+    # Unknown protocol — probe both, cache the result.
+    result = await send_get_request(f'{base_url}/api/tags', key, user)
+    if result is not None and 'models' in result:
+        _backend_protocol_cache[base_url] = 'ollama'
+        log.info("Backend %s detected as Ollama protocol", base_url)
+        return result
+
     openai_result = await send_get_request(f'{base_url}/v1/models', key, user)
     if openai_result and 'data' in openai_result:
-        models = []
-        for m in openai_result['data']:
-            models.append({
-                'model': m.get('id', ''),
-                'name': m.get('id', ''),
-                'size': 0,
-                'digest': '',
-                'details': {'family': 'openai-compatible', 'parameter_size': ''},
-                'openai_compatible': True,
-            })
-        return {'models': models}
+        _backend_protocol_cache[base_url] = 'openai'
+        log.info("Backend %s detected as OpenAI-compatible protocol", base_url)
+        return _parse_openai_models(openai_result)
 
     return result
 
@@ -503,6 +531,11 @@ async def get_ollama_loaded_models(request: Request, user=Depends(get_admin_user
     if request.app.state.config.ENABLE_OLLAMA_API:
         request_tasks = []
         for idx, url in enumerate(request.app.state.config.OLLAMA_BASE_URLS):
+            # Skip /api/ps for backends known to be OpenAI-compatible (they don't support it).
+            if _backend_protocol_cache.get(url) == 'openai':
+                request_tasks.append(asyncio.ensure_future(asyncio.sleep(0, None)))
+                continue
+
             if (str(idx) not in request.app.state.config.OLLAMA_API_CONFIGS) and (
                 url not in request.app.state.config.OLLAMA_API_CONFIGS  # Legacy support
             ):
@@ -560,6 +593,10 @@ async def get_ollama_versions(request: Request, url_idx: Optional[int] = None):
             request_tasks = []
 
             for idx, url in enumerate(request.app.state.config.OLLAMA_BASE_URLS):
+                # Skip /api/version for backends known to be OpenAI-compatible.
+                if _backend_protocol_cache.get(url) == 'openai':
+                    continue
+
                 api_config = request.app.state.config.OLLAMA_API_CONFIGS.get(
                     str(idx),
                     request.app.state.config.OLLAMA_API_CONFIGS.get(url, {}),  # Legacy support
