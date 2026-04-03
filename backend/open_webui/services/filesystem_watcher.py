@@ -247,7 +247,7 @@ class FilesystemWatcherService:
     ):
         """Process a batch of debounced events."""
         extensions = parse_csv_set(wd.extensions)
-        exclude = parse_csv_set(wd.exclude_patterns)
+        exclude = parse_csv_set(wd.exclude_patterns) | _BUILTIN_EXCLUDES
 
         for fpath, event_type in batch.items():
             rel = os.path.relpath(fpath, wd.path)
