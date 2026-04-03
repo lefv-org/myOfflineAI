@@ -6,9 +6,10 @@ else
 endif
 
 dev:
-	@lsof -ti :8081 | xargs kill 2>/dev/null || true
-	@lsof -ti :5173 | xargs kill 2>/dev/null || true
+	@lsof -ti :8081 | xargs kill -9 2>/dev/null || true
+	@lsof -ti :5173 | xargs kill -9 2>/dev/null || true
 	@sleep 1
+	@lsof -ti :8081 | xargs kill -9 2>/dev/null || true
 	@echo "Starting backend and frontend..."
 	cd backend && ./dev.sh &
 	@echo "Waiting for backend to be ready..."
