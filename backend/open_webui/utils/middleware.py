@@ -2055,6 +2055,11 @@ async def process_chat_payload(request, form_data, user, metadata, model):
             files = form_data.get('files', [])
             files.extend(fs_files)
             form_data['files'] = files
+            log.info("Filesystem auto-context: injected %d knowledge bases", len(fs_files))
+        else:
+            log.debug("Filesystem auto-context: no enabled knowledge bases found")
+    else:
+        log.debug("Filesystem auto-context: disabled or native function calling")
 
     variables = form_data.pop('variables', None)
 
