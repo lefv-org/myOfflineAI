@@ -102,8 +102,8 @@ async def send_get_request(url, key=None, user: UserModel = None):
             ) as response:
                 return await response.json()
     except Exception as e:
-        # Handle connection error here
-        log.error(f'Connection error: {e}')
+        # Expected for non-Ollama servers (MLX, vLLM) on Ollama-specific endpoints.
+        log.debug(f'Connection error: {e}')
         return None
 
 
