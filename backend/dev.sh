@@ -5,7 +5,7 @@ cd "$SCRIPT_DIR"
 export CORS_ALLOW_ORIGIN="*"
 # Supports multiple backends separated by semicolons.
 # MLX server (mcli run mlx_serve) runs on port 8082 by default.
-export OLLAMA_BASE_URLS="${OLLAMA_BASE_URLS:-http://lysk-server:11434;http://127.0.0.1:8082}"
+export OLLAMA_BASE_URLS="${OLLAMA_BASE_URLS:-http://127.0.0.1:8082}"
 unset OLLAMA_BASE_URL  # prevent conflict with OLLAMA_BASE_URLS
 PORT="${PORT:-8081}"
 
