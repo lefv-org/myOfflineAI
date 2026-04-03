@@ -2203,6 +2203,7 @@ async def process_chat_payload(request, form_data, user, metadata, model):
         # Remove duplicate files based on their content
         files = list({json.dumps(f, sort_keys=True): f for f in files}.values())
 
+    log.warning("FS debug: files going into metadata: %s", files)
     metadata = {
         **metadata,
         'tool_ids': tool_ids,
