@@ -53,10 +53,15 @@ def should_include_file(
     return Path(rel_path).suffix.lower() in extensions
 
 
+# Directories always excluded from scanning (watcher internals, build artifacts).
+_BUILTIN_EXCLUDES = {"uploads", "vector_db", "cache", "build", ".svelte-kit", "dist", ".next"}
+
+
 def discover_files(
     root: str, extensions: set[str], exclude: set[str]
 ) -> list[str]:
     """Walk *root* and return absolute paths of files matching the filter rules."""
+    exclude = exclude | _BUILTIN_EXCLUDES
     result: list[str] = []
     for dirpath, dirnames, filenames in os.walk(root):
         # Prune excluded directories in-place so os.walk skips them.
@@ -309,6 +314,11 @@ class FilesystemWatcherService:
         if existing and existing.hash == file_hash:
             return
 
+        # Skip files whose content is already indexed under a different path.
+        if not existing and self._content_hash_exists(knowledge_id, file_hash):
+            log.debug("Skipping duplicate content: %s", rel_path)
+            return
+
         # Copy into upload dir so the loader can access it.
         file_id = existing.id if existing else str(uuid_mod.uuid4())
         content_type = mimetypes.guess_type(fpath)[0] or "application/octet-stream"
@@ -365,6 +375,19 @@ class FilesystemWatcherService:
         Knowledges.remove_file_from_knowledge_by_id(knowledge_id, existing.id)
         Files.delete_file_by_id(existing.id)
         log.info("Deleted: %s from KB %s", rel_path, knowledge_id)
+
+    def _content_hash_exists(self, knowledge_id: str, file_hash: str) -> bool:
+        """Check if a file with the same content hash is already in this knowledge base."""
+        with get_db() as db:
+            from open_webui.models.knowledge import KnowledgeFile
+            from open_webui.models.files import File
+
+            return (
+                db.query(File.id)
+                .join(KnowledgeFile, File.id == KnowledgeFile.file_id)
+                .filter(KnowledgeFile.knowledge_id == knowledge_id, File.hash == file_hash)
+                .first()
+            ) is not None
 
     def _find_existing_file(self, knowledge_id: str, rel_path: str) -> Optional[FileModel]:
         """Find a file already linked to the KB by its source_path metadata."""
