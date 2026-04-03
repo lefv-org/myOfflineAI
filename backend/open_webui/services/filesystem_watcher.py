@@ -144,6 +144,7 @@ class FilesystemWatcherService:
         self._observer: Optional[Observer] = None
         self._watches: list = []
         self._kb_cache: dict[str, str] = {}  # wd.id -> knowledge_id
+        self._known_hashes: set[str] = set()  # content hashes already in KB
 
     async def start(self):
         """Start watching all enabled directories."""
@@ -198,6 +199,11 @@ class FilesystemWatcherService:
 
     async def _initial_scan(self, wd: WatchedDirectoryModel):
         """Discover existing files and sync only those modified since last scan."""
+        knowledge_id = self._get_knowledge_id(wd)
+        if knowledge_id:
+            self._known_hashes = self._load_known_hashes(knowledge_id)
+            log.info("Loaded %d known content hashes for '%s'", len(self._known_hashes), wd.name)
+
         extensions = parse_csv_set(wd.extensions)
         exclude = parse_csv_set(wd.exclude_patterns)
         all_files = discover_files(wd.path, extensions, exclude)
@@ -315,7 +321,7 @@ class FilesystemWatcherService:
             return
 
         # Skip files whose content is already indexed under a different path.
-        if not existing and self._content_hash_exists(knowledge_id, file_hash):
+        if not existing and file_hash in self._known_hashes:
             log.debug("Skipping duplicate content: %s", rel_path)
             return
 
@@ -350,6 +356,7 @@ class FilesystemWatcherService:
         # Process and embed the file via the existing pipeline.
         try:
             await self._process_and_embed(file_id, knowledge_id)
+            self._known_hashes.add(file_hash)
             log.info("Synced: %s -> KB %s", rel_path, knowledge_id)
         except Exception as e:
             log.error("Embedding failed for %s: %s", rel_path, e)
@@ -376,18 +383,19 @@ class FilesystemWatcherService:
         Files.delete_file_by_id(existing.id)
         log.info("Deleted: %s from KB %s", rel_path, knowledge_id)
 
-    def _content_hash_exists(self, knowledge_id: str, file_hash: str) -> bool:
-        """Check if a file with the same content hash is already in this knowledge base."""
+    def _load_known_hashes(self, knowledge_id: str) -> set[str]:
+        """Load all content hashes already in this knowledge base (one query, cached in memory)."""
         with get_db() as db:
             from open_webui.models.knowledge import KnowledgeFile
             from open_webui.models.files import File
 
-            return (
-                db.query(File.id)
+            rows = (
+                db.query(File.hash)
                 .join(KnowledgeFile, File.id == KnowledgeFile.file_id)
-                .filter(KnowledgeFile.knowledge_id == knowledge_id, File.hash == file_hash)
-                .first()
-            ) is not None
+                .filter(KnowledgeFile.knowledge_id == knowledge_id, File.hash.isnot(None))
+                .all()
+            )
+            return {r[0] for r in rows}
 
     def _find_existing_file(self, knowledge_id: str, rel_path: str) -> Optional[FileModel]:
         """Find a file already linked to the KB by its source_path metadata."""
