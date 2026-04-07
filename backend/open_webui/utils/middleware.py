@@ -1662,8 +1662,11 @@ async def chat_completion_files_handler(
                 }
             )
 
-        if len(queries) == 0:
-            queries = [get_last_user_message(body['messages'])]
+        # Always include the raw user message for direct semantic matching,
+        # supplemented by any LLM-generated query variants.
+        raw_query = get_last_user_message(body['messages'])
+        if raw_query and raw_query not in queries:
+            queries.insert(0, raw_query)
 
         try:
             # Directly await async get_sources_from_items (no thread needed - fully async now)
