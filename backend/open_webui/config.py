@@ -2127,7 +2127,7 @@ RAG_ALLOWED_FILE_EXTENSIONS = PersistentConfig(
 RAG_EMBEDDING_ENGINE = PersistentConfig(
     'RAG_EMBEDDING_ENGINE',
     'rag.embedding_engine',
-    os.environ.get('RAG_EMBEDDING_ENGINE', ''),
+    os.environ.get('RAG_EMBEDDING_ENGINE', 'ollama'),
 )
 
 PDF_EXTRACT_IMAGES = PersistentConfig(
@@ -2145,7 +2145,7 @@ PDF_LOADER_MODE = PersistentConfig(
 RAG_EMBEDDING_MODEL = PersistentConfig(
     'RAG_EMBEDDING_MODEL',
     'rag.embedding_model',
-    os.environ.get('RAG_EMBEDDING_MODEL', 'sentence-transformers/all-MiniLM-L6-v2'),
+    os.environ.get('RAG_EMBEDDING_MODEL', 'nomic-embed-text'),
 )
 log.info(f'Embedding model set: {RAG_EMBEDDING_MODEL.value}')
 
