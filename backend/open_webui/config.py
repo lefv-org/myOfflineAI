@@ -2072,7 +2072,7 @@ RAG_HYBRID_BM25_WEIGHT = PersistentConfig(
 ENABLE_RAG_HYBRID_SEARCH = PersistentConfig(
     'ENABLE_RAG_HYBRID_SEARCH',
     'rag.enable_hybrid_search',
-    os.environ.get('ENABLE_RAG_HYBRID_SEARCH', '').lower() == 'true',
+    os.environ.get('ENABLE_RAG_HYBRID_SEARCH', 'true').lower() == 'true',
 )
 
 ENABLE_RAG_HYBRID_SEARCH_ENRICHED_TEXTS = PersistentConfig(
