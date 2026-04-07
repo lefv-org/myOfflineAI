@@ -263,3 +263,47 @@ async def resync_watched_directory(
         await request.app.state.filesystem_watcher._initial_scan(wd)
 
     return {"status": True}
+
+
+@router.delete("/{id}/index")
+async def clear_directory_index(
+    id: str,
+    user=Depends(get_admin_user),
+):
+    """Clear all indexed data for a watched directory without removing the directory config."""
+    wd = WatchedDirectories.get_by_id(id)
+    if not wd:
+        raise HTTPException(status_code=404, detail="Watched directory not found")
+
+    if not wd.knowledge_id:
+        return {"status": True, "message": "No index to clear"}
+
+    # Delete vector collection
+    try:
+        from open_webui.retrieval.vector.factory import VECTOR_DB_CLIENT
+        if VECTOR_DB_CLIENT.has_collection(wd.knowledge_id):
+            VECTOR_DB_CLIENT.delete_collection(wd.knowledge_id)
+            log.info("Deleted vector collection %s", wd.knowledge_id)
+    except Exception as e:
+        log.warning("Could not delete vector collection: %s", e)
+
+    # Delete knowledge_file links and file records
+    from open_webui.models.knowledge import KnowledgeFile as KFModel
+    from open_webui.models.files import Files
+
+    with get_db() as db:
+        file_ids = [
+            row[0] for row in
+            db.query(KFModel.file_id).filter_by(knowledge_id=wd.knowledge_id).all()
+        ]
+        db.query(KFModel).filter_by(knowledge_id=wd.knowledge_id).delete()
+        db.commit()
+
+    for fid in file_ids:
+        Files.delete_file_by_id(fid)
+
+    # Reset scan timestamp to trigger re-scan on next restart
+    WatchedDirectories.clear_last_scan(id)
+
+    log.info("Cleared index for directory '%s' (%d files removed)", wd.name, len(file_ids))
+    return {"status": True, "files_removed": len(file_ids)}

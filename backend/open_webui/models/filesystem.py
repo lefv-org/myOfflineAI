@@ -152,6 +152,13 @@ class WatchedDirectoriesTable:
             )
             db.commit()
 
+    def clear_last_scan(self, id: str) -> None:
+        with get_db() as db:
+            db.query(WatchedDirectory).filter_by(id=id).update(
+                {"last_scan_at": None, "updated_at": int(time.time())}
+            )
+            db.commit()
+
     def delete_by_id(self, id: str) -> bool:
         with get_db() as db:
             try:
