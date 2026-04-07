@@ -1,9 +1,11 @@
 import os
 import logging
+import time
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
 from typing import Optional
+from sqlalchemy import func, case
 
 from open_webui.models.filesystem import (
     WatchedDirectories,
@@ -11,6 +13,10 @@ from open_webui.models.filesystem import (
     WatchedDirectoryModel,
 )
 from open_webui.utils.auth import get_admin_user
+from open_webui.internal.db import get_db
+from open_webui.models.files import File
+from open_webui.models.knowledge import KnowledgeFile
+from open_webui.env import DATA_DIR
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +41,23 @@ class BrowseResponse(BaseModel):
     dirs: list[str]
 
 
+class DirectoryStats(BaseModel):
+    id: str
+    file_count: int
+    last_scan_age_seconds: Optional[int] = None
+
+
+class FilesystemStatsResponse(BaseModel):
+    total_files: int
+    completed_files: int
+    pending_files: int
+    failed_files: int
+    total_chunks: int
+    vector_db_size_bytes: int
+    file_types: dict[str, int]
+    directories: list[DirectoryStats]
+
+
 @router.get("/browse")
 async def browse_directories(
     path: str = os.path.expanduser("~"),
@@ -54,6 +77,98 @@ async def browse_directories(
         raise HTTPException(status_code=403, detail=f"Permission denied: {resolved}")
 
     return BrowseResponse(path=resolved, dirs=dirs)
+
+
+@router.get("/stats")
+async def get_filesystem_stats(user=Depends(get_admin_user)) -> FilesystemStatsResponse:
+    """Return aggregate indexing stats for all watched directories."""
+    watched = WatchedDirectories.get_all()
+    knowledge_ids = [wd.knowledge_id for wd in watched if wd.knowledge_id]
+
+    total_files = 0
+    completed_files = 0
+    pending_files = 0
+    failed_files = 0
+    file_types: dict[str, int] = {}
+
+    if knowledge_ids:
+        with get_db() as db:
+            rows = (
+                db.query(
+                    func.count(File.id),
+                    func.sum(case((File.data['status'].as_string() == 'completed', 1), else_=0)),
+                    func.sum(case((File.data['status'].as_string() == 'failed', 1), else_=0)),
+                )
+                .join(KnowledgeFile, File.id == KnowledgeFile.file_id)
+                .filter(KnowledgeFile.knowledge_id.in_(knowledge_ids))
+                .first()
+            )
+            if rows:
+                total_files = rows[0] or 0
+                completed_files = int(rows[1] or 0)
+                failed_files = int(rows[2] or 0)
+                pending_files = total_files - completed_files - failed_files
+
+            # File type breakdown
+            type_rows = (
+                db.query(File.filename)
+                .join(KnowledgeFile, File.id == KnowledgeFile.file_id)
+                .filter(KnowledgeFile.knowledge_id.in_(knowledge_ids))
+                .all()
+            )
+            for (filename,) in type_rows:
+                ext = os.path.splitext(filename)[1].lower() if filename else ''
+                if ext:
+                    file_types[ext] = file_types.get(ext, 0) + 1
+
+    # Vector DB chunk count
+    total_chunks = 0
+    try:
+        from open_webui.retrieval.vector.factory import VECTOR_DB_CLIENT
+        for kid in knowledge_ids:
+            if VECTOR_DB_CLIENT.has_collection(kid):
+                result = VECTOR_DB_CLIENT.get(kid)
+                if result and result.get('ids'):
+                    total_chunks += len(result['ids'][0]) if isinstance(result['ids'][0], list) else len(result['ids'])
+    except Exception as e:
+        log.warning("Could not count vector chunks: %s", e)
+
+    # Vector DB disk usage
+    vector_db_size = 0
+    vector_db_path = DATA_DIR / 'vector_db'
+    if vector_db_path.exists():
+        for dirpath, dirnames, filenames in os.walk(vector_db_path):
+            for f in filenames:
+                vector_db_size += os.path.getsize(os.path.join(dirpath, f))
+
+    # Per-directory stats
+    now = int(time.time())
+    dir_stats = []
+    for wd in watched:
+        file_count = 0
+        if wd.knowledge_id:
+            with get_db() as db:
+                file_count = (
+                    db.query(func.count(KnowledgeFile.id))
+                    .filter(KnowledgeFile.knowledge_id == wd.knowledge_id)
+                    .scalar() or 0
+                )
+        dir_stats.append(DirectoryStats(
+            id=wd.id,
+            file_count=file_count,
+            last_scan_age_seconds=(now - wd.last_scan_at) if wd.last_scan_at else None,
+        ))
+
+    return FilesystemStatsResponse(
+        total_files=total_files,
+        completed_files=completed_files,
+        pending_files=pending_files,
+        failed_files=failed_files,
+        total_chunks=total_chunks,
+        vector_db_size_bytes=vector_db_size,
+        file_types=dict(sorted(file_types.items(), key=lambda x: -x[1])),
+        directories=dir_stats,
+    )
 
 
 @router.get("/", response_model=list[WatchedDirectoryResponse])
