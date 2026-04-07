@@ -56,6 +56,23 @@ export type WatchedDirectoryForm = {
 	exclude_patterns?: string | null;
 };
 
+export type DirectoryStats = {
+	id: string;
+	file_count: number;
+	last_scan_age_seconds: number | null;
+};
+
+export type FilesystemStats = {
+	total_files: number;
+	completed_files: number;
+	pending_files: number;
+	failed_files: number;
+	total_chunks: number;
+	vector_db_size_bytes: number;
+	file_types: Record<string, number>;
+	directories: DirectoryStats[];
+};
+
 export const getWatchedDirectories = async (token: string): Promise<WatchedDirectory[]> => {
 	let error: any = null;
 
@@ -178,6 +195,60 @@ export const resyncWatchedDirectory = async (token: string, id: string) => {
 
 	const res = await fetch(`${WEBUI_API_BASE_URL}/filesystem/${id}/resync`, {
 		method: 'POST',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+			authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			error = err.detail;
+			return null;
+		});
+
+	if (error) {
+		throw error;
+	}
+
+	return res;
+};
+
+export const getFilesystemStats = async (token: string): Promise<FilesystemStats> => {
+	let error: any = null;
+
+	const res = await fetch(`${WEBUI_API_BASE_URL}/filesystem/stats`, {
+		method: 'GET',
+		headers: {
+			Accept: 'application/json',
+			'Content-Type': 'application/json',
+			authorization: `Bearer ${token}`
+		}
+	})
+		.then(async (res) => {
+			if (!res.ok) throw await res.json();
+			return res.json();
+		})
+		.catch((err) => {
+			error = err.detail;
+			return null;
+		});
+
+	if (error) {
+		throw error;
+	}
+
+	return res;
+};
+
+export const clearDirectoryIndex = async (token: string, id: string) => {
+	let error: any = null;
+
+	const res = await fetch(`${WEBUI_API_BASE_URL}/filesystem/${id}/index`, {
+		method: 'DELETE',
 		headers: {
 			Accept: 'application/json',
 			'Content-Type': 'application/json',
