@@ -2061,7 +2061,7 @@ RAG_TOP_K_RERANKER = PersistentConfig(
 RAG_RELEVANCE_THRESHOLD = PersistentConfig(
     'RAG_RELEVANCE_THRESHOLD',
     'rag.relevance_threshold',
-    float(os.environ.get('RAG_RELEVANCE_THRESHOLD', '0.0')),
+    float(os.environ.get('RAG_RELEVANCE_THRESHOLD', '0.3')),
 )
 RAG_HYBRID_BM25_WEIGHT = PersistentConfig(
     'RAG_HYBRID_BM25_WEIGHT',
