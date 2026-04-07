@@ -9,7 +9,10 @@
 		deleteWatchedDirectory,
 		resyncWatchedDirectory,
 		browseDirectories,
-		type WatchedDirectory
+		getFilesystemStats,
+		clearDirectoryIndex,
+		type WatchedDirectory,
+		type FilesystemStats
 	} from '$lib/apis/filesystem';
 
 	import Spinner from '$lib/components/common/Spinner.svelte';
@@ -30,6 +33,8 @@
 	let newExclude = '.git,node_modules,__pycache__,.venv';
 	let autoContextEnabled = true;
 	let autoContextLoading = true;
+	let stats: FilesystemStats | null = null;
+	let showFileTypes = false;
 
 	// Folder picker state
 	let showBrowser = false;
@@ -148,6 +153,39 @@
 		}
 	};
 
+	const refreshStats = async () => {
+		try {
+			stats = await getFilesystemStats(localStorage.token);
+		} catch (err) {
+			console.error('Failed to refresh stats:', err);
+		}
+	};
+
+	const clearIndex = async (id: string, name: string) => {
+		if (!confirm($i18n.t('Clear all indexed data for "{{name}}"? This will require a re-scan.', { name }))) {
+			return;
+		}
+		try {
+			await clearDirectoryIndex(localStorage.token, id);
+			toast.success($i18n.t('Index cleared'));
+			await loadDirectories();
+			await refreshStats();
+		} catch (err) {
+			toast.error(`${err}`);
+		}
+	};
+
+	const getScanStatusColor = (ageSeconds: number | null): string => {
+		if (ageSeconds === null) return 'bg-red-500';
+		if (ageSeconds < 86400) return 'bg-green-500';
+		if (ageSeconds < 604800) return 'bg-yellow-500';
+		return 'bg-red-500';
+	};
+
+	const getDirStats = (dirId: string) => {
+		return stats?.directories?.find((d) => d.id === dirId) || null;
+	};
+
 	onMount(async () => {
 		await loadDirectories();
 		try {
@@ -157,6 +195,11 @@
 			console.error('Failed to load auto-context config:', err);
 		}
 		autoContextLoading = false;
+		try {
+			stats = await getFilesystemStats(localStorage.token);
+		} catch (err) {
+			console.error('Failed to load stats:', err);
+		}
 	});
 </script>
 
@@ -192,6 +235,47 @@
 						{/if}
 					</div>
 				</div>
+				{#if stats}
+					<div class="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+						<div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-850">
+							<div class="text-xs text-gray-500 dark:text-gray-400">{$i18n.t('Files Indexed')}</div>
+							<div class="text-lg font-bold mt-0.5">
+								{stats.completed_files.toLocaleString()}
+								<span class="text-xs font-normal text-gray-400">/ {stats.total_files.toLocaleString()}</span>
+							</div>
+						</div>
+						<div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-850">
+							<div class="text-xs text-gray-500 dark:text-gray-400">{$i18n.t('Chunks')}</div>
+							<div class="text-lg font-bold mt-0.5">{stats.total_chunks.toLocaleString()}</div>
+						</div>
+						<div class="p-3 rounded-lg bg-gray-50 dark:bg-gray-850">
+							<div class="text-xs text-gray-500 dark:text-gray-400">{$i18n.t('Disk Usage')}</div>
+							<div class="text-lg font-bold mt-0.5">{(stats.vector_db_size_bytes / 1024 / 1024).toFixed(1)} MB</div>
+						</div>
+						<div class="p-3 rounded-lg {stats.failed_files > 0 ? 'bg-red-50 dark:bg-red-900/20' : 'bg-gray-50 dark:bg-gray-850'}">
+							<div class="text-xs text-gray-500 dark:text-gray-400">{$i18n.t('Failed')}</div>
+							<div class="text-lg font-bold mt-0.5 {stats.failed_files > 0 ? 'text-red-600 dark:text-red-400' : ''}">{stats.failed_files}</div>
+						</div>
+					</div>
+
+					{#if Object.keys(stats.file_types).length > 0}
+						<button
+							class="text-xs text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 mt-2 transition"
+							on:click={() => (showFileTypes = !showFileTypes)}
+						>
+							{showFileTypes ? $i18n.t('Hide file types') : $i18n.t('Show file types')}
+						</button>
+						{#if showFileTypes}
+							<div class="flex flex-wrap gap-2 mt-1">
+								{#each Object.entries(stats.file_types) as [ext, count]}
+									<span class="text-xs px-2 py-0.5 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400">
+										{ext}: {count.toLocaleString()}
+									</span>
+								{/each}
+							</div>
+						{/if}
+					{/if}
+				{/if}
 				<hr class="border-gray-100/30 dark:border-gray-850/30 my-2" />
 
 				{#if directories.length > 0}
@@ -201,10 +285,20 @@
 								class="flex items-center justify-between gap-2 p-3 rounded-xl bg-gray-50 dark:bg-gray-850"
 							>
 								<div class="flex-1 min-w-0">
-									<div class="font-medium truncate">{dir.name}</div>
+									<div class="flex items-center gap-2">
+										{#if getDirStats(dir.id)}
+											<span class="w-2 h-2 rounded-full flex-shrink-0 {getScanStatusColor(getDirStats(dir.id)?.last_scan_age_seconds ?? null)}" title="{getDirStats(dir.id)?.last_scan_age_seconds !== null ? Math.floor((getDirStats(dir.id)?.last_scan_age_seconds ?? 0) / 3600) + 'h ago' : 'Never scanned'}"></span>
+										{/if}
+										<span class="font-medium truncate">{dir.name}</span>
+									</div>
 									<div class="text-xs text-gray-500 dark:text-gray-400 truncate">
 										{dir.path}
 									</div>
+									{#if getDirStats(dir.id)?.file_count}
+										<div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+											{getDirStats(dir.id)?.file_count.toLocaleString()} {$i18n.t('files indexed')}
+										</div>
+									{/if}
 									{#if dir.extensions}
 										<div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
 											{dir.extensions}
@@ -236,6 +330,27 @@
 													stroke-linecap="round"
 													stroke-linejoin="round"
 													d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0 3.181 3.183a8.25 8.25 0 0 0 13.803-3.7M4.031 9.865a8.25 8.25 0 0 1 13.803-3.7l3.181 3.182"
+												/>
+											</svg>
+										</button>
+									</Tooltip>
+									<Tooltip content={$i18n.t('Clear Index')}>
+										<button
+											class="p-1.5 rounded-lg hover:bg-amber-100 dark:hover:bg-amber-900/20 text-amber-600 transition"
+											on:click={() => clearIndex(dir.id, dir.name)}
+										>
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												fill="none"
+												viewBox="0 0 24 24"
+												stroke-width="1.5"
+												stroke="currentColor"
+												class="size-4"
+											>
+												<path
+													stroke-linecap="round"
+													stroke-linejoin="round"
+													d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"
 												/>
 											</svg>
 										</button>
